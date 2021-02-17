@@ -4379,8 +4379,8 @@ yd.prototype.C=function(part,airvel){
 			remove(part);
 			return 1;
 		}
-		Parts_vel[part].x+=0.2*Air.vel[c].x;
-		Parts_vel[part].y+=0.2*Air.vel[c].y;
+		Parts_vel[part].x+=0.2*Air.vel[aircell].x;
+		Parts_vel[part].y+=0.2*Air.vel[aircell].y;
 		if(parts[xy+WIDTH]!=Parts_EMPTY){
 			if(parts[xy-1]==Parts_EMPTY){
 				Parts_vel[part].x-=random2(0,0.1)
