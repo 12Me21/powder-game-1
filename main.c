@@ -24,7 +24,9 @@ void render() {
 }
 
 void Platform_frame(void) {
+	Random_update();
 	Input_update();
+	Cell_update();
 	Part_update();
 	render();
 	Platform_redraw();
@@ -32,6 +34,7 @@ void Platform_frame(void) {
 
 int main(int argc, char** argv) {
 	Platform_init();
+	mathInit();
 	Draw_init();
 	Load_test();
 	Platform_loop();
