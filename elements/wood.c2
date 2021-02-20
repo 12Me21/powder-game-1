@@ -1,0 +1,67 @@
+#include "../common.h"
+#include "../part.h"
+#include "../elements.h"
+#include "../vector.h"
+#include <stdio.h>
+
+static bool update(Part* p, Block* c) {
+	Vector airvel = p->vel;
+	Vec_mul(&p->vel, 0.3);
+	var xy=Parts_blow(part,airvel);
+	//not burning
+		if(Parts_meta1[part]==0){
+			// x+[-2,-1,0,1,2]
+			xy+=randomint(5)-2;
+			// y+[-3,-2,-1,0,1,2,3]
+			xy+=(randomint(7)-3)*WIDTH;
+			var near=parts[xy];
+			if(near>=0){
+				switch(Parts_type[near]){
+				//fire and magma burn wood
+				case FIRE:case MAGMA:
+					if(random(100)<50){
+						Parts_meta1[part]=1;
+					}
+				//wood creates seed when near water
+				break;case WATER:
+					if(Parts_limits[Menu_dotLimit]-Parts_used<1000){
+						return 0;
+					}
+					x=~~Parts_pos[part].x+randomint(3)-1;
+					y=~~Parts_pos[part].y+randomint(3)-1;
+					xy=y*WIDTH+x;
+					if(parts[xy]<=Parts_BGFAN&&random(100)<10){
+						Parts_create(x,y,SEED);
+					}
+				}
+			}
+		//burning
+		}else if(Parts_meta1[part]==1){
+			c=~~Parts_pos[part].x+randomint(3)-1;
+			q=~~Parts_pos[part].y+randomint(3)-1;
+			xy=q*WIDTH+c;
+			g=parts[xy];
+			//make fires
+			if(parts[xy]<=Parts_BGFAN){
+				if(random(100)<30){
+					xy=Parts_create(c,q,FIRE)
+					if(xy>=0){
+						Parts_meta1[xy]=1;
+					}
+				}
+			//water puts out the fire and breaks the wood into powder
+			}else if(g>=0&&Parts_type[g]==WATER){
+				Parts_meta1[part]=0;
+				Parts_type[part]=Parts_POWDER;
+			}
+			//parts[xy]<=Parts_BGFAN?30>random(100)&&(xy=Parts_create(c,q,FIRE),0<=xy&&(Parts_meta1[xy]=1)):0<=g&&Parts_type[g]==WATER&&(Parts_meta1[part]=0,Parts_type[part]=Parts_POWDER)
+			//generate powder sometimes
+			if(random(1000)<5){
+				Parts_type[part]=Parts_POWDER
+			}
+		}
+}
+
+AUTORUN {
+	ELEMENTS[Elem_POWDER].update = update;
+}

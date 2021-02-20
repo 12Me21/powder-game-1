@@ -26,6 +26,7 @@ Vec Vec_unit(int angle);
 double Random_(double mag);
 double Random_2(double min, double max);
 int Random_int(double mag);
+void Random_update(void);
 
 double clamp(double value, double min, double max);
 
