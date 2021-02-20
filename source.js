@@ -5297,7 +5297,7 @@ Entities={
 						n=e;
 					}
 				}
-				if(totalplayers>=2||c!=0&&playervalidelements[c]==0){
+				if(totalplayers>=2||meta2!=0&&playervalidelements[meta2]==0){
 					return;
 				}
 			}

@@ -19,7 +19,10 @@ int Pen_x, Pen_y;
 bool Menu_numberMenu = false;
 bool Menu_copyMode = false;
 bool Menu_paused = false;
+bool Menu_cursorInMenu = false;
 int Menu_penMode = 0;
+int Menu_leftSelection = 0;
+int Menu_rightSelection = 0;
 int Menu_penSize = 0;
 int Menu_zoomLevel = 0;
 int Menu_dotLimit = 0;
@@ -30,14 +33,12 @@ int Menu_edgeMode = 0;
 int Menu_gameSpeed = 0;
 bool Menu_minimapEnabled = false;
 int buttonflash = 0;
-int Menu_leftSelection = 0;
-int Menu_rightSelection = 0;
 int Menu_fps = 0;
 
 int Part_LIMITS[3] = {10000, 20000, 40000}; //todo;
 
 void Menu_render(void) {
-	memcpy(grp[308], normalMenuImage, sizeof(normalMenuImage));
+	memcpy(Draw_pxRef(0, 308), normalMenuImage, sizeof(normalMenuImage));
 	int* counts = Part_updateCounts();
 	int c=12;
 	int e=311;
@@ -286,5 +287,5 @@ void Draw_init(void) {
 	Draw_text(352,437,"RESET",0xFFFFFF,0);
 	Draw_spacedText(64,451,"x    y",-1,0,-1);
 	Draw_spacedText(141,451,"dot",-1,0,-1);
-	memcpy(normalMenuImage, grp[308], sizeof(normalMenuImage));
+	memcpy(normalMenuImage, Draw_pxRef(0, 308), sizeof(normalMenuImage));
 }

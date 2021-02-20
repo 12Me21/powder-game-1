@@ -1,4 +1,4 @@
-srcs:= elements input main part vector draw menu save bg entity
+srcs:= elements input main part vector draw menu save bg entity platform $(patsubst %.c,%,$(wildcard elements/*.c))
 output:= pg1
 
 libs:= X11 m
