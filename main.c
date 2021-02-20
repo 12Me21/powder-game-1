@@ -20,14 +20,15 @@ void render() {
 	Bg_render();
 	Part_render();
 	Entity_render();
-	//Draw_rectangle(Pen_x,Pen_y,1,1,grp[Pen_y][Pen_x]^0xFFFFFF);
 }
 
 void Platform_frame(void) {
 	Random_update();
+	Menu_update();
 	Input_update();
 	Cell_update();
 	Part_update();
+	Entity_update(); //check order
 	render();
 	Platform_redraw();
 }

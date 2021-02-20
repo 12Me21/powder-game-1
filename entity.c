@@ -7,6 +7,7 @@
 #include "bg.h"
 #include "part.h"
 #include "draw.h"
+#include "input.h"
 #include <stdio.h>
 
 enum EntityType {Entity_FIGHTER=10, Entity_BOX=20, Entity_PLAYER=30, Entity_CREATE=40};
@@ -76,7 +77,7 @@ void Entity_create(double x, double y, int type, int meta2) {
 				oldPlayer = e;
 			}
 		}
-		if (totalPlayers>=2 || meta2 && !ELEMENTS[meta2].playerValid)
+		if (totalPlayers>=2 || (meta2 && !ELEMENTS[meta2].playerValid))
 			return;
 	}
 	int i;
@@ -163,7 +164,7 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 	Vector e;
 	Vec_sub2(&e, &node->pos, &node->oldPos);
 	node->pos = node->oldPos;
-	if (d) {
+	if (d!=0) {
 		Block* cell = &Part_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
 		e.x += cell->vel.x*d;
 		e.y += cell->vel.y*d;
@@ -196,7 +197,7 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			Part* part = Part_at[(int)b][(int)part->pos.x];
+			Part* part = Part_at[(int)b][(int)node->pos.x];
 			int type = part->type;
 			if (part <= Part_BGFAN) {
 				node->pos.y = b;
@@ -269,7 +270,7 @@ static void Ball_render(void) {
 		int x = ball->pos.x;
 		int y = ball->pos.y;
 		Draw_ball(x, y, color);
-		if (y<308) {
+		if (y<H+8) {
 			if (Menu_bgMode==Bg_DARK) {
 				if (ELEMENTS[type].ballLight)
 					Bg_pixels[y][x].light = 255000;
@@ -372,7 +373,7 @@ void Entity_render(void) {
 						z = e->parts[0].pos.y+r;
 						if (
 							!(
-								y<8||y>=408||z<8||z>=308||
+								y<8||y>=W+8||z<8||z>=H+8||
 								(e->meta1==1&&w==f&&r==q)||
 								(e->meta1==1&&w==g&&r==q)||
 								(e->meta1==1&&w==f&&r==n)||
@@ -417,4 +418,155 @@ void Entity_render(void) {
 		}
 	}
 	Ball_render();
+}
+
+typedef struct Player {
+	int Xe; //walk animation cooldown
+	int Ye; //jump  "
+	int facing;
+} Player;
+
+Player players[2];
+
+void Entity_update(void) {
+	Entity* a;
+	forRange (a, =entitys, <next, ++) {
+		if (a->type == Entity_PLAYER) {
+			bool left = a->meta1==0 ? Keys[37].pressed : Keys[65].pressed||Keys[97].pressed;
+			bool right = a->meta1==0 ? Keys[39].pressed : Keys[68].pressed||Keys[100].pressed;
+			bool up = a->meta1==0 ? Keys[38].pressed : Keys[87].pressed||Keys[119].pressed;
+			bool down = a->meta1==0 ? Keys[40].pressed : Keys[83].pressed||Keys[115].pressed;
+			Player* player = &players[a->meta1 != 0];
+			a->decay++;
+			bool w = Part_at[(int)a->parts[4].pos.y+1][(int)a->parts[4].pos.x]>Part_BGFAN || Part_at[(int)a->parts[4].pos.y][(int)a->parts[4].pos.x]>Part_BGFAN;
+			bool rightFoot = Part_at[(int)a->parts[5].pos.y+1][(int)a->parts[5].pos.x]>Part_BGFAN || Part_at[(int)a->parts[5].pos.y][(int)a->parts[5].pos.x]>Part_BGFAN;
+			if (down && a->meta2 == Elem_BIRD) {
+				int b;
+				for (b=0;b<6;b++)
+					Entity_moveNode(&a->parts[b], 0.01, 0.997);
+			} else {
+				Entity_moveNode(&a->parts[0], -0.2, 0.995);
+				Entity_moveNode(&a->parts[1], -0.1, 0.995);
+				Entity_moveNode(&a->parts[2], 0, 0.995);
+				Entity_moveNode(&a->parts[3], 0, 0.995);
+				Entity_moveNode(&a->parts[4], 0.3, 0.995);
+				Entity_moveNode(&a->parts[5], 0.3, 0.995);
+			}
+			Vec_add(&a->parts[0].pos, &a->Pe);
+			Vec_mul(&a->Pe, 0.5);
+			if (a->Pe.x!=0)
+				a->type = Entity_PLAYER+2;
+			if (player->Xe>0)
+				player->Xe--;
+			if (player->Xe!=0 || w!=1 || rightFoot!=1) {
+				if (right) {
+					if (a->parts[1].pos.x - a->parts[1].oldPos.x < 0)
+						a->parts[1].pos.x += 0.1;
+					player->facing = 1;
+				} else if (left) {
+					if (a->parts[1].pos.x - a->parts[1].oldPos.x > 0)
+						a->parts[1].pos.x -= 0.1;
+					player->facing = 0;
+				}
+			} else {
+				double b = 0.8;
+				if (right) {
+					player->Xe = 15;
+					if (a->parts[4].pos.x < a->parts[5].pos.x) {
+						a->parts[2].pos.x += 4*b;
+						a->parts[2].pos.y -= 3*b;
+					} else {
+						a->parts[3].pos.x += 4*b;
+						a->parts[3].pos.y -= 3*b;
+					}
+					player->facing = 1;
+				} else if (left) {
+					player->Xe = 15;
+					if (a->parts[4].pos.x > a->parts[5].pos.x) {
+						a->parts[2].pos.x -= 4*b;
+						a->parts[2].pos.y -= 3*b;
+					} else {
+						a->parts[3].pos.x -= 4*b;
+						a->parts[3].pos.y -= 3*b;
+					}
+					player->facing = 0;
+				}
+			}
+			if (player->Ye>1)
+				player->Ye--;
+			if (player->Ye>0 && (w==1||rightFoot==1))
+				player->Ye--;
+			if (player->Ye==0 && up) {
+				player->Ye=50;
+				a->parts[4].pos.y -= 6;
+				a->parts[5].pos.y -= 6;
+			}
+			double b=0.5;
+			Entity_Se(&a->parts[0], &a->parts[1], 4, b, b);
+			Entity_Se(&a->parts[1], &a->parts[2], 4, b, b);
+			Entity_Se(&a->parts[1], &a->parts[3], 4, b, b);
+			Entity_Se(&a->parts[2], &a->parts[4], 5, b, b);
+			Entity_Se(&a->parts[3], &a->parts[5], 5, b, b);
+			Entity_Se(&a->parts[2], &a->parts[3], 5, 0.1, 0.1);
+			int i;
+			for (i=0;i<4;i++)
+				Entity_Ue(&a->parts[i], 0.1, 1, a->held>0 ? 1 : 0);
+			for (;i<6;i++)
+				Entity_Ue(&a->parts[i], 0.1, 0, a->held>0 ? 1 : 0);
+			int x,y;
+			for (y=0;y<3;y++) {
+				for (x=-1;x<2;x++) {
+					Part* p = Part_at[(int)a->parts[0].oldPos.y+y][(int)a->parts[0].oldPos.x+x];
+					if (p == Part_BGFAN)
+						a->meta2 = Elem_FAN;
+					else if (p >= Part_0 && ELEMENTS[p->type].playerValid==1)
+						a->meta2 = p->type;
+				}
+			}
+			if (!(up && (left||right)) && down && a->meta2) {
+				int w = a->parts[0].pos.x;
+				int b = a->parts[0].pos.y+1;
+				// nitro fly
+				if (a->meta2 == Elem_NITRO) {
+					w += player->facing ? -8 : 8;
+					b += 12;
+				}
+				w=clamp(w,8,W+8-1);
+				b=clamp(b,8,H+8-1);
+				// fan blow air
+				if (a->meta2 == Elem_FAN) {
+					Block* cell = &Part_blocks[b>>2][w>>2];
+					if (cell->block == 0)
+						cell->vel.x += player->facing ? 1 : -1;
+					//spit
+				} else if (a->meta2 != Elem_BIRD && Part_at[b][w] == Part_EMPTY) {
+					Part* f = Part_create(w, b, a->meta2);
+					if (f>=Part_0) {
+						if (player->facing==0)
+							f->vel.x -= 20;
+						if (player->facing==1)
+							f->vel.x += 20;
+						f->vel.y += Random_(3)+1;
+						switch (a->meta2) {
+						when(Elem_FIRE):
+							f->vel.x *= 3;
+							f->vel.y += 18;
+							f->meta = 2;
+						when(Elem_SUPERBALL):
+							f->vel.y = 20;
+						when(Elem_STONE):
+							f->vel.x *= 0.1;
+							f->vel.y *= 0.1;
+						when(Elem_LASER):
+							f->meta = player->facing ? 1 : 5;
+						}
+					}
+				}
+			}
+			// damage
+			if (Entity_checkTouching(&a->parts[0], &a->parts[6])==3 || Entity_checkTouching(&a->parts[0], &a->parts[6])==-5)
+				a->type = Entity_PLAYER+2;
+			
+		}
+	}
 }

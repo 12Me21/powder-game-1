@@ -1,7 +1,10 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include "input.h"
 #include "menu.h"
 #include "vector.h"
+#include "common.h"
+
 
 Key Keys[256] = {
 	{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, //0-12
@@ -26,12 +29,14 @@ int Mouse_fallingDirection;
 
 
 int Platform_mouseX, Platform_mouseY;
+int Platform_mouseLeft, Platform_mouseRight;
 bool Platform_keys[256]; //todo: this won't capture keypresses that start+end within 1 frame
 
-void Input_update(void) {
-	Mouse_now.x = Platform_mouseX;
-	Mouse_now.y = Platform_mouseY;
+extern int Pen_oldx, Pen_oldy;
 
+void Input_update(void) {
+	Pen_oldx = Pen_x;
+	Pen_oldy = Pen_y;
 	Pen_x = Mouse_now.x;
 	Pen_y = Mouse_now.y;
 	Mouse_rising.left = !Mouse_old.left && Mouse_now.left;
@@ -40,7 +45,12 @@ void Input_update(void) {
 	Mouse_falling.right = Mouse_old.right && !Mouse_now.right;
 	Mouse_older = Mouse_old;
 	Mouse_old = Mouse_now;
-
+	
+	Mouse_now.x = Platform_mouseX;
+	Mouse_now.y = Platform_mouseY;
+	Mouse_now.left = Platform_mouseLeft;
+	Mouse_now.right = Platform_mouseRight;
+	
 	Mouse_risingClick = !(Mouse_falling.left||Mouse_old.left||Mouse_falling.right||Mouse_old.right);
 	Mouse_fallingDirection = Mouse_falling.left ? 1 : Mouse_falling.right ? -1 : 0;
 
@@ -48,8 +58,8 @@ void Input_update(void) {
 	//if (!Menu_cursorInMenu /*&& wa==0*/) {
 		int sd=Pen_x;
 		int td=Pen_y;
-		Pen_x=clamp(Mouse_old.x+2*4,2*4,4*(104-2)-1);
-		Pen_y=clamp(Mouse_old.y+2*4,2*4,4*(79-2)-1);
+		Pen_x=clamp(Mouse_old.x+2*4,2*4,4*((W+8)/4)-1);
+		Pen_y=clamp(Mouse_old.y+2*4,2*4,4*((H+8)/4)-1);
 		//}
 		/*	if (Menu_zoomLevel>0) {
 			Pen_x = 2*H+floor(Menu_zoomX)+(Mouse_old.x>>Menu_zoomLevel);
@@ -244,7 +254,7 @@ void Input_update(void) {
 				Air.pres[a]=Air.pres2[a];
 			}else{
 				Air.pres[a]=0;
-				Air.vel[a].set(0,0);
+		p		Air.vel[a].set(0,0);
 			}
 		}
 		this.Parts_update();
@@ -256,7 +266,8 @@ void Input_update(void) {
 	//	*/
 	int i;
 	for (i=0;i<256;i++) {
-		Keys[i].rising = Keys[i].rising1;
+		Keys[i].pressed = Platform_keys[i];
+		Keys[i].rising = Platform_keys[i];//Keys[i].rising1;
 		Keys[i].rising1 = false;
 	}
 }

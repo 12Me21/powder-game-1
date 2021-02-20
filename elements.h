@@ -16,18 +16,20 @@ typedef struct ElementDef {
 	int temperature;
 	double friction;
 	bool ballLight;
+	double ze;
+	double Ae;
 	Color grayColor;
 	ElemFunc update;
 } ElementDef;
 
 // some of these are pseudo-elements which are only used in savedata
 enum Element {
-	Elem_EMPTY=-5, Elem_BGFAN=-4, Elem_WHEEL=-3, Elem_BALL=-2, Elem_BLOCK=-1,
-	Elem_SAVE_BLOCK=1,
+	Elem_EMPTY=-5, Elem_BGFAN=-4, //Elem_WHEEL=-3, Elem_BALL=-2, Elem_BLOCK=-1,
+	Elem_BLOCK=1,
 	Elem_POWDER=2, Elem_WATER, Elem_FIRE, Elem_SEED, Elem_WOOD, Elem_GUNPOWDER, Elem_FAN,
-	Elem_SAVE_WHEEL1,
+	Elem_WHEEL = 9,
 	Elem_ICE, Elem_SNOW, Elem_STEAM, Elem_SUPERBALL, Elem_CLONE, Elem_FIREWORKS, Elem_OIL, Elem_C4,
-	Elem_SAVE_WHEEL2,
+	Elem_WHEEL2, //apparently this is meant to be fighter!!
 	Elem_STONE, Elem_MAGMA, Elem_VIRUS,
 	Elem_BOX=22,
 	Elem_NITRO, Elem_ANT, Elem_TORCH, Elem_GAS, Elem_SOAPY, Elem_THUNDER, Elem_METAL,
@@ -41,14 +43,6 @@ enum Element {
 };
 
 extern ElementDef ELEMENTS[46];
-
-enum MenuButton {
-	Menu_WIND=40, Menu_AIR, Menu_DRAG, Menu_BUBBLE, Menu_WHEEL, Menu_PLAYER, Menu_FIGHTER, Menu_BOX, Menu_BALL, Menu_CREATE, Menu_BLOCK,
-	Menu_ERASE=51, Menu_CLEAR, Menu_COPYPASTE, Menu_TEXT, Menu_PEN, Menu_PENSIZE, Menu_SCALE, Menu_SPEED, Menu_START, Menu_UPLOAD, Menu_SAVE,
-	Menu_LOAD=62, Menu_MINIMAP, Menu_MENU, Menu_SIDE, Menu_GRID, Menu_BG, Menu_DOT, Menu_RESET,
-	Menu_FAN=6,
-	Menu_LASER=26,
-};
 
 typedef struct MenuButtonDef {
 	enum Element element;

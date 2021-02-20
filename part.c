@@ -13,20 +13,20 @@
 
 int wa;
 
-// it's important that these are directly before the part array
-Part Part_EMPTY[1] = {{.type=Elem_EMPTY}};
-Part Part_BGFAN[1] = {{.type=Elem_BGFAN}};;;
-Part Part_WHEEL[1] = {{.type=Elem_WHEEL}};;;
-Part Part_BALL[1] = {{.type=Elem_BALL}};;  
-Part Part_BLOCK[1] = {{.type=Elem_BLOCK}};;;
-static Part parts[PARTS_MAX];
-Part* Part_0 = parts;
+static Part parts_2[PARTS_MAX+6];
+static Part* const parts = parts_2+5;
+Part* const Part_EMPTY = parts-5;
+Part* const Part_BGFAN = parts-4;
+Part* const Part_WHEEL = parts-3;
+Part* const Part_BALL = parts-2;
+Part* const Part_BLOCK = parts-1;
+Part* const Part_0 = parts;
 Part* next = parts;
 
 Part* Part_at[HEIGHT][WIDTH];
 
 Block Part_blocks[HEIGHT/4][WIDTH/4];
-Block Part_blocks_end[0];
+Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
 
 Part** Part_pos2(Vec pos) {
 	return &Part_at[(int)pos->y][(int)pos->x];
@@ -44,8 +44,47 @@ int* Part_updateCounts(void) {
 	return Part_counts;
 }
 
+static bool onscreen(int x, int y){
+	return x>=8 && x<W+8 && y>=8 && y<H+8;
+}
+
+static int wrap(int a, int b) {
+	if (a<0)
+		return b;
+	if (a>b)
+		return 0;
+	return a;
+}
+
+void Part_save(int saveData[W*H], int saveMeta[W*H]) {
+	Part* p;
+	for (p=parts; p<next; p++) {
+		int x = p->pos.x;
+		int y = p->pos.y;
+		if (onscreen(x,y)) {
+			x-=8;
+			y-=8;
+			int xy=W*y+x; //w must be 400 to be compatible with vanilla pg
+			saveData[xy] = p->type;
+			if (p->type == Elem_FAN) {
+				saveMeta[xy] = wrap(64*Vec_angle(&p->vel)/TAU, 63);
+			} else if (p->type == Elem_FIREWORKS) {
+				saveMeta[xy] = p->meta%100;
+				//fix thunder saving badly :(
+			} else if (p->type==Elem_THUNDER){
+				if ((p->meta&0xFFFC)==6000)
+					saveData[xy] = Elem_METAL;
+				else if (p->meta >= 7000)
+					saveData[xy] = Elem_GLASS;
+				else if ((p->meta&0xFFFC)==6100)
+					saveData[xy] = Elem_MERCURY;
+			}
+		}
+	}
+}
+
 Part* Part_create(double x, double y, unsigned char element) {
-	if (next>=parts+PARTS_MAX || x<7 || x>=409 || y<7 || y>=309)
+	if (next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
 	*next = (Part){
 		{x,y},
@@ -140,8 +179,8 @@ void Part_shuffle(void) {
 
 void Part_reset(int a) {
 	int x,y;
-	for (y=0;y<308/4;y++) {
-		for (x=0;x<WIDTH/4;x++) {
+	for (y=0;y<(H+8)/4;y++) {
+		for (x=0;x<(W+8+8)/4;x++) {
 			Part_blocks[y][x] = (Block){
 				.vel={0,0},
 				.vel2={0,0},
@@ -152,22 +191,22 @@ void Part_reset(int a) {
 		}
 	}
 	if (a==0) {
-		for (x=1;x<WIDTH/4-1;x++) {
+		for (x=1;x<(W+8+8)/4-1;x++) {
 			Part_blocks[1][x].block = 1;
-			Part_blocks[308/4-1][x].block = 1;
+			Part_blocks[(H+8)/4-1][x].block = 1;
 		}
-		for (y=1;x<308/4-1;y++) {
+		for (y=1;y<(H+8)/4-1;y++) {
 			Part_blocks[y][1].block = 1;
-			Part_blocks[y][WIDTH/4-1].block = 1;
+			Part_blocks[y][(W+8+8)/4-1].block = 1;
 		}
 	}
 	next = parts;
-	for (y=0;y<308;y++)
-		for (x=0;x<WIDTH;x++)
+	for (y=0;y<(H+8);y++)
+		for (x=0;x<(W+8+8);x++)
 			Part_at[y][x] = Part_EMPTY;
 	if (a==0) {
-		for (y=0;y<308;y++)
-			for (x=0;x<WIDTH;x++)
+		for (y=0;y<(H+8);y++)
+			for (x=0;x<(W+8+8);x++)
 				if (Part_blocks[y/4][x/4].block==1)
 					Part_at[y][x] = Part_BLOCK;
 	}
@@ -210,42 +249,42 @@ void Part_update(void) {
 	// check parts that go off screen
 	forRange (p, =parts, <next, ++) {
 		if (Menu_edgeMode==0) { // void edge
-			if (p->pos.x<8||p->pos.y>=408||p->pos.y<8||p->pos.y>=308) {
+			if (p->pos.x<8||p->pos.x>=W+8||p->pos.y<8||p->pos.y>=H+8) {
 				Part_remove(p--);
 			}
 		} else { //loop edge
 			if (p->pos.x<8) {
-				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x+400];
-				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<308) {
+				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x+W];
+				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
-					p->pos.x += 400;
+					p->pos.x += W;
 					*o = p;
 				} else {
 					Part_remove(p--);
 				}
-			} else if (p->pos.x>=408) {
-				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x-400];
-				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<308) {
+			} else if (p->pos.x>=W+8) {
+				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x-W];
+				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
-					p->pos.x -= 400;
+					p->pos.x -= W;
 					*o = p;
 				} else {
 					Part_remove(p--);
 				}
 			} else if (p->pos.y<8) {
-				Part** o = &Part_at[(int)p->pos.y+300][(int)p->pos.x];
+				Part** o = &Part_at[(int)p->pos.y+H][(int)p->pos.x];
 				if (*o<=Part_BGFAN) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
-					p->pos.y += 300;
+					p->pos.y += H;
 					*o = p;
 				} else {
 					Part_remove(p--);
 				}
-			} else if (p->pos.y>=308) {
-				Part** o = &Part_at[(int)p->pos.y-300][(int)p->pos.x];
+			} else if (p->pos.y>=H+8) {
+				Part** o = &Part_at[(int)p->pos.y-H][(int)p->pos.x];
 				if (*o<=Part_BGFAN) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
-					p->pos.y -= 300;
+					p->pos.y -= H;
 					*o = p;
 				} else {
 					Part_remove(p--);
@@ -273,17 +312,17 @@ void Cell_update(void) {
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
 		c->vel2 = c->vel;
 	int b, d;
-	forRange (b, =2, <79-2, ++) {
-		forRange (d, =2, <104-2, ++) {
+	forRange (b, =2, <(H+8)/4, ++) {
+		forRange (d, =2, <(W+8)/4, ++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block!=1) {
 				Vector c = a->vel;
-				double n = Vec_fastNormalize(&c);
-				if (n!=0) {
+				double nn = Vec_fastNormalize(&c);
+				if (nn!=0) {
 					double r = fabs(c.x);
 					double w = fabs(c.y);
-					double y = r/(r+w)*n*0.5;
-					double n = w/(r+w)*n*0.5;
+					double y = r/(r+w)*nn*0.5;
+					double n = w/(r+w)*nn*0.5;
 					Vector e, f;
 					Vec_mul2(&e, &c, y);
 					Vec_mul2(&f, &c, n);
@@ -315,8 +354,8 @@ void Cell_update(void) {
 						if (vert->block <= 0) {
 							Vec_sub(&a->vel2, &f);
 							Vec_add(&vert->vel2, &f);
-							a->pres -= y;
-							vert->pres += y;
+							a->pres -= n;
+							vert->pres += n;
 						} else {
 							Vec_sub(&a->vel2, &f);
 							Vec_sub(&a->vel2, &f);
@@ -324,8 +363,8 @@ void Cell_update(void) {
 						if (both->block <= 0) {
 							Vec_sub(&a->vel2, &e);
 							Vec_add(&both->vel2, &e);
-							a->pres -= n;
-							both->pres += n;
+							a->pres -= y;
+							both->pres += y;
 						} else {
 							Vec_sub(&a->vel2, &e);
 							Vec_sub(&a->vel2, &e);
@@ -335,29 +374,29 @@ void Cell_update(void) {
 			}
 		}
 	} //
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
+	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
 		c->pres2 = c->pres;
-	}
-	forRange (b, =2, <79-2, ++) {
-		forRange (d, =2, <104-2, ++) {
+	forRange (b, =2, <(H+8)/4, ++) {
+		forRange (d, =2, <(W+8)/4, ++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block == 1) continue;
-			void pcheck(int x, int y) {
+			void pcheck(int x, int y, double m) {
 				Block* o = &Part_blocks[b+y][d+x];
 				if (o->block <= 0) {
-					double diff = .0625*(a->pres - o->pres);
-					a->vel2.x -= diff;
-					a->pres2 -= diff;
+					double diff = (a->pres - o->pres);
+					a->vel2.x += diff*m*x;
+					a->vel2.y += diff*m*y;
+					a->pres2 -= diff*m;
 				}
 			}
-			pcheck(-1, 0);
-			pcheck( 1, 0);
-			pcheck( 0,-1);
-			pcheck( 0, 1);
-			pcheck(-1,-1);
-			pcheck( 1,-1);
-			pcheck(-1, 1);
-			pcheck( 1, 1);
+			pcheck(-1, 0,0.0625);
+			pcheck( 1, 0,0.0625);
+			pcheck( 0,-1,0.0625);
+			pcheck( 0, 1,0.0625);
+			pcheck(-1,-1,0.044194173);
+			pcheck( 1,-1,0.044194173);
+			pcheck(-1, 1,0.044194173);
+			pcheck( 1, 1,0.044194173);
 		}
 	}
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {

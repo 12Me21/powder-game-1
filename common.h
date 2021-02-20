@@ -8,9 +8,14 @@ typedef uint32_t Color;
 #define otherwise break;default
 #define forRange(var, start, cond, step) for(var start; var cond; var step)
 
+#define W 400
+#define H 300
+
+#define MENU_HEIGHT 156
+
 // height of framebuffer
-#define WIDTH 416
-#define HEIGHT 464
+#define WIDTH (8+W+8)
+#define HEIGHT (8+H+MENU_HEIGHT)
 
 // height of window (smaller for some reason)
 // (framebuffer is offset by -8, -8)
