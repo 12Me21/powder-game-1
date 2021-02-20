@@ -26,7 +26,7 @@ static Ball balls[Ball_MAX];
 
 void Ball_create(double x, double y, int type) {
 	int i;
-	for (i=0; i<Ball_MAX; i++) {
+	forRange (i, =0, <Ball_MAX, ++) {
 		if (!balls[i].used) {
 			balls[i] = (Ball){
 				{x+0.5, y+0.5},
@@ -70,7 +70,7 @@ void Entity_create(double x, double y, int type, int meta2) {
 	if (type==Elem_PLAYER || type==Elem_PLAYER2) {
 		Entity* e;
 		int totalPlayers=0;
-		for (e=entitys; e<next; e++) {
+		forRange (e, =entitys, <next, ++) {
 			if (e->type == Entity_PLAYER) {
 				totalPlayers++;
 				oldPlayer = e;
@@ -80,11 +80,11 @@ void Entity_create(double x, double y, int type, int meta2) {
 			return;
 	}
 	int i;
-	for (i=0; i<20; i++) {
+	forRange (i, =0, <20, ++) {
 		next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
 		Vec_copy(&next->parts[i].oldPos, &next->parts[i].pos);
 	}
-	for (i=0; i<Entity_PARTS; i++)
+	forRange (i, =0, <Entity_PARTS, ++)
 		next->parts[i].touching = 0;
 	next->Pe = (Vector){0,0};
 	next->type = Entity_FIGHTER;
@@ -190,7 +190,7 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 		node->pos.x = clamp(node->pos.x, 4, WIDTH-5);
 		node->pos.y = clamp(node->pos.y, 4, 311);
 	} else {
-		for (c=0; c<d; c++) {
+		forRange (c, =0, <d, ++) {
 			b = node->pos.y + e.y;
 			if (b<4 || b>=312) {
 				node->touching = Elem_EMPTY;
@@ -258,7 +258,7 @@ int Entity_checkTouching(EntityNode* start, EntityNode* end) {
 
 static void Ball_render(void) {
 	int i;
-	for (i=0;i<Ball_MAX;i++) {
+	forRange (i, =0, <Ball_MAX, ++) {
 		Ball* ball = &balls[i];
 		if (!ball->used)
 			return;
@@ -268,16 +268,10 @@ static void Ball_render(void) {
 			color = 0;
 		int x = ball->pos.x;
 		int y = ball->pos.y;
-		int j;
-		for (j=-1;j<=1;j++) {
-			grp[y-2][x+j] = color;
-			grp[y+2][x+j] = color;
-			grp[y+j][x-2] = color;
-			grp[y+j][x+2] = color;
-		}
+		Draw_ball(x, y, color);
 		if (y<308) {
 			if (Menu_bgMode==Bg_DARK) {
-				if (type==Elem_FIRE||type==Elem_MAGMA||type==Elem_TORCH||type==Elem_THUNDER||type==Elem_LASER||type==Elem_SPARK)
+				if (ELEMENTS[type].ballLight)
 					Bg_pixels[y][x].light = 255000;
 			} else if (Menu_bgMode==Bg_TG) {
 				Bg_pixels[y][x].light = 2*ELEMENTS[type].temperature;
@@ -286,91 +280,81 @@ static void Ball_render(void) {
 	}
 }
 
+static void line(Entity* e, int a, int b, Color c) {
+	Draw_vline(&e->parts[a].pos, &e->parts[b].pos, c);
+}
+
+static void rectangle(Entity* e, int a, int w, int h, Color c) {
+	Draw_rectangle(e->parts[a].pos.x, e->parts[a].pos.y, w, h, c);
+}
+
 void Entity_render(void) {
 	Color tan = 0xFFE0AE, white=0xFFFFFF;
 	if (Menu_bgMode==Bg_SILUET)
 		white=tan=0;
 	Entity* e;
-	for (e=entitys; e<next; e++) {
+	forRange (e, =entitys, <next, ++) {
 		switch (e->type) {
-		case Entity_FIGHTER:
+		when(Entity_FIGHTER):
 		case Entity_FIGHTER+1:
 		case Entity_FIGHTER+2:
-			Draw_line(e->parts[0].pos.x,e->parts[0].pos.y,e->parts[1].pos.x,e->parts[1].pos.y,tan);
-			Draw_line(e->parts[1].pos.x,e->parts[1].pos.y,e->parts[2].pos.x,e->parts[2].pos.y,white);
-			Draw_line(e->parts[1].pos.x,e->parts[1].pos.y,e->parts[3].pos.x,e->parts[3].pos.y,white);
-			Draw_line(e->parts[2].pos.x,e->parts[2].pos.y,e->parts[4].pos.x,e->parts[4].pos.y,white);
-			Draw_line(e->parts[3].pos.x,e->parts[3].pos.y,e->parts[5].pos.x,e->parts[5].pos.y,white);
-			
-			Draw_rectangle(floor(e->parts[0].pos.x)-1,floor(e->parts[0].pos.y)-1,3,3,tan);
-			break;
-		case Entity_FIGHTER+3:
-			Draw_line(e->parts[1].pos.x,e->parts[1].pos.y,e->parts[2].pos.x,e->parts[2].pos.y,white);
-			if (e->decay>145)
-				break;
-			Draw_line(e->parts[3].pos.x,e->parts[3].pos.y,e->parts[5].pos.x,e->parts[5].pos.y,white);
-			if (e->decay>140)
-				break;
-			Draw_line(e->parts[4].pos.x,e->parts[4].pos.y,e->parts[7].pos.x,e->parts[7].pos.y,white);
-			if (e->decay>135)
-				break;
-			Draw_line(e->parts[6].pos.x,e->parts[6].pos.y,e->parts[9].pos.x,e->parts[9].pos.y,white);
-			if (e->decay>130)
-				break;
-			Draw_line(e->parts[8].pos.x,e->parts[8].pos.y,e->parts[10].pos.x,e->parts[10].pos.y,white);
-			if (e->decay>125)
-				break;
-			Draw_rectangle(floor(e->parts[0].pos.x)-1,floor(e->parts[0].pos.y)-1,2,2,tan);
-			break;
-		case Entity_BOX:
+			line(e, 0, 1, tan);
+			line(e, 1, 2, white);
+			line(e, 1, 3, white);
+			line(e, 2, 4, white);
+			line(e, 3, 5, white);
+			rectangle(e, 0, 3, 3, tan);
+		when(Entity_FIGHTER+3):
+			line(e, 1, 2, white);
+			if (e->decay>145) break;
+			line(e, 3, 5, white);
+			if (e->decay>140) break;
+			line(e, 4, 7, white);
+			if (e->decay>135) break;
+			line(e, 6, 9, white);
+			if (e->decay>130) break;
+			line(e, 8, 10, white);
+			if (e->decay>125) break;
+			rectangle(e, 0, 2, 2, tan);
+		when(Entity_BOX):
 		case Entity_BOX+1:
-			Draw_line(e->parts[0].pos.x,e->parts[0].pos.y,e->parts[1].pos.x,e->parts[1].pos.y,tan);
-			Draw_line(e->parts[1].pos.x,e->parts[1].pos.y,e->parts[2].pos.x,e->parts[2].pos.y,tan);
-			Draw_line(e->parts[2].pos.x,e->parts[2].pos.y,e->parts[3].pos.x,e->parts[3].pos.y,tan);
-			Draw_line(e->parts[3].pos.x,e->parts[3].pos.y,e->parts[0].pos.x,e->parts[0].pos.y,tan);
-			break;
+			line(e, 0, 1, tan);
+			line(e, 1, 2, tan);
+			line(e, 2, 3, tan);
+			line(e, 3, 0, tan);
 			//draw dead box
-		case Entity_BOX+2:
+		when(Entity_BOX+2):
 		case Entity_BOX+3:
-			Draw_line(e->parts[0].pos.x,e->parts[0].pos.y,e->parts[1].pos.x,e->parts[1].pos.y,tan);
-			if (e->decay>145)
-				break;
-			Draw_line(e->parts[2].pos.x,e->parts[2].pos.y,e->parts[3].pos.x,e->parts[3].pos.y,tan);
-			if (e->decay>140)
-				break;
-			Draw_line(e->parts[4].pos.x,e->parts[4].pos.y,e->parts[5].pos.x,e->parts[5].pos.y,tan);
-			if (e->decay>135)
-				break;
-			Draw_line(e->parts[6].pos.x,e->parts[6].pos.y,e->parts[7].pos.x,e->parts[7].pos.y,tan);
-			if (e->decay>130) //lol
-				break;
-			break;
-		case Entity_PLAYER:
+			line(e, 0, 1, tan);
+			if (e->decay>145) break;
+			line(e, 2, 3, tan);
+			if (e->decay>140) break;
+			line(e, 4, 5, tan);
+			if (e->decay>135) break;
+			line(e, 6, 7, tan);
+			if (e->decay>130) break; //???
+		when(Entity_PLAYER):
 		case Entity_PLAYER+2:
-		case Entity_PLAYER+3:;
+		case Entity_PLAYER+3:; //dead
 			int f,g,q,n;
 			if (e->type != Entity_PLAYER+3) {
-				Draw_vline(&e->parts[1].pos, &e->parts[2].pos, white);
-				Draw_vline(&e->parts[1].pos, &e->parts[3].pos, white);
-				Draw_vline(&e->parts[2].pos, &e->parts[4].pos, white);
-				Draw_vline(&e->parts[3].pos, &e->parts[5].pos, white);
+				line(e, 1, 2, white);
+				line(e, 1, 3, white);
+				line(e, 2, 4, white);
+				line(e, 3, 5, white);
 				f=-2;
 				g=2;
 				q=-1;
 				n=3;
-			} else {
-				Draw_vline(&e->parts[3].pos, &e->parts[5].pos, white);
-				if (e->decay>140)
-					break;
-				Draw_vline(&e->parts[4].pos, &e->parts[7].pos, white);
-				if (e->decay>135)
-					break;
-				Draw_vline(&e->parts[6].pos, &e->parts[9].pos, white);
-				if (e->decay>130)
-					break;
-				Draw_vline(&e->parts[8].pos, &e->parts[10].pos, white);
-				if (e->decay>125)
-					break;
+			} else { //dead
+				line(e, 3, 5, white);
+				if (e->decay>140) break;
+				line(e, 4, 7, white);
+				if (e->decay>135) break;
+				line(e, 6, 9, white);
+				if (e->decay>130) break;
+				line(e, 8, 10, white);
+				if (e->decay>125) break;
 				f=-1;
 				g=1;
 				q=-1;
@@ -380,9 +364,9 @@ void Entity_render(void) {
 			if (Menu_bgMode==Bg_SILUET)
 				headcolor = 0x000000;
 			int r,w,y,z;
-			
-			for (r=q;r<=n;r++) {
-				for (w=f;w<=g;w++) {
+			// draw head (circle/square)
+			forRange (r, =q, <=n, ++) {
+				forRange (w, =f, <=g, ++) {
 					if (f+1>w || w>g-1 || q+1>r || r>n-1) {
 						y = e->parts[0].pos.x+w;
 						z = e->parts[0].pos.y+r;
@@ -394,7 +378,7 @@ void Entity_render(void) {
 								(e->meta1==1&&w==f&&r==n)||
 								(e->meta1==1&&w==g&&r==n)
 							  )) {
-							Color* dest = &grp[z][y];
+							Color* dest = Draw_pxRef(y, z);
 							if (*dest == headcolor)
 								*dest=0;
 							else
@@ -403,14 +387,14 @@ void Entity_render(void) {
 					}
 				}
 			}
-			if(Menu_bgMode==Bg_DARK){
-				f=clamp(e->parts[0].pos.x,8,407);
-				q=clamp(e->parts[0].pos.y,8,304);
-				for(r=q-4;r<=q+4;r+=4){
-					for(w=f-4;w<=f+4;w+=4){
-						Bg_pixels[r][w].light = 0x1FFFFFFF;
-					}
-				}
+			// add light to region around player
+			if (Menu_bgMode==Bg_DARK) {
+				int y,x;
+				f = clamp(e->parts[0].pos.x,8,407);
+				q = clamp(e->parts[0].pos.y,8,304);
+				forRange (y, =q-4, <=q+4, +=4)
+					forRange (x, =f-4, <=f+4, +=4)
+						Bg_pixels[y][x].light = 0x1FFFFFFF;
 			}
 			break;
 		}
@@ -425,11 +409,10 @@ void Entity_render(void) {
 		case Entity_PLAYER+3:
 			if (Menu_bgMode == Bg_TG) {
 				int d;
-				for (d=0;d<6;d++) {
+				forRange (d, =0, <6, ++)
 					Bg_pixels
 						[(int)clamp(e->parts[d].pos.y,8,304)]
 						[(int)clamp(e->parts[d].pos.x,8,407)].light = 3000;
-				}
 			}
 		}
 	}

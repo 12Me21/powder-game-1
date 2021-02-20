@@ -14,7 +14,7 @@ void Bg_render(void) {
 	default:
 		for (y=0;y<308;y++) {
 			for (x=0;x<WIDTH;x++) {
-				grp[y][x] = Part_at[y][x] == Part_BLOCK ? 0x606060 : 0;
+				*Draw_pxRef(x, y) = Part_at[y][x] == Part_BLOCK ? 0x606060 : 0;
 			}
 		}
 		break;

@@ -6,8 +6,11 @@
 #include "part.h"
 #include "bg.h"
 #include "menu.h"
+#include "input.h"
 
 #define PARTS_MAX 40000
+
+int wa;
 
 // it's important that these are directly before the part array
 Part Part_EMPTY[1] = {{.type=Elem_EMPTY}};
@@ -95,7 +98,7 @@ void Part_render(void) {
 			color = ELEMENTS[type].grayColor;
 		else
 			color = ELEMENTS[type].color;
-		Color* dest = &grp[(int)i->pos.y][(int)i->pos.x];
+		Color* dest = Draw_pxRef(i->pos.x, i->pos.y);
 		int red, green, blue;
 		if (Menu_bgMode == Bg_LIGHT) {
 			red=((color&0xFF0000)>>18)+(*dest>>16&0xFF);
@@ -164,5 +167,87 @@ void Part_reset(int a) {
 			for (x=0;x<WIDTH;x++)
 				if (Part_blocks[y/4][x/4].block==1)
 					Part_at[y][x] = Part_BLOCK;
+	}
+}
+
+void Part_update(void) {
+	// todo: wheels
+	bool dragStart = (Menu_leftSelection == Menu_DRAG && Mouse_rising.left) || (Menu_rightSelection == Menu_DRAG && Mouse_rising.right); //todo: function for this
+	bool dragging = (Menu_leftSelection == Menu_DRAG && Mouse_old.left) || (Menu_rightSelection == Menu_DRAG && Mouse_old.right);
+	Part* p;
+	forRange (p, =parts, <next, ++) {
+		if (!Menu_cursorInMenu && wa==0) {
+			if (!p->held) {
+				if (dragStart) {
+					if (p->type == Elem_FAN)
+						continue;
+					Vector d = {Pen_x, Pen_y};
+					Vec_sub(&d, &p->pos);
+					if (Vec_fastDist(&d) < 4*Menu_penSize)
+						p->held = true;
+				}
+			} else if (dragging) {
+				Vector d = {Pen_x, Pen_y};
+				Vec_sub(&d, &p->pos);
+				Vec_mul(&d, 0.1);
+				Vec_add(&p->vel, &d);
+			} else {
+				p->held = false;
+			}
+		}
+		if (p->type != Elem_FAN)
+			*Part_pos2(&p->pos) = Part_EMPTY;
+		ElemFunc f = ELEMENTS[p->type].update;
+		if (f) {
+			if (f(p, &Part_blocks[(int)p->pos.y/4][(int)p->pos.x/4]))
+				p--; //part died
+		}
+	} //for
+
+	// check parts that go off screen
+	forRange (p, =parts, <next, ++) {
+		if (Menu_edgeMode==0) { // void edge
+			if (p->pos.x<8||p->pos.y>=408||p->pos.y<8||p->pos.y>=308) {
+				Part_remove(p--);
+			}
+		} else { //loop edge
+			if (p->pos.x<8) {
+				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x+400];
+				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<308) {
+					*Part_pos2(&p->pos) = Part_EMPTY;
+					p->pos.x += 400;
+					*o = p;
+				} else {
+					Part_remove(p--);
+				}
+			} else if (p->pos.x>=408) {
+				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x-400];
+				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<308) {
+					*Part_pos2(&p->pos) = Part_EMPTY;
+					p->pos.x -= 400;
+					*o = p;
+				} else {
+					Part_remove(p--);
+				}
+			} else if (p->pos.y<8) {
+				Part** o = &Part_at[(int)p->pos.y+300][(int)p->pos.x];
+				if (*o<=Part_BGFAN) {
+					*Part_pos2(&p->pos) = Part_EMPTY;
+					p->pos.y += 300;
+					*o = p;
+				} else {
+					Part_remove(p--);
+				}
+			} else if (p->pos.y>=308) {
+				Part** o = &Part_at[(int)p->pos.y-300][(int)p->pos.x];
+				if (*o<=Part_BGFAN) {
+					*Part_pos2(&p->pos) = Part_EMPTY;
+					p->pos.y -= 300;
+					*o = p;
+				} else {
+					Part_remove(p--);
+				}
+			}
+		}
 	}
 }

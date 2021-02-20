@@ -14,3 +14,9 @@ typedef struct MouseState {
 } MouseState;
 
 void Input_update(void);
+
+extern MouseState Mouse_now;
+extern MouseState Mouse_old;
+extern MouseState Mouse_older;
+extern MouseState Mouse_rising;
+extern MouseState Mouse_falling;

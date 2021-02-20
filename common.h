@@ -3,6 +3,11 @@
 
 typedef uint32_t Color;
 
+#define when(x) break;case x
+#define orwhen : case
+#define otherwise break;default
+#define forRange(var, start, cond, step) for(var start; var cond; var step)
+
 // height of framebuffer
 #define WIDTH 416
 #define HEIGHT 464
@@ -13,5 +18,3 @@ typedef uint32_t Color;
 #define WINDOW_HEIGHT (HEIGHT-8)
 
 #define AUTORUN __attribute__((constructor)) static void init_##__LINE__(void)
-
-extern Color grp[HEIGHT][WIDTH];

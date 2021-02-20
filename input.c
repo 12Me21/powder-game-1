@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <X11/Xlib.h>
 #include "input.h"
 #include "menu.h"
 #include "vector.h"
@@ -26,17 +25,13 @@ int Mouse_fallingDirection;
 
 
 
-extern Display* D;
-extern Window win;
+int Platform_mouseX, Platform_mouseY;
+bool Platform_keys[256]; //todo: this won't capture keypresses that start+end within 1 frame
 
 void Input_update(void) {
-	int x,y,z;
-	Window q;
-	unsigned int mask;
-	if (XQueryPointer(D, win, &q, &q,&z,&z, &x, &y, &mask)) {
-		Mouse_now.x = x;
-		Mouse_now.y = y;
-	}
+	Mouse_now.x = Platform_mouseX;
+	Mouse_now.y = Platform_mouseY;
+
 	Pen_x = Mouse_now.x;
 	Pen_y = Mouse_now.y;
 	Mouse_rising.left = !Mouse_old.left && Mouse_now.left;

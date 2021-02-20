@@ -9,6 +9,9 @@
 #include "part.h"
 #include "elements.h"
 
+// we are assuming that colors are represented in a normal format etc.
+Color grp[HEIGHT][WIDTH] = {0};
+
 int blendmode = 0;
 
 Color composite(Color base, Color new, int alpha) {
@@ -174,4 +177,18 @@ void Draw_centeredText(int x, int y, char* text, Color color){
 	x -= strlen(text)*8>>1;
 	y -= 12>>1;
 	Draw_text(x, y, text, color, 0);
+}
+
+void Draw_ball(int x, int y, Color color) {
+	int j;
+	forRange (j, =-1, <=1, ++) {
+		grp[y-2][x+j] = color;
+		grp[y+2][x+j] = color;
+		grp[y+j][x-2] = color;
+		grp[y+j][x+2] = color;
+	}
+}
+
+Color* Draw_pxRef(int x, int y) {
+	return &grp[y][x];
 }

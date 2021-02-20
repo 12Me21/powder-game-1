@@ -1,9 +1,11 @@
+#pragma once
 #include <stdbool.h>
 #include "common.h"
+#include "part.h"
 
 enum State {State_NONE=0, State_POWDER, State_LIQUID, State_HOT, State_SOLID, State_GAS};
 
-typedef bool (*elemFunc)(void);
+typedef bool (*ElemFunc)(Part* p, Block* b);
 
 typedef struct ElementDef {
 	char* name;
@@ -13,13 +15,28 @@ typedef struct ElementDef {
 	int dissolveRate;
 	int temperature;
 	double friction;
+	bool ballLight;
 	Color grayColor;
-	elemFunc update;
+	ElemFunc update;
 } ElementDef;
 
+// some of these are pseudo-elements which are only used in savedata
 enum Element {
 	Elem_EMPTY=-5, Elem_BGFAN=-4, Elem_WHEEL=-3, Elem_BALL=-2, Elem_BLOCK=-1,
-	Elem_POWDER=2, Elem_WATER, Elem_FIRE, Elem_SEED, Elem_WOOD, Elem_GUNPOWDER, Elem_FAN, Elem_9, Elem_ICE, Elem_SNOW, Elem_STEAM, Elem_SUPERBALL, Elem_CLONE, Elem_FIREWORKS, Elem_OIL, Elem_C4, Elem_18, Elem_STONE, Elem_MAGMA, Elem_VIRUS, Elem_BOX=22, Elem_NITRO, Elem_ANT, Elem_TORCH, Elem_GAS, Elem_SOAPY, Elem_THUNDER, Elem_METAL, Elem_PLAYER=30, Elem_BOMB, Elem_PLAYER2=32, Elem_LASER, Elem_ACID, Elem_VINE, Elem_SALT, Elem_SALTWATER, Elem_GLASS, Elem_BIRD, Elem_SAVE_BALL, Elem_MERCURY, Elem_SPARK, Elem_FUSE, Elem_CLOUD, Elem_PUMP=45,
+	Elem_SAVE_BLOCK=1,
+	Elem_POWDER=2, Elem_WATER, Elem_FIRE, Elem_SEED, Elem_WOOD, Elem_GUNPOWDER, Elem_FAN,
+	Elem_SAVE_WHEEL1,
+	Elem_ICE, Elem_SNOW, Elem_STEAM, Elem_SUPERBALL, Elem_CLONE, Elem_FIREWORKS, Elem_OIL, Elem_C4,
+	Elem_SAVE_WHEEL2,
+	Elem_STONE, Elem_MAGMA, Elem_VIRUS,
+	Elem_BOX=22,
+	Elem_NITRO, Elem_ANT, Elem_TORCH, Elem_GAS, Elem_SOAPY, Elem_THUNDER, Elem_METAL,
+	Elem_PLAYER=30,
+	Elem_BOMB,
+	Elem_PLAYER2=32,
+	Elem_LASER, Elem_ACID, Elem_VINE, Elem_SALT, Elem_SALTWATER, Elem_GLASS, Elem_BIRD,
+	Elem_SAVE_BALL,
+	Elem_MERCURY, Elem_SPARK, Elem_FUSE, Elem_CLOUD, Elem_PUMP=45,
 	Elem_MAX,
 };
 
