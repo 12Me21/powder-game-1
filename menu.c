@@ -4,24 +4,33 @@
 #include "elements.h"
 #include "draw.h"
 #include "part.h"
+#include "input.h"
+#include "menu.h"
 #include "bg.h"
+#include "save.h"
 
-static Color normalMenuImage[HEIGHT-308][WIDTH];
+//todo: split this file into menu rendering + menu buttons/controls
 
+static Color normalMenuImage[MENU_HEIGHT][WIDTH];
+
+enum PenMode {Pen_FREE, Pen_LINE, Pen_LOCK, Pen_PAINT};
+extern int wa;
 static void Draw_count(int x, int y, int n, Color c) {
 	char buffer[29];
 	sprintf(buffer, "  %d", n);
-	Draw_spacedText(12+x,311+y,buffer,c,0,-1);
+	Draw_spacedText(12+x,H+11+y,buffer,c,0,-1);
 }
 
 int Pen_x, Pen_y;
+int Pen_oldx, Pen_oldy;
+Vector Pen_dir;
 
 bool Menu_numberMenu = false;
 bool Menu_copyMode = false;
 bool Menu_paused = false;
 bool Menu_cursorInMenu = false;
 int Menu_penMode = 0;
-int Menu_leftSelection = 0;
+int Menu_leftSelection = 10;
 int Menu_rightSelection = 0;
 int Menu_penSize = 0;
 int Menu_zoomLevel = 0;
@@ -37,12 +46,28 @@ int Menu_fps = 0;
 
 int Part_LIMITS[3] = {10000, 20000, 40000}; //todo;
 
+static int wrap(int a, int b) {
+	if (a<0)
+		return b;
+	if (a>b)
+		return 0;
+	return a;
+}
+
+static bool mouseinside(int x, int y, int width, int height) {
+	return !(Mouse_old.x<x||Mouse_old.x>=x+width||Mouse_old.y<y||Mouse_old.y>=y+height);
+}
+
 void Menu_render(void) {
-	memcpy(Draw_pxRef(0, 308), normalMenuImage, sizeof(normalMenuImage));
-	int* counts = Part_updateCounts();
+	if (Mouse_old.y>=H && Mouse_risingClick)
+		Menu_cursorInMenu=true;
+	else if (Mouse_old.y<H)
+		Menu_cursorInMenu=false;
+	memcpy(Draw_pxRef(0, H+8), normalMenuImage, sizeof(normalMenuImage));
 	int c=12;
-	int e=311;
+	int e=H+11;
 	if (Menu_numberMenu) {
+		int* counts = Part_updateCounts();
 		Draw_rectangle(c+4+0+8,e+0,48,137,0x404040);
 		Draw_rectangle(c+4+56+8,e+0,48,137,0x404040);
 		Draw_rectangle(c+4+112+8,e+0,48,137,0x404040);
@@ -93,8 +118,74 @@ void Menu_render(void) {
 		Draw_count(4+168,84,counts[Elem_CLOUD],0xCCCCCC);
 		Draw_count(4+168,98,counts[Elem_PUMP],0x003333);
 	}
+	// clicked a menu button
+	if (mouseinside(c-8,e-8,391,139) && Menu_cursorInMenu && wa==0) {
+		int d = (Mouse_old.x-(c-8))/56;
+		int b = (Mouse_old.y-(e-8))/14;
+		int selection = clamp(10*d+b,0,69);
+		switch (selection) {
+		when(Menu_COPYPASTE):
+			if (Mouse_rising.left) {
+				if (Menu_leftSelection == Menu_COPYPASTE)
+					Menu_copyMode = !Menu_copyMode;
+				Menu_leftSelection = selection;
+			}
+			if (Mouse_rising.right) {
+				if (Menu_rightSelection == Menu_COPYPASTE)
+					Menu_copyMode = !Menu_copyMode;
+				Menu_rightSelection = selection;
+			}
+		when(Menu_PEN):
+			Menu_penMode = wrap(Menu_penMode+Mouse_fallingDirection, 3);
+		when(Menu_PENSIZE):
+			Menu_penSize = wrap(Menu_penSize+Mouse_fallingDirection, 9);
+		when(Menu_SPEED):
+			Menu_gameSpeed = wrap(Menu_gameSpeed+Mouse_fallingDirection, 3);
+		when(Menu_START):
+			Menu_paused=wrap((Menu_paused?1:0)+Mouse_fallingDirection,1)==1;
+		when(Menu_UPLOAD):
+			if (Mouse_fallingDirection)
+				wa=1;
+		when(Menu_SAVE):
+			if (Mouse_rising.left || Mouse_rising.right) {
+				//save1();
+				//makesavestring();
+				buttonflash=10;
+			}
+		when(Menu_LOAD):
+			if (Mouse_fallingDirection!=0) {
+				//loadsavestring();
+				//load1();
+				buttonflash=-10;
+			}
+		when(Menu_MINIMAP):
+			Menu_minimapEnabled = wrap(Menu_minimapEnabled+Mouse_fallingDirection,1);
+		when(Menu_MENU):
+			Menu_numberMenu = wrap(Menu_numberMenu+Mouse_fallingDirection, 1);
+		when(Menu_SIDE):
+			Menu_edgeMode = wrap(Menu_edgeMode+Mouse_fallingDirection, 1);
+		when(Menu_GRID):
+			Menu_gridSize=wrap(Menu_gridSize+Mouse_fallingDirection, 7);
+		when(Menu_BG):
+			Menu_bgMode = wrap(Menu_bgMode+Mouse_fallingDirection, 13);
+			if (Mouse_fallingDirection)
+				Bg_reset();
+		when(Menu_DOT):
+			Menu_dotLimit = wrap(Menu_dotLimit+Mouse_fallingDirection, 2);
+		when(Menu_RESET):
+			if (Mouse_fallingDirection)
+				Part_reset(0);
+		otherwise:
+			if (selection < 38 || selection >= 40) {
+				if (Mouse_rising.left)
+					Menu_leftSelection = selection;
+				else if (Mouse_rising.right)
+					Menu_rightSelection = selection;
+			}
+		}
+	}
 	if (Menu_numberMenu)
-		Draw_line(8,308,408,308,0x660000);
+		Draw_line(8,H+8,W+8,H+8,0x660000);
 	if (Menu_copyMode)
 		Draw_spacedText(c+4+280-1,e+42,"Copy",0xFF4040,-1,-2);
 	else
@@ -129,7 +220,7 @@ void Menu_render(void) {
 	str = Menu_edgeMode ? "OFF" : "LOOP";
 	Draw_spacedText(c+4+336+25,e+70,str,-1,0,-2);
 	Draw_spacedText(c+4+336+25,e+70,str,0xFFFFFF,-1,-2);
-	//Draw_text(c+4+336,e+84,"     "+Menu_gridSize,8388608,0)
+	Draw_printf(c+4+336,e+84,0x800000,0,0,"     %d",Menu_gridSize); //this is too dark
 	str = (char*[]){"none","air","line","blur","shade","aura","light","toon","mesh","gray","track","dark","TG","siluet"}[Menu_bgMode];
 	Draw_spacedText(c+4+336+6*3,e+98,str,-1,0,-2);
 	Draw_spacedText(c+4+336+6*3,e+98,str,0xFFFFFF,-1,-2);
@@ -137,54 +228,45 @@ void Menu_render(void) {
 	Draw_rectangle(c+0+56*(Menu_leftSelection/10),e+Menu_leftSelection%10*14,3,3,0xFF0000);
 	///rectangle(c+0+56*floor(Menu_middleSelection/10),e+4+Menu_middleSelection%10*14,3,3,0x00FF00);
 	Draw_rectangle(c+0+56*(Menu_rightSelection/10),e+8+Menu_rightSelection%10*14,3,3,0x0000FF);
-	Draw_printf(64,451,-1,0,-1," %d",Pen_x-8);
-	Draw_printf(64,451,-1,0,-1,"      %d",Pen_y-8);
+	Draw_printf(64,H+151,-1,0,-1," %d",Pen_x-8);
+	Draw_printf(64,H+151,-1,0,-1,"      %d",Pen_y-8);
 	//Draw_printf(141,451,-1,0,-1,"   %d",Parts_limits[Menu_dotLimit]-Parts_used);
-	Draw_printf(16,451,-1,0,0,"%dfps",Menu_fps);
+	Draw_printf(16,H+151,-1,0,0,"%dfps",Menu_fps);
 	//if(sldebug==1){
 	//	k.drawtext(64,451,Sc+"sl",0xFFFFFF,0);
 	//}
 	//draw Menu_minimapEnabled
-	/*if (Menu_minimapEnabled) {
+	if (Menu_minimapEnabled) {
 		c=15;
-		if (mouse.old.x<116 && Menu_cursorInMenu)
+		if (Mouse_old.x<116 && Menu_cursorInMenu)
 			c=127;
 		e=314;
-		Draw_rectangle(c-3,e-3,106,81,0x808080);
+		Draw_rectangle(c-3,e-3,W/4+6,H/4+6,0x808080);
 		save1();
-		a=0;
-		c=WIDTH*e+c;
-		for (b=0;b<300;b+=4,c+=WIDTH-100) {
-			for (d=0;d<400;d+=4,c++) {
-				e=b*400+d;
-				if (savedataarray[e]==0)
-					e+=401;
-				a=
-					Menu_bgMode==Bg_DARK?
-						states[savedataarray[e]]==State_HOT?
-							savedataarray[e]
-						:
-							0
-					:
-						Menu_bgMode==Bg_SILUET?
-							savedataarray[e]==0?
-								0
-							:
-								1
-						:
-							savedataarray[e];
-				
-				screenbuffer[c]=
-					Menu_bgMode==Bg_GRAY?
-pp						grays[a]
-					:
-						Menu_bgMode==Bg_SILUET?
-							a==0?
-								0xFFFFFF
-							:
-								0
-						:
-							colors[a];
+		int a=0;
+		int b,d;
+		for (b=0; b<H; b+=4) {
+			for (d=0; d<W; d+=4) {
+				e = b*W+d;
+				if (saveDataArray[e]==0) //try avoid empty?
+					e += W+1;
+				a = 0;
+				if (Menu_bgMode == Bg_DARK) {
+					if (ELEMENTS[saveDataArray[e]].state == State_HOT)
+						a = saveDataArray[e];
+				} else if (Menu_bgMode==Bg_SILUET) {
+					if (saveDataArray[e]!=0)
+						a = 1;
+				} else
+					a = saveDataArray[e];
+				Color col;
+				if (Menu_bgMode==Bg_GRAY)
+					col = ELEMENTS[a].grayColor;
+				else if (Menu_bgMode==Bg_SILUET)
+					col = a==0 ? 0xFFFFFF : 0;
+				else
+					col = ELEMENTS[a].color;
+				*Draw_pxRef(c+d/4, H+14+b/4) = col;
 			}
 		}
 		}
@@ -194,98 +276,195 @@ pp						grays[a]
 
 void Draw_init(void) {
 	Draw_rectangle(0,0,WIDTH,HEIGHT,0x404040);
-	Draw_spacedText(211,451,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
-	Draw_text(16,311,"POWDER",0xF2BD6B,0);
-	Draw_text(16,325,"WATER",0x4040FF,0);
-	Draw_text(16,339,"FIRE",0xFF4040,0);
-	Draw_text(16,353,"SEED",0x90C040,0);
-	Draw_text(16,367,"WOOD",0x805020,0);
+	Draw_spacedText(211,H+151,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
+	Draw_text(16,H+11,"POWDER",0xF2BD6B,0);
+	Draw_text(16,H+25,"WATER",0x4040FF,0);
+	Draw_text(16,H+39,"FIRE",0xFF4040,0);
+	Draw_text(16,H+53,"SEED",0x90C040,0);
+	Draw_text(16,H+67,"WOOD",0x805020,0);
 	// -2 spaced text needs to be drawn this special way
 	// maybe fix this
-	Draw_spacedText(16,381,"G-POWDER",-1,0,-2);
-	Draw_spacedText(16,381,"G-POWDER",0xB08050,-1,-2);
-	Draw_text(16,395,"FAN",0x8080FF,0);
-	Draw_text(16,409,"ICE",0xD0D0FF,0);
-	Draw_text(16,423,"SNOW",0xFFFFFF,0);
-	Draw_text(16,437,"STEAM",0xE0E0E0,0);
+	Draw_spacedText(16,H+81,"G-POWDER",-1,0,-2);
+	Draw_spacedText(16,H+81,"G-POWDER",0xB08050,-1,-2);
+	Draw_text(16,H+95,"FAN",0x8080FF,0);
+	Draw_text(16,H+109,"ICE",0xD0D0FF,0);
+	Draw_text(16,H+123,"SNOW",0xFFFFFF,0);
+	Draw_text(16,H+137,"STEAM",0xE0E0E0,0);
 		
-	Draw_text(72,311,"S-BALL",0xFF40A0,0);
-	Draw_text(72,325,"CLONE",0x907010,0);
-	Draw_spacedText(72,339,"F-WORKS",0xFF9966,0,-1);
-	Draw_text(72,353,"OIL",0x803020,0);
-	Draw_text(72,367,"C-4",0xFFFFCC,0);
-	Draw_text(72,381,"STONE",0x808080,0);
-	Draw_text(72,395,"MAGMA",0xFF6633,0);
-	Draw_text(72,409,"VIRUS",0x800080,0);
-	Draw_text(72,423,"NITRO",0x447700,0);
-	Draw_text(72,437,"ANT",0xC080C0,0);
+	Draw_text(72,H+11,"S-BALL",0xFF40A0,0);
+	Draw_text(72,H+25,"CLONE",0x907010,0);
+	Draw_spacedText(72,H+39,"F-WORKS",0xFF9966,0,-1);
+	Draw_text(72,H+53,"OIL",0x803020,0);
+	Draw_text(72,H+67,"C-4",0xFFFFCC,0);
+	Draw_text(72,H+81,"STONE",0x808080,0);
+	Draw_text(72,H+95,"MAGMA",0xFF6633,0);
+	Draw_text(72,H+109,"VIRUS",0x800080,0);
+	Draw_text(72,H+123,"NITRO",0x447700,0);
+	Draw_text(72,H+137,"ANT",0xC080C0,0);
 		
-	Draw_text(128,311,"TORCH",0xFFA020,0);
-	Draw_text(128,325,"GAS",0xCC9999,0);
-	Draw_text(128,339,"SOAPY",0xE0E0E0,0);
-	Draw_spacedText(128,353,"THUNDER",0xFFFF20,0,-1);
-	Draw_text(128,367,"METAL",0x404040,0);
-	Draw_text(128,381,"BOMB",0x666600,0);
-	Draw_text(128,395,"LASER",0xCC0000,0);
-	Draw_text(128,409,"ACID",0xCCFF00,0);
-	Draw_text(128,423,"VINE",0x00BB00,0);
-	Draw_text(128,437,"SALT",0xFFFFFF,0);
+	Draw_text(128,H+11,"TORCH",0xFFA020,0);
+	Draw_text(128,H+25,"GAS",0xCC9999,0);
+	Draw_text(128,H+39,"SOAPY",0xE0E0E0,0);
+	Draw_spacedText(128,H+53,"THUNDER",0xFFFF20,0,-1);
+	Draw_text(128,H+67,"METAL",0x404040,0);
+	Draw_text(128,H+81,"BOMB",0x666600,0);
+	Draw_text(128,H+95,"LASER",0xCC0000,0);
+	Draw_text(128,H+109,"ACID",0xCCFF00,0);
+	Draw_text(128,H+123,"VINE",0x00BB00,0);
+	Draw_text(128,H+137,"SALT",0xFFFFFF,0);
 		
-	Draw_spacedText(184,311,"S-WATER",0x3399FF,0,-1);
-	Draw_text(184,325,"GLASS",0x404040,0);
-	Draw_text(184,339,"BIRD",0x807050,0);
-	Draw_spacedText(184,353,"MERCURY",0xAAAAAA,0,-1);
-	Draw_text(184,367,"SPARK",0xFFCC33,0);
-	Draw_text(184,381,"FUSE",0x443322,0);
-	Draw_text(184,395,"CLOUD",0xCCCCCC,0);
-	Draw_text(184,409,"PUMP",0x003333,0);
+	Draw_spacedText(184,H+11,"S-WATER",0x3399FF,0,-1);
+	Draw_text(184,H+25,"GLASS",0x404040,0);
+	Draw_text(184,H+39,"BIRD",0x807050,0);
+	Draw_spacedText(184,H+53,"MERCURY",0xAAAAAA,0,-1);
+	Draw_text(184,H+67,"SPARK",0xFFCC33,0);
+	Draw_text(184,H+81,"FUSE",0x443322,0);
+	Draw_text(184,H+95,"CLOUD",0xCCCCCC,0);
+	Draw_text(184,H+109,"PUMP",0x003333,0);
 		
-	Draw_text(240,311,"WIND",0x8080FF,0);
-	Draw_text(240,325,"AIR",0x8080FF,0);
-	Draw_text(240,339,"DRAG",0xFFFFFF,0);
-	Draw_text(240,353,"B",0xFFE0E0,0);
-	Draw_text(240,353," U",0xFFFFE0,0);
-	Draw_text(240,353,"  B",0xE0FFE0,0);
-	Draw_text(240,353,"   B",0xE0FFFF,0);
-	Draw_text(240,353,"    L",0xE0E0FF,0);
-	Draw_text(240,353,"     E",0xFFE0FF,0);
-	Draw_text(240,367,"WHEEL",0xB0A090,0);
-	Draw_text(240,381,"PLAYER",0xF2BD6B,0);
-	Draw_spacedText(240,395,"FIGHTER",0xF2BD6B,0,-1);
-	Draw_text(240,409,"BOX",0xF2BD6B,0);
-	Draw_text(240,423,"BALL",0xF2BD6B,0);
-	Draw_text(240,437,"CREATE",0x907010,0);
-	Draw_text(296,311,"BLOCK",0x808080,0);
-	Draw_text(296,325,"ERASE",0x808080,0); //rename?
-	Draw_text(296,339,"CLEAR",0xFFFFFF,0);
-	Draw_spacedText(295,353,"Copy",-1,0,-2);
-	Draw_spacedText(295,353,"Copy",0xFFFFFF,-1,-2);
-	Draw_spacedText(319,353,"Paste",-1,0,-3);
-	Draw_spacedText(319,353,"Paste",0xFFFFFF,-1,-3);
-	Draw_text(296,367,"TEXT",0xFFFFFF,0);
-	Draw_spacedText(296,381,"PEN",-1,0,-1);
-	Draw_spacedText(296,381,"PEN",0xFFFFFF,-1,-1);
-	Draw_spacedText(296,395,"PEN-S ",0xFFFFFF,0,-1);
-	Draw_spacedText(296,409,"SCALE",0xFFFFFF,0,-1);
-	Draw_spacedText(296,423,"SPEEDx",0xFFFFFF,0,-1);
-	Draw_spacedText(295,437,"Start",-1,0,-3);
-	Draw_spacedText(295,437,"Start",0xFFFFFF,-1,-3);
-	Draw_spacedText(321,437,"Stop",-1,0,-2);
-	Draw_spacedText(321,437,"Stop",0xFFFFFF,-1,-2);
-	Draw_text(352,311,"UPLOAD",0xFFA0A0,0);
-	Draw_text(352,325,"SAVE",0xFFA0A0,0);
-	Draw_text(352,339,"LOAD",0xFFA0A0,0);
-	Draw_spacedText(352,353,"MiniMap",0xFFA0A0,0,-1);
-	Draw_spacedText(352,367,"MENU-",-1,0,-2);
-	Draw_spacedText(352,367,"MENU-",0xFFFFFF,-1,-2);
-	Draw_spacedText(352,381,"SIDE-",-1,0,-3);
-	Draw_spacedText(352,381,"SIDE-",0xFFFFFF,-1,-3);
-	Draw_text(352,395,"GRID",0x800000,0);
-	Draw_spacedText(352,409,"BG-",-1,0,-2);
-	Draw_spacedText(352,409,"BG-",0xFFFFFF,-1,-2);
-	Draw_text(352,423,"DOT ",0xFFFFFF,0);
-	Draw_text(352,437,"RESET",0xFFFFFF,0);
-	Draw_spacedText(64,451,"x    y",-1,0,-1);
-	Draw_spacedText(141,451,"dot",-1,0,-1);
-	memcpy(normalMenuImage, Draw_pxRef(0, 308), sizeof(normalMenuImage));
+	Draw_text(240,H+11,"WIND",0x8080FF,0);
+	Draw_text(240,H+25,"AIR",0x8080FF,0);
+	Draw_text(240,H+39,"DRAG",0xFFFFFF,0);
+	Draw_text(240,H+53,"B",0xFFE0E0,0);
+	Draw_text(240,H+53," U",0xFFFFE0,0);
+	Draw_text(240,H+53,"  B",0xE0FFE0,0);
+	Draw_text(240,H+53,"   B",0xE0FFFF,0);
+	Draw_text(240,H+53,"    L",0xE0E0FF,0);
+	Draw_text(240,H+53,"     E",0xFFE0FF,0);
+	Draw_text(240,H+67,"WHEEL",0xB0A090,0);
+	Draw_text(240,H+81,"PLAYER",0xF2BD6B,0);
+	Draw_spacedText(240,H+95,"FIGHTER",0xF2BD6B,0,-1);
+	Draw_text(240,H+109,"BOX",0xF2BD6B,0);
+	Draw_text(240,H+123,"BALL",0xF2BD6B,0);
+	Draw_text(240,H+137,"CREATE",0x907010,0);
+	Draw_text(296,H+11,"BLOCK",0x808080,0);
+	Draw_text(296,H+25,"ERASE",0x808080,0); //rename?
+	Draw_text(296,H+39,"CLEAR",0xFFFFFF,0);
+	Draw_spacedText(295,H+53,"Copy",-1,0,-2);
+	Draw_spacedText(295,H+53,"Copy",0xFFFFFF,-1,-2);
+	Draw_spacedText(319,H+53,"Paste",-1,0,-3);
+	Draw_spacedText(319,H+53,"Paste",0xFFFFFF,-1,-3);
+	Draw_text(296,H+67,"TEXT",0xFFFFFF,0);
+	Draw_spacedText(296,H+81,"PEN",-1,0,-1);
+	Draw_spacedText(296,H+81,"PEN",0xFFFFFF,-1,-1);
+	Draw_spacedText(296,H+95,"PEN-S ",0xFFFFFF,0,-1);
+	Draw_spacedText(296,H+109,"SCALE",0xFFFFFF,0,-1);
+	Draw_spacedText(296,H+123,"SPEEDx",0xFFFFFF,0,-1);
+	Draw_spacedText(295,H+137,"Start",-1,0,-3);
+	Draw_spacedText(295,H+137,"Start",0xFFFFFF,-1,-3);
+	Draw_spacedText(321,H+137,"Stop",-1,0,-2);
+	Draw_spacedText(321,H+137,"Stop",0xFFFFFF,-1,-2);
+	Draw_text(352,H+11,"UPLOAD",0xFFA0A0,0);
+	Draw_text(352,H+25,"SAVE",0xFFA0A0,0);
+	Draw_text(352,H+39,"LOAD",0xFFA0A0,0);
+	Draw_spacedText(352,H+53,"MiniMap",0xFFA0A0,0,-1);
+	Draw_spacedText(352,H+67,"MENU-",-1,0,-2);
+	Draw_spacedText(352,H+67,"MENU-",0xFFFFFF,-1,-2);
+	Draw_spacedText(352,H+81,"SIDE-",-1,0,-3);
+	Draw_spacedText(352,H+81,"SIDE-",0xFFFFFF,-1,-3);
+	Draw_text(352,H+95,"GRID",0x800000,0);
+	Draw_spacedText(352,H+109,"BG-",-1,0,-2);
+	Draw_spacedText(352,H+109,"BG-",0xFFFFFF,-1,-2);
+	Draw_text(352,H+123,"DOT ",0xFFFFFF,0);
+	Draw_text(352,H+137,"RESET",0xFFFFFF,0);
+	Draw_spacedText(64,H+151,"x    y",-1,0,-1);
+	Draw_spacedText(141,H+151,"dot",-1,0,-1);
+	memcpy(normalMenuImage, Draw_pxRef(0, H+8), sizeof(normalMenuImage));
+}
+
+void Menu_update(void) {
+	int i;
+	for (i=0;i<=1;i++) {
+		int selection = i ? Menu_rightSelection : Menu_leftSelection;
+		bool rising = i ? Mouse_rising.right : Mouse_rising.left;
+		bool falling = i ? Mouse_falling.right : Mouse_falling.left;
+		bool old = i ? Mouse_old.right : Mouse_old.left;
+		if (selection < 38) {
+			if (Menu_penMode == Pen_LINE)
+				old = falling;
+			if (old) {
+				int vx = Pen_x - Pen_oldx;
+				int vy = Pen_y - Pen_oldy;
+				if (Menu_penSize>1 || !Menu_paused || Menu_zoomLevel>1 || vx || vy || Menu_penMode == Pen_PAINT) {
+					int w = abs(vx);
+					if (w<abs(vy)) w=abs(vy);
+					if (w<1) w=1;
+					vx = (vx<<8)/w;
+					vy = (vy<<8)/w;
+					int x2 = (Pen_oldx<<8)+127;
+					int y2 = (Pen_oldy<<8)+127;
+					int c;
+					// for each point along line
+					for (c=0; c<=w; c++,x2+=vx,y2+=vy) {
+						int xStart = (x2>>8)-Menu_penSize;
+						int yStart = (y2>>8)-Menu_penSize;
+						int xEnd=xStart+2*Menu_penSize;
+						int yEnd=yStart+2*Menu_penSize;
+						if (xStart<8) xStart=8;
+						if (yStart<8) yStart=8;
+						if (xEnd>W+8-1) xEnd=W+8-1;
+						if (yEnd>H+8-1) yEnd=H+8-1;
+						int f,g;
+						for (g=yStart; g<=yEnd; g++) {
+							for (f=xStart; f<=xEnd; f++) {
+								// circle
+								if (Menu_penSize*Menu_penSize+1<(f-(x2>>8))*(f-(x2>>8))+(g-(y2>>8))*(g-(y2>>8))) continue;
+								Part* p = Part_at[g][f];
+								if (Menu_penMode == Pen_PAINT) {
+									int e = Menu_BUTTONS[selection].element ?: Elem_POWDER;
+									int meta = 0;
+									if (e!=Elem_FAN) {
+										if (e==Elem_FIREWORKS) {
+											meta = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
+										} else if (e==Elem_LASER) {
+											meta = 8*Vec_angle(&Pen_dir)/TAU+0.5;
+											if (meta>=8)
+												meta = 0;
+											meta = meta+1;
+										}
+										if (p>=Part_0 && p->type!=e)
+											;//paint(f, g, p->type, e, meta);
+									}
+								} else if (p == Part_EMPTY) {
+									int pa = Menu_BUTTONS[selection].element;
+									if((i==0 && Mouse_old.right && Menu_rightSelection<38 || i==1 && Mouse_old.left && Menu_leftSelection<38) && Random_(100)<50) {
+										pa = Menu_BUTTONS[i==0?Menu_rightSelection:Menu_leftSelection].element;
+									}
+									//printf("create %d %d %d\n", f, g, pa);
+									Part* e = Part_create(f, g, pa);
+									if (e>=Part_0) {
+										if (pa==Elem_FAN) {
+											Vec_mul2(&e->vel, &Pen_dir, 0.1);
+										} else if (pa==Elem_FIREWORKS) {
+											e->meta = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
+										} else if (pa==Elem_LASER) {
+											int meta = 8*Vec_angle(&Pen_dir)/TAU+0.5;
+											if (meta>=8)
+												meta = 0;
+											e->meta = meta+1;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		} else {
+			switch (selection) {
+			when(Menu_WIND):;
+				Vector b;
+				Vec_mul2(&b, &Pen_dir, 10);
+				Block* e = &Part_blocks[Pen_y>>2][Pen_x>>2];
+				if (old && e->block == 0) {
+					Vec_add(&e->vel, &b);
+					if (Vec_fastDist(&e->vel)>10 && Menu_paused) {
+						Vec_fastNormalize(&e->vel);
+						Vec_mul(&e->vel, 10);
+					}
+				}
+				//when(Button_AIR):
+			}
+		}
+	}
 }

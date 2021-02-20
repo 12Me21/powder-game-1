@@ -1,6 +1,5 @@
 #include <math.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "vector.h"
 
 // Note!
@@ -108,7 +107,6 @@ static int randomIndex = 0, randomStep = 0;
 static float randomFloat(void) {
 	randomIndex += randomStep;
 	randomIndex &= 0x3FF;
-	//printf("rnd: %d\n", randomIndex);
 	return randomFloats[randomIndex];
 }
 
@@ -129,7 +127,7 @@ void Random_update(void) {
 	randomStep = rand() % 512 | 1;
 }
 
-void mathInit(void) {
+void mathInit() {
 	// init random numbers
 	int i;
 	for (i=0;i<1024;i++)

@@ -1770,7 +1770,7 @@ function mouse_stuff(mousebutton){ //d=mouse button
 									}
 								}else if(parts[La]==Parts_EMPTY){
 									var pa=menuelements[q]
-									if((mousebutton==0&&mouse.old.right&&Menu_rightSelection<elementbuttons || mousebutton==1&&mouse.old.Menu_leftSelection&&Menu_leftSelection<elementbuttons)&&random(100)<50){
+									if((mousebutton==0&&mouse.old.right&&Menu_rightSelection<elementbuttons || mousebutton==1&&mouse.old.left &&Menu_leftSelection<elementbuttons)&&random(100)<50){
 										pa=menuelements[mousebutton==0?Menu_rightSelection:Menu_leftSelection]
 									}
 									e=Parts_create(f,g,pa);
@@ -5548,7 +5548,7 @@ yd.prototype.Entities_update=function(){
 			if(y==0){
 				y=parts[floor(Entities_oldpos[c+5].y)*WIDTH+floor(Entities_oldpos[c+5].x)]>Parts_BGFAN?1:0;
 			}
-			//high jumping
+[			//high jumping
 			if(down&&Entities.meta2[d]==BIRD){
 				for(b=0;b<6;b++){
 					Entities_Re(c+b,0.01,0.997);

@@ -20,3 +20,7 @@ extern MouseState Mouse_old;
 extern MouseState Mouse_older;
 extern MouseState Mouse_rising;
 extern MouseState Mouse_falling;
+extern int Mouse_fallingDirection;
+extern bool Mouse_risingClick;
+
+extern Key Keys[256];

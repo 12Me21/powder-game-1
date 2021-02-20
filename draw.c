@@ -73,7 +73,7 @@ void Draw_line(double x1, double y1, double x2, double y2, Color color) {
 	y1 = floor(y1);
 	x2 -= x1;
 	y2 -= y1;
-	double f, g;
+	double g;
 	if (fabs(x2) >= fabs(y2)) {
 		g = floor(fabs(x2));
 		if (g!=0)
