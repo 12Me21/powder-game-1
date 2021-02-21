@@ -8,9 +8,9 @@ static bool update(Part* p, Block* c) {
 	p->vel.x += 0.2*c->vel.x;
 	p->vel.y += 0.2*c->vel.y;
 	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
-		if (Part_at[(int)p->pos.y][(int)p->pos.x-1] != Part_EMPTY)
+		if (Part_at[(int)p->pos.y][(int)p->pos.x-1] == Part_EMPTY)
 			p->vel.x -= Random_2(0.1, 0.2);
-		if (Part_at[(int)p->pos.y][(int)p->pos.x+1] != Part_EMPTY)
+		if (Part_at[(int)p->pos.y][(int)p->pos.x+1] == Part_EMPTY)
 			p->vel.x += Random_2(0.1, 0.2);
 	}
 	p->vel.x += Random_2(-0.01, 0.01);
