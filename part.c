@@ -21,7 +21,7 @@ Part* const Part_WHEEL = parts-3;
 Part* const Part_BALL = parts-2;
 Part* const Part_BLOCK = parts-1;
 Part* const Part_0 = parts;
-Part* next = parts;
+Part* Part_next = parts;
 
 Part* Part_at[HEIGHT][WIDTH];
 
@@ -38,7 +38,7 @@ int* Part_updateCounts(void) {
 	for (i=0; i<Elem_MAX; i++)
 		Part_counts[i] = 0;
 	Part* p;
-	for (p=parts; p<next; p++)
+	for (p=parts; p<Part_next; p++)
 		if (p->type > 0)
 			Part_counts[p->type]++;
 	return Part_counts;
@@ -58,7 +58,7 @@ static int wrap(int a, int b) {
 
 void Part_save(int saveData[W*H], int saveMeta[W*H]) {
 	Part* p;
-	for (p=parts; p<next; p++) {
+	for (p=parts; p<Part_next; p++) {
 		int x = p->pos.x;
 		int y = p->pos.y;
 		if (onscreen(x,y)) {
@@ -84,9 +84,9 @@ void Part_save(int saveData[W*H], int saveMeta[W*H]) {
 }
 
 Part* Part_create(double x, double y, unsigned char element) {
-	if (next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
+	if (Part_next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
-	*next = (Part){
+	*Part_next = (Part){
 		{x,y},
 		{0,0},
 		element,
@@ -94,15 +94,15 @@ Part* Part_create(double x, double y, unsigned char element) {
 		0,
 		false,
 	};
-	*Part_pos2(&next->pos) = next;
-	return next++;
+	*Part_pos2(&Part_next->pos) = Part_next;
+	return Part_next++;
 }
 
 void Part_remove(Part* part) {
 	*Part_pos2(&part->pos) = Part_EMPTY;
-	next--;
-	if (next != part) {
-		*part = *next;
+	Part_next--;
+	if (Part_next != part) {
+		*part = *Part_next;
 		*Part_pos2(&part->pos) = part->type==Elem_FAN ? Part_BGFAN : part;
 	}
 }
@@ -131,7 +131,7 @@ void Part_render(void) {
 	if (Menu_bgMode==Bg_TOON)
 		return;
 	Part* i;
-	for (i=parts; i<next; i++) {
+	for (i=parts; i<Part_next; i++) {
 		int type = i->type;
 		if (type==Elem_PUMP && i->pumpType!=0)
 			type = i->pumpType;
@@ -166,8 +166,8 @@ void Part_render(void) {
 
 void Part_shuffle(void) {
 	Part* p;
-	for (p=parts; p<next; p++) {
-		Part* c = &parts[rand() % (next-parts)];
+	for (p=parts; p<Part_next; p++) {
+		Part* c = &parts[rand() % (Part_next-parts)];
 		Part temp = *p;
 		*p = *c;
 		*c = temp;
@@ -200,7 +200,7 @@ void Part_reset(int a) {
 			Part_blocks[y][(W+8+8)/4-1].block = 1;
 		}
 	}
-	next = parts;
+	Part_next = parts;
 	for (y=0;y<(H+8);y++)
 		for (x=0;x<(W+8+8);x++)
 			Part_at[y][x] = Part_EMPTY;
@@ -217,7 +217,7 @@ void Part_update(void) {
 	bool dragStart = (Menu_leftSelection == Menu_DRAG && Mouse_rising.left) || (Menu_rightSelection == Menu_DRAG && Mouse_rising.right); //todo: function for this
 	bool dragging = (Menu_leftSelection == Menu_DRAG && Mouse_old.left) || (Menu_rightSelection == Menu_DRAG && Mouse_old.right);
 	Part* p;
-	forRange (p, =parts, <next, ++) {
+	forRange (p, =parts, <Part_next, ++) {
 		if (!Menu_cursorInMenu && wa==0) {
 			if (!p->held) {
 				if (dragStart) {
@@ -247,7 +247,7 @@ void Part_update(void) {
 	} //for
 
 	// check parts that go off screen
-	forRange (p, =parts, <next, ++) {
+	forRange (p, =parts, <Part_next, ++) {
 		if (Menu_edgeMode==0) { // void edge
 			if (p->pos.x<8||p->pos.x>=W+8||p->pos.y<8||p->pos.y>=H+8) {
 				Part_remove(p--);
@@ -400,7 +400,7 @@ void Cell_update(void) {
 		}
 	}
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
-		if (c->block != 1) { //woah -1??
+		if (c->block != -1) { //woah -1??
 			c->vel = c->vel2;
 			c->pres = c->pres2;
 		} else {

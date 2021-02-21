@@ -17,7 +17,7 @@ typedef struct Block {
 	float pres;
 	Vector vel2;
 	float pres2;
-	bool block;
+	int block; //uh this is an int
 } Block;
 
 extern double pd;
@@ -41,6 +41,7 @@ extern Part* const Part_WHEEL;
 extern Part* const Part_BALL;
 extern Part* const Part_BLOCK;
 extern Part* const Part_0;
+extern Part* Part_next;
 extern Block Part_blocks[HEIGHT/4][WIDTH/4];
 extern Block* const Part_blocks_end;
 void Part_reset(int a);

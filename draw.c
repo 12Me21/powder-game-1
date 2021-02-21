@@ -179,6 +179,32 @@ void Draw_centeredText(int x, int y, char* text, Color color){
 	Draw_text(x, y, text, color, 0);
 }
 
+void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Color color) {
+	int i,j;
+	forRange (j, =y1, <=y2, ++) {
+		forRange (i, =x1, <=x2, ++) {
+			if (x1+1>i || i>x2-1 || y1+1>j || j>y2-1) {
+				int x = bx+i;
+				int y = by+j;
+				if (
+				    !(
+				      x<8||x>=W+8||y<8||y>=H+8||
+				      (player2&&i==x1&&j==y1)||
+				      (player2&&i==x2&&j==y1)||
+				      (player2&&i==x1&&j==y2)||
+				      (player2&&i==x2&&j==y2)
+				      )) {
+					Color* dest = Draw_pxRef(x, y);
+					if (*dest == color)
+						*dest=0;
+					else
+						*dest=color;
+				}
+			}
+		}
+	}
+}
+
 void Draw_ball(int x, int y, Color color) {
 	int j;
 	forRange (j, =-1, <=1, ++) {

@@ -364,30 +364,7 @@ void Entity_render(void) {
 			Color headcolor = ELEMENTS[e->meta2].color ?: tan;
 			if (Menu_bgMode==Bg_SILUET)
 				headcolor = 0x000000;
-			int r,w,y,z;
-			// draw head (circle/square)
-			forRange (r, =q, <=n, ++) {
-				forRange (w, =f, <=g, ++) {
-					if (f+1>w || w>g-1 || q+1>r || r>n-1) {
-						y = e->parts[0].pos.x+w;
-						z = e->parts[0].pos.y+r;
-						if (
-							!(
-								y<8||y>=W+8||z<8||z>=H+8||
-								(e->meta1==1&&w==f&&r==q)||
-								(e->meta1==1&&w==g&&r==q)||
-								(e->meta1==1&&w==f&&r==n)||
-								(e->meta1==1&&w==g&&r==n)
-							  )) {
-							Color* dest = Draw_pxRef(y, z);
-							if (*dest == headcolor)
-								*dest=0;
-							else
-								*dest=headcolor;
-						}
-					}
-				}
-			}
+			Draw_head(e->parts[0].pos.x, e->parts[0].pos.y, f, q, g, n, e->meta1==1, headcolor);
 			// add light to region around player
 			if (Menu_bgMode==Bg_DARK) {
 				int y,x;
