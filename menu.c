@@ -8,6 +8,7 @@
 #include "menu.h"
 #include "bg.h"
 #include "save.h"
+#include "entity.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
@@ -269,7 +270,7 @@ void Menu_render(void) {
 				*Draw_pxRef(c+d/4, H+14+b/4) = col;
 			}
 		}
-		}
+	}
 	//*/
 	//setsize(normalmenuimage,WIDTH,HEIGHT-308);
 }
@@ -373,6 +374,8 @@ void Draw_init(void) {
 }
 
 void Menu_update(void) {
+	if (Menu_cursorInMenu || wa)
+		return;
 	int i;
 	for (i=0;i<=1;i++) {
 		int selection = i ? Menu_rightSelection : Menu_leftSelection;
@@ -463,7 +466,103 @@ void Menu_update(void) {
 						Vec_mul(&e->vel, 10);
 					}
 				}
-				//when(Button_AIR):
+			when(Menu_AIR):;
+				void addPressure(int x, int y, double amount) {
+					Block* cell = &Part_blocks[y>>2][x>>2];
+					if (!cell->block) {
+						cell->pres += amount;
+						pd -= amount;
+					}
+				}
+				if (old) {
+					int v=(Menu_penSize+1)*(Menu_penSize+1)*0.25;
+					v = i ? -v : v;
+					addPressure(0,0,v);
+					addPressure(-1,0,v);
+					addPressure(0,-1,v);
+					addPressure(-1,-1,v);
+				}
+			when(Menu_PLAYER): case Menu_FIGHTER: case Menu_BOX: case Menu_CREATE:
+				if (!rising) break;
+				int f = Pen_x>>2<<2;
+				int g = Pen_y>>2<<2;
+				Block* cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
+				if (!cell->block) {
+					switch (selection) {
+					when(Menu_FIGHTER):
+						Entity_create(f, g, 0, 0);
+					when(Menu_BOX):
+						Entity_create(f, g, Elem_BOX, Menu_penSize);
+					when(Menu_PLAYER):;
+						int b = Menu_BUTTONS[Menu_leftSelection].player ?: Menu_BUTTONS[Menu_rightSelection].player;
+						Entity_create(f, g, Elem_PLAYER, b);
+					when(Menu_CREATE):
+						Entity_create(f, g, Elem_BOX, 10);
+					}
+				}
+				// todo: we still need to do ball, wheel,etc.
+			when(Menu_BLOCK): case Menu_ERASE: case Menu_CLEAR:
+				if (Menu_penMode==Pen_LINE)
+					old = (i==0 ? Mouse_falling.left : Mouse_falling.right);
+				if (old) {
+					// god, more line drawing shit
+					int n = Pen_x/4 - Pen_oldx/4;
+					int r = Pen_y/4 - Pen_oldy/4;
+					int w = abs(n);
+					if (abs(r)>w) w=abs(r);
+					if (1>w) w=1;
+					n = (n<<8)/w;
+					r = (r<<8)/w;
+					int y = (Pen_oldx/4<<8)-127;
+					int z = (Pen_oldy/4<<8)-127;
+					int b;
+					for (b=0; b<=w; b++, y+=n, z+=r) {
+						int c = (y>>8) - Menu_penSize/2;
+						int v = (z>>8) - Menu_penSize/2;
+						int Y = c+(float)Menu_penSize/2+0.5;
+						int Ka = v+(float)Menu_penSize/2+0.5;
+						for (g=v; g<=v+Menu_penSize; g++) {
+							for (f=c; f<=c+Menu_penSize; f++) {
+								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
+									Block* cell = &Part_blocks[(int)clamp(g,2,(H+16)/4-3)][(int)clamp(f,2,(W+16)/4-3)];
+									switch(selection) {
+									when(Menu_BLOCK):
+										cell->block = 1;
+										cell->vel = (Vector){0,0};
+										pd += e->pres;
+										e->pres = 0;
+									when(Menu_ERASE):
+										cell->block = -2;
+									when(Menu_CLEAR):
+										if (e->block == 0) {
+											e->block = -2;
+											e->vel = (Vector){0,0};
+											pd+=e->pres;
+											e->pres=0;
+										}
+									}
+								}
+							}
+						}
+						/// aaaaa
+						if (selection==Menu_CLEAR && Menu_penSize==0) {
+							int n=Pen_x-Pen_oldx;
+							int r=Pen_y-Pen_oldy;
+							int w=abs(n);
+							if (abs(r)>w) w = abs(r);
+							if (1>w) w = 1;
+							n = (n<<8)/w;
+							r = (r<<8)/w;
+							int y,z,b;
+							for (y=(Pen_oldx<<8)+127,z=(Pen_oldy<<8)+127,b=0;b<=w;b++,y+=n,z+=r) {
+								Part* e;
+								for (e=Part_0; e<Part_next; e++)
+									if (y>>8==(int)e->pos.x && z>>8==(int)e->pos.y)
+										Part_remove(e--);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
