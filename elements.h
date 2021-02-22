@@ -8,18 +8,16 @@ enum State {State_NONE=0, State_POWDER, State_LIQUID, State_HOT, State_SOLID, St
 typedef bool (*ElemFunc)(Part* p, Block* b);
 
 typedef struct ElementDef {
-	char* name;
+	char* name; //for debug
 	Color color;
+	Color grayColor;
 	enum State state;
 	bool playerValid; // can be held by player
-	int dissolveRate;
-	int temperature;
-	double friction;
-	bool ballLight;
-	double ze;
-	double Ae;
-	Color grayColor;
-	ElemFunc update;
+	int temperature; // light generated in "TG" bg mode
+	int dissolveRate; // for ACID
+	double friction; // affects entity movement i think
+	bool ballLight; // if ball generates light in "DARK" bg mode
+	double ze, Ae; //these affect superball movement
 } ElementDef;
 
 // some of these are pseudo-elements which are only used in savedata
@@ -42,7 +40,7 @@ enum Element {
 	Elem_MAX,
 };
 
-extern ElementDef ELEMENTS[46];
+extern const ElementDef ELEMENTS[46];
 
 typedef struct MenuButtonDef {
 	enum Element element;

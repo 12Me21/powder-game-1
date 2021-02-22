@@ -1,10 +1,5 @@
-#include "../common.h"
-#include "../part.h"
-#include "../elements.h"
-#include "../vector.h"
-#include <stdio.h>
-
-static bool update(Part* p, Block* c) {
+break; case Elem_WOOD:
+{
 	Vector airvel = p->vel;
 	Vec_mul(&p->vel, 0.3);
 	Part_blow(p, &airvel);
@@ -48,9 +43,4 @@ static bool update(Part* p, Block* c) {
 		if (Random_(1000)<5)
 			p->type = Elem_POWDER;
 	}
-	return 0;
-}
-
-AUTORUN {
-	ELEMENTS[Elem_WOOD].update = update;
 }

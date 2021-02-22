@@ -2,6 +2,12 @@
 #include <stdint.h>
 
 typedef uint32_t Color;
+#define RED(x) ((x)>>16&0xFF)
+#define GREEN(x) ((x)>>8&0xFF)
+#define BLUE(x) ((x)&0xFF)
+#define RGB(r,g,b) ((r)<<16|(g)<<8|(b))
+
+typedef int axis;
 
 #define when(x) break;case x
 #define orwhen : case

@@ -1,8 +1,12 @@
 #pragma once
 #include <stdbool.h>
+#include "common.h"
 
-void Menu_render(void);
-
+extern bool Menu_numberMenu;
+extern bool Menu_copyMode;
+extern int Menu_penMode;
+extern bool Menu_paused;
+extern int Menu_hover;
 extern int Menu_bgMode;
 extern int Menu_dotLimit;
 extern int Menu_gridSize;
@@ -13,11 +17,17 @@ extern int Menu_leftSelection;
 extern int Menu_rightSelection;
 extern bool Menu_cursorInMenu;
 extern int Menu_penSize;
+extern int Menu_fps;
+extern int Menu_zoomLevel;
+extern bool Menu_minimapEnabled;
+extern int buttonflash;
 
 extern int Part_LIMITS[3];
-extern int Pen_x, Pen_y;
+extern axis Pen_x, Pen_y;
 
-void Menu_update(void);
+#define Menu_BUTTONWIDTH 56
+#define Menu_BUTTONHEIGHT 14
+#define Menu_BUTTONROWS 10
 
 enum MenuButton {
 	Menu_WIND=40, Menu_AIR, Menu_DRAG, Menu_BUBBLE, Menu_WHEEL, Menu_PLAYER, Menu_FIGHTER, Menu_BOX, Menu_BALL, Menu_CREATE, Menu_BLOCK,

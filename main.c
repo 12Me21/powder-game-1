@@ -8,24 +8,25 @@
 #include "common.h"
 #include "input.h"
 #include "draw.h"
-#include "menu.h"
 #include "part.h"
 #include "save.h"
-#include "bg.h"
 #include "entity.h"
 #include "platform.h"
 
+#define DEFCALL(name) void name(void); name()
+
 void render() {
-	Menu_render();
-	Bg_render();
-	Part_render();
+	DEFCALL(Menu_render);
+	DEFCALL(Bg_render);
+	DEFCALL(Dot_render);
 	Entity_render();
 }
 
 void Platform_frame(void) {
 	Random_update();
-	Menu_update();
-	Input_update();
+	DEFCALL(Menu_input);
+	DEFCALL(Menu_update);
+	DEFCALL(Input_update);
 	Cell_update();
 	Part_update();
 	Entity_update(); //check order
@@ -36,7 +37,6 @@ void Platform_frame(void) {
 int main(int argc, char** argv) {
 	Platform_init();
 	mathInit();
-	Draw_init();
 	Load_test();
 	Platform_loop();
 }

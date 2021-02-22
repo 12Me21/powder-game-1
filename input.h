@@ -1,3 +1,4 @@
+#pragma once
 #include <stdbool.h>
 
 typedef struct Key {
@@ -12,8 +13,6 @@ typedef struct MouseState {
 	int x, y;
 	bool left, right;
 } MouseState;
-
-void Input_update(void);
 
 extern MouseState Mouse_now;
 extern MouseState Mouse_old;

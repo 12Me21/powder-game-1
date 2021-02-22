@@ -3,7 +3,6 @@
 #include "common.h"
 #include "vector.h"
 #include "elements.h"
-#include "draw.h"
 #include "part.h"
 #include "bg.h"
 #include "menu.h"
@@ -44,45 +43,6 @@ int* Part_updateCounts(void) {
 	return Part_counts;
 }
 
-static bool onscreen(int x, int y){
-	return x>=8 && x<W+8 && y>=8 && y<H+8;
-}
-
-static int wrap(int a, int b) {
-	if (a<0)
-		return b;
-	if (a>b)
-		return 0;
-	return a;
-}
-
-void Part_save(int saveData[W*H], int saveMeta[W*H]) {
-	Part* p;
-	for (p=parts; p<Part_next; p++) {
-		int x = p->pos.x;
-		int y = p->pos.y;
-		if (onscreen(x,y)) {
-			x-=8;
-			y-=8;
-			int xy=W*y+x; //w must be 400 to be compatible with vanilla pg
-			saveData[xy] = p->type;
-			if (p->type == Elem_FAN) {
-				saveMeta[xy] = wrap(64*Vec_angle(&p->vel)/TAU, 63);
-			} else if (p->type == Elem_FIREWORKS) {
-				saveMeta[xy] = p->meta%100;
-				//fix thunder saving badly :(
-			} else if (p->type==Elem_THUNDER){
-				if ((p->meta&0xFFFC)==6000)
-					saveData[xy] = Elem_METAL;
-				else if (p->meta >= 7000)
-					saveData[xy] = Elem_GLASS;
-				else if ((p->meta&0xFFFC)==6100)
-					saveData[xy] = Elem_MERCURY;
-			}
-		}
-	}
-}
-
 Part* Part_create(double x, double y, unsigned char element) {
 	if (Part_next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
@@ -108,13 +68,14 @@ void Part_remove(Part* part) {
 }
 
 void Part_swap(Part* part1, Part* part2) {
-	Vector temp = part1->pos;
-	temp = part2->pos;
-	part2->pos = temp;
-	
 	Part* temp3 = *Part_pos2(&part1->pos);
 	*Part_pos2(&part1->pos) = *Part_pos2(&part2->pos);
 	*Part_pos2(&part2->pos) = temp3;
+
+	Vector temp = part1->pos;
+	part1->pos = part2->pos;
+	part2->pos = temp;
+
 }
 
 Part* Part_blow(Part* part, Vec airvel) {
@@ -125,43 +86,6 @@ Part* Part_blow(Part* part, Vec airvel) {
 		part->pos.y += airvel->y;
 	*Part_pos2(&part->pos) = part;
 	return part;
-}
-
-void Part_render(void) {
-	if (Menu_bgMode==Bg_TOON)
-		return;
-	Part* i;
-	for (i=parts; i<Part_next; i++) {
-		int type = i->type;
-		if (type==Elem_PUMP && i->pumpType!=0)
-			type = i->pumpType;
-		Color color;
-		if (Menu_bgMode==Bg_GRAY)
-			color = ELEMENTS[type].grayColor;
-		else
-			color = ELEMENTS[type].color;
-		Color* dest = Draw_pxRef(i->pos.x, i->pos.y);
-		int red, green, blue;
-		if (Menu_bgMode == Bg_LIGHT) {
-			red=((color&0xFF0000)>>18)+(*dest>>16&0xFF);
-			if(red>0xFF) red=0xFF;
-			green=((color&0x00FF00)>>10)+(*dest>>8&0xFF);
-			if(green>0xFF) green=0xFF;
-			blue=((color&0x0000FF)>>2)+(*dest&0xFF);
-			if(blue>0xFF) blue=0xFF;
-			*dest = red<<16|green<<8|blue;
-		} else if (Menu_bgMode == Bg_SILUET) {
-			red=(*dest>>16&0xFF)-(0xFF-(color>>16&0xFF)+10);
-			if (red<0) red=0;
-			green=(*dest>>8&0xFF)-(0xFF-(color>>8&0xFF)+10);
-			if (green<0) green=0;
-			blue=(*dest&0xFF)-(0xFF-(color&0xFF)+10);
-			if (blue<0) blue=0;
-			*dest = red<<16|green<<8|blue;
-		} else {
-			*dest = color;
-		}
-	}
 }
 
 void Part_shuffle(void) {
@@ -237,15 +161,19 @@ void Part_update(void) {
 				p->held = false;
 			}
 		}
+		Block* c = &Part_blocks[(int)p->pos.y/4][(int)p->pos.x/4];
 		if (p->type != Elem_FAN)
 			*Part_pos2(&p->pos) = Part_EMPTY;
-		ElemFunc f = ELEMENTS[p->type].update;
-		if (f) {
-			if (f(p, &Part_blocks[(int)p->pos.y/4][(int)p->pos.x/4]))
-				p--; //part died
+		switch (p->type) {
+			// todo: maybe put this in a real separately compiled file
+			#include "elements/All.c"
 		}
-	} //for
-
+		//ElemFunc f = ELEMENTS[p->type].update;
+		//if (f) {
+		//	if (f(p, &Part_blocks[(int)p->pos.y/4][(int)p->pos.x/4]))
+		//		p--; //part died
+		//}
+	}
 	// check parts that go off screen
 	forRange (p, =parts, <Part_next, ++) {
 		if (Menu_edgeMode==0) { // void edge

@@ -1,10 +1,5 @@
-#include "../common.h"
-#include "../part.h"
-#include "../elements.h"
-#include "../vector.h"
-#include <stdio.h>
-
-static bool update(Part* p, Block* c) {
+break; case Elem_SNOW: //❄
+{
 	Vector airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.08);
 	Vec_add(&airvel, &p->vel);
@@ -19,9 +14,4 @@ static bool update(Part* p, Block* c) {
 		else if (g->type!=Elem_WOOD && g->type!=Elem_WHEEL && g->type!=Elem_SNOW && g->type!=Elem_SNOW && g->type!=Elem_CLONE && g->type!=Elem_VINE && g->type!=Elem_CLOUD)
 			p->type = Elem_WATER;
 	}
-	return 0;
-}
-
-AUTORUN {
-	ELEMENTS[Elem_SNOW].update = update; //snow~
 }

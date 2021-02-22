@@ -9,7 +9,6 @@ typedef struct BgPixel {
 	double aura2;
 } BgPixel;
 
-void Bg_render(void);
 void Bg_reset(void);
 
 extern BgPixel Bg_pixels[WIDTH][H+8+1];
