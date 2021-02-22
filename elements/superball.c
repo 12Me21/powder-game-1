@@ -1,10 +1,5 @@
-#include "../common.h"
-#include "../part.h"
-#include "../elements.h"
-#include "../vector.h"
-#include <stdio.h>
-
-static bool update(Part* p, Block* c) {
+break; case Elem_SUPERBALL:
+{
 	Vector airvel = c->vel;
 	Vec_mul(&airvel, 0.05);
 	Vec_add(&p->vel, &airvel);
@@ -80,9 +75,4 @@ static bool update(Part* p, Block* c) {
 		}
 	}
 	*Part_pos2(&p->pos) = p;
-	return 0;
-}
-
-AUTORUN {
-	ELEMENTS[Elem_SUPERBALL].update = update;
 }

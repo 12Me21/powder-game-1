@@ -1,11 +1,5 @@
-#include "../common.h"
-#include "../part.h"
-#include "../elements.h"
-#include "../vector.h"
-#include <stdio.h>
-#include <stdlib.h>
-
-static bool update(Part* p, Block* c) {
+break; case Elem_GUNPOWDER:
+{
 	Vector airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.2);
 	Vec_add(&airvel, &p->vel);
@@ -14,7 +8,7 @@ static bool update(Part* p, Block* c) {
 	int x = p->pos.x+Random_int(5)-2;
 	Part* g = Part_at[(int)p->pos.y+Random_int(5)-2][x];
 	if (g<Part_0 || ELEMENTS[g->type].state != State_HOT)
-		return 0;
+		break;
 	int b = 10;
 	int n = (int)p->pos.x & 0xFFF4;
 	int r = (int)p->pos.y & 0xFFF4;
@@ -49,9 +43,4 @@ static bool update(Part* p, Block* c) {
 		}
 	}
 	p->type = Elem_FIRE;
-	return 0;
-}
-
-AUTORUN {
-	ELEMENTS[Elem_GUNPOWDER].update = update;
 }

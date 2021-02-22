@@ -1,0 +1,76 @@
+break; case Elem_MAGMA:
+{
+	p->vel.x += 0.1*c->vel.x;
+	p->vel.y += 0.1*c->vel.y;
+	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
+		if (Part_at[(int)p->pos.y][(int)p->pos.x-1] == Part_EMPTY)
+			p->vel.x -= Random_2(0, 0.1);
+		if (Part_at[(int)p->pos.y][(int)p->pos.x+1] == Part_EMPTY)
+			p->vel.x += Random_2(0, 0.1);
+	}
+	p->vel.x += Random_2(-0.01, 0.01);
+	p->vel.y += Random_2(0.01, 0.1);
+	Vec_mul(&p->vel, 0.9);
+	Vector airvel = c->vel;
+	Vec_add(&airvel, &p->vel);
+	Part_blow(p, &airvel);
+	int x = p->pos.x+Random_int(5)-2;
+	Part* near = Part_at[(int)p->pos.y+Random_int(5)-2][x];
+	if (near>=Part_0) {
+		switch (near->type) {
+		case Elem_POWDER: case Elem_SEED: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
+			near->type = Elem_FIRE;
+			break;
+			//magma+water/soapy = stone+steam
+		case Elem_WATER: case Elem_SOAPY:
+			if (Random_(100)<50) {
+				Part_remove(p--);
+				goto brk;
+			}
+			p->type = Elem_STONE;
+			near->type = Elem_STEAM;
+			break;
+			//melt stone
+		case Elem_STONE:
+			near->vel.x += Random_2(-0.1,0.1);
+			if (Random_(100)<5)
+				near->type = Elem_MAGMA;
+			break;
+			//magma+saltwater=stone+salt (no steam, note)
+		case Elem_SALTWATER:
+			if (Random_(100)<50) {
+				Part_remove(p--);
+				goto brk;
+			}
+			p->type = Elem_STONE;
+			near->type = Elem_SALT;
+			break;
+			//melt glass
+		case Elem_GLASS:
+			if (Random_(100)<50)
+				near->type = Elem_MAGMA;
+			//slowly melt mercury
+			break;
+		case Elem_MERCURY:
+			if (Random_(100)<1)
+				near->type = Elem_MAGMA;
+		}
+	}
+	int g = Random_int(4);
+	if (g==0)
+		near = Part_at[(int)p->pos.y-1][(int)p->pos.x];
+	else if (g==1)
+		near = Part_at[(int)p->pos.y][(int)p->pos.x-1];
+	else if (g==2)
+		near = Part_at[(int)p->pos.y][(int)p->pos.x+1];
+	else
+		near = Part_at[(int)p->pos.y+1][(int)p->pos.x];
+	//enter pump
+	if (near>=Part_0 && near->type==Elem_PUMP && near->pumpType==0) {
+		near->meta = 0b100|(g==0?0b10:g==1?0b01:g==2?0b11:0b00);
+		near->pumpType = Elem_MAGMA;
+		Part_remove(p--);
+		break;
+	}
+ brk:;
+}

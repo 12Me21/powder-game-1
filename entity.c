@@ -189,11 +189,16 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 		Vec_mul(&e, d);
 		Vec_add(&node->pos, &e);
 		node->pos.x = clamp(node->pos.x, 4, WIDTH-5);
-		node->pos.y = clamp(node->pos.y, 4, 311);
+		node->pos.y = clamp(node->pos.y, 4, H+11);
 	} else {
 		forRange (c, =0, <d, ++) {
 			b = node->pos.y + e.y;
-			if (b<4 || b>=312) {
+			if (b<4 || b>=H+12) {
+				node->touching = Elem_EMPTY;
+				break;
+			}
+			//added
+			if (node->pos.x<0 || node->pos.x>=W) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
@@ -543,7 +548,170 @@ void Entity_update(void) {
 			// damage
 			if (Entity_checkTouching(&a->parts[0], &a->parts[6])==3 || Entity_checkTouching(&a->parts[0], &a->parts[6])==-5)
 				a->type = Entity_PLAYER+2;
-			
-		}
+			// edge
+			if (Menu_edgeMode==1) {
+				int r;
+				for (r=4;r<=5;r++) {
+					int w=0,b=0;
+					if (a->parts[r].pos.x<8) {
+						w = W+6;
+						b = a->parts[r].oldPos.y;
+					} else if (a->parts[r].pos.x>=W-8) {
+						w = 10;
+						b = a->parts[r].oldPos.y;
+					}
+					if (w+b!=0) {
+						a->type = Entity_PLAYER;
+						Part* part = Part_at[b][w];
+						if (part > Part_BGFAN) {
+							if (part < Part_0) {
+								a->parts[r].pos = a->parts[r].oldPos;
+								continue;
+							} else if (ELEMENTS[part->type].state != State_LIQUID) {
+								a->parts[r].pos = a->parts[r].oldPos;
+								continue;
+							}
+						}
+						Vector e;
+						Vec_sub2(&e, &a->parts[r].pos, &a->parts[r].oldPos);
+						Vec_fastNormalize(&e);
+						int d;
+						for (d=0; d<=10;d++) {
+							a->parts[d].pos.x = w+e.x+Random_2(-0.1,0.1);
+							a->parts[d].pos.y = b+e.y+Random_2(-0.1,0.1);
+							a->parts[d].oldPos = (Vector){w,b};
+						}
+						break;
+					}
+				}
+			}
+		} else if (a->type == Entity_PLAYER+2) {
+			void copyPos(int dest, int src) {
+				a->parts[dest].pos = a->parts[src].pos;
+				a->parts[dest].oldPos = a->parts[src].oldPos;
+			}
+			copyPos(10, 5);
+			copyPos(9, 4);
+			copyPos(8, 3);
+			copyPos(7, 3);
+			copyPos(6, 2);
+			copyPos(5, 2);
+			copyPos(4, 1);
+			copyPos(3, 1);
+			copyPos(2, 1);
+			copyPos(1, 0);
+			copyPos(0, 0);
+			a->Pe.y -= 1;
+			a->decay = 0;
+			a->type = Entity_PLAYER+3;
+		} else if (a->type == Entity_PLAYER+3) {
+			a->decay++;
+			int b;
+			for (b=0;b<11;b++) {
+				Entity_moveNode(&a->parts[b], 0.1, 0.999);
+				Vec_add(&a->parts[b].pos, &a->Pe);
+			}
+			Vec_mul(&a->Pe, 0.5);
+			double e = (150-a->decay)/150;
+			Entity_Se(&a->parts[1],&a->parts[2],4*e,0.5,0.5);
+			Entity_Se(&a->parts[3],&a->parts[5],4*e,0.5,0.5);
+			Entity_Se(&a->parts[4],&a->parts[7],4*e,0.5,0.5);
+			Entity_Se(&a->parts[6],&a->parts[9],5*e,0.5,0.5);
+			Entity_Se(&a->parts[8],&a->parts[10],5*e,0.5,0.5);
+			for (b=0;b<11;b++)
+				Entity_Ue(&a->parts[b], 0.1, 0,0);
+			if (a->decay>150)
+				Entity_remove(a--);
+		}/* else if (a->type==Entity_BOX) {
+			a->decay++;
+			int b;
+			for (b=0;b<4;b++)
+				Entity_moveNode(&a->parts[b],0.1,1);
+			//Entities_drag(d,c,c+4);
+			for (b=0;b<4;b++) {
+				for(r=0;r<Entities.used;r++){
+					if(Entities.type[r]==Entities_FIGHTER||Entities.type[r]==Entities_FIGHTER+1||Entities.type[r]==Entities_PLAYER){
+						f=r*Entities.PARTS;
+						g=abs(Entities.pos[f+4].x-Entities.pos[c+b].x);
+						q=abs(Entities.pos[f+4].y-Entities.pos[c+b].y);
+						if(g<=3&&q<=3){
+							Entities.pos[c+b].x+=1*(Entities.pos[f+4].x-Entities_oldpos[f+4].x);
+							Entities.pos[c+b].y+=2*(Entities.pos[f+4].y-Entities_oldpos[f+4].y);
+						}
+						g=abs(Entities.pos[f+5].x-Entities.pos[c+b].x);
+						q=abs(Entities.pos[f+5].y-Entities.pos[c+b].y);
+						if(g<=3&&q<=3){
+							Entities.pos[c+b].x+=1*(Entities.pos[f+5].x-Entities_oldpos[f+5].x);
+							Entities.pos[c+b].y+=2*(Entities.pos[f+5].y-Entities_oldpos[f+5].y);
+						}
+					}
+				}
+			}
+			b=0.5;
+			r=4*(Entities.meta2[d]+1);
+			Entities_Se(c+0,c+1,r,b,b);
+			Entities_Se(c+1,c+2,r,b,b);
+			Entities_Se(c+2,c+3,r,b,b);
+			Entities_Se(c+3,c+0,r,b,b);
+			Entities_Se(c+0,c+2,1.4142135*r,b,b);
+			Entities_Se(c+1,c+3,1.4142135*r,b,b);
+			w=0.5;
+			for(b=0;b<4;b++){
+				Entities_Ue(c+b,w,0,1);
+			}
+			if(Entities_hurt(c,c+6)==3||Entities_hurt(c,c+6)==-5){
+				Entities.type[d]=Entities_BOX+1;
+			}
+		}else if(Entities.type[d]==Entities_BOX+1){
+			Entities.pos[c+7].copy(Entities.pos[c+0]);
+			Entities_oldpos[c+7].copy(Entities_oldpos[c+0]);
+			Entities.pos[c+6].copy(Entities.pos[c+3]);
+			Entities_oldpos[c+6].copy(Entities_oldpos[c+3]);
+			Entities.pos[c+5].copy(Entities.pos[c+3]);
+			Entities_oldpos[c+5].copy(Entities_oldpos[c+3]);
+			Entities.pos[c+4].copy(Entities.pos[c+2]);
+			Entities_oldpos[c+4].copy(Entities_oldpos[c+2]);
+			Entities.pos[c+3].copy(Entities.pos[c+2]);
+			Entities_oldpos[c+3].copy(Entities_oldpos[c+2]);
+			Entities.pos[c+2].copy(Entities.pos[c+1]);
+			Entities_oldpos[c+2].copy(Entities_oldpos[c+1]);
+			Entities.pos[c+1].copy(Entities.pos[c+1]);
+			Entities_oldpos[c+1].copy(Entities_oldpos[c+1]);
+			Entities.pos[c+0].copy(Entities.pos[c+0]);
+			Entities_oldpos[c+0].copy(Entities_oldpos[c+0]);
+			Entities.held[d]=0;
+			Entities_decay[d]=0;
+			Entities.type[d]= Entities_hurt(c,c+4)==-5 ? Entities_BOX+3 : Entities_BOX+2;
+		}else if(Entities.type[d]==Entities_BOX+2||Entities.type[d]==Entities_BOX+3){
+			Entities_decay[d]++;
+			Entities_drag(d,c,c+8);
+			for(b=0;b<8;b++){
+				Entities_Re(c+b,0.1,0.999);
+			}
+			b=0.5;
+			r=(150-Entities_decay[d])/150*(Entities.meta2[d]+1)*4;
+			Entities_Se(c+0,c+1,r,b,b);
+			Entities_Se(c+2,c+3,r,b,b);
+			Entities_Se(c+4,c+5,r,b,b);
+			Entities_Se(c+6,c+7,r,b,b);
+			if(Entities.type[d]==Entities_BOX+2&&Parts_limits[Menu_dotLimit]-Parts_used>=1000){
+				for(b=0;b<5;b+=2){
+					e.sub2(Entities_oldpos[c+b+1],Entities_oldpos[c+b]);
+					e.mul(random(1));
+					e.add(Entities_oldpos[c+b]);
+					f=floor(e.y)*WIDTH+floor(e.x);
+					if(parts[f]<=Parts_BGFAN){
+						Parts_create(floor(e.x),floor(e.y),4);
+					}
+				}
+			}
+			w=0.1;
+			for(b=0;b<8;b++){
+				Entities_Ue(c+b,w,0,0);
+			}
+			if(Entities_decay[d]>150){
+				Entities_remove(d--);
+			}
+			}*/
 	}
 }

@@ -44,7 +44,7 @@ void Bg_render(void) {
 				}
 			}
 		}
-		if(Menu_bgMode==Bg_LINE){
+		if (Menu_bgMode==Bg_LINE) {
 			Block* c;
 			forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
 				if (c->block==0) {

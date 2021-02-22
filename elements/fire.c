@@ -1,10 +1,5 @@
-#include "../common.h"
-#include "../part.h"
-#include "../elements.h"
-#include "../vector.h"
-#include <stdio.h>
-
-static bool update(Part* p, Block* c) {
+break; case Elem_FIRE:
+{
 	Vector airvel = c->vel;
 	if (p->meta == 2) {
 		Vec_mul(&p->vel, .8);
@@ -30,8 +25,7 @@ static bool update(Part* p, Block* c) {
 		when(Elem_POWDER): case Elem_ANT: case Elem_VINE:
 			g->type = Elem_FIRE;
 		when(Elem_WATER): case Elem_SALTWATER:
-			Part_remove(p);
-			return 1;
+			Part_remove(p--);
 		when(Elem_SEED):
 			if (Random_(100)<50)
 				g->type = Elem_FIRE;
@@ -42,13 +36,6 @@ static bool update(Part* p, Block* c) {
 	int r=5;
 	if (p->meta == 1)
 		r = 20;
-	if (Random_(100)<r) {
-		Part_remove(p);
-		return 1;
-	}
-	return 0;
-}
-
-AUTORUN {
-	ELEMENTS[Elem_FIRE].update = update;
+	if (Random_(100)<r)
+		Part_remove(p--);
 }

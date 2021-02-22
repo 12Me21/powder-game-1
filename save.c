@@ -148,15 +148,48 @@ void Load_test(void) {
 	load1();
 }
 
+static bool onscreen(int x, int y){
+	return x>=8 && x<W+8 && y>=8 && y<H+8;
+}
+
+static int wrap(int a, int b) {
+	if (a<0)
+		return b;
+	if (a>b)
+		return 0;
+	return a;
+}
+
 void save1(void) {
-	int i,x,y,xy;
 	memset(saveDataArray, 0, sizeof(saveDataArray));
 	memset(saveMetaArray, 0, sizeof(saveMetaArray));
 	// blocks
+	int x,y;
 	for (y=0;y<H;y++)
 		for (x=0;x<W;x++)
 			if (Part_blocks[(int)y/4+2][(int)x/4+2].block == 1)
 				saveDataArray[W*y+x]=Elem_BLOCK;
 	// particles
-	Part_save(saveDataArray, saveMetaArray);
+	Part* p;
+	for (p=Part_0; p<Part_next; p++) {
+		int x = p->pos.x;
+		int y = p->pos.y;
+		if (onscreen(x,y)) {
+			int xy=W*(y-8)+(x-8); //w must be 400 to be compatible with vanilla pg
+			saveDataArray[xy] = p->type;
+			if (p->type == Elem_FAN) {
+				saveMetaArray[xy] = wrap(64*Vec_angle(&p->vel)/TAU, 63);
+			} else if (p->type == Elem_FIREWORKS) {
+				saveMetaArray[xy] = p->meta%100;
+				//fix thunder saving badly :(
+			} else if (p->type==Elem_THUNDER){
+				if ((p->meta&0xFFFC)==6000)
+					saveDataArray[xy] = Elem_METAL;
+				else if (p->meta >= 7000)
+					saveDataArray[xy] = Elem_GLASS;
+				else if ((p->meta&0xFFFC)==6100)
+					saveDataArray[xy] = Elem_MERCURY;
+			}
+		}
+	}
 }
