@@ -1,5 +1,6 @@
 break; case Elem_FIRE:
 {
+#ifdef UPDATE_PART
 	Vector airvel = c->vel;
 	if (p->meta == 2) {
 		Vec_mul(&p->vel, .8);
@@ -38,4 +39,5 @@ break; case Elem_FIRE:
 		r = 20;
 	if (Random_(100)<r)
 		Part_remove(p--);
+#endif
 }

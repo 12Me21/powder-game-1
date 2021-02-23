@@ -10,25 +10,6 @@
 #include "input.h"
 #include "entity.h"
 
-Ball balls[Ball_MAX];
-
-void Ball_create(double x, double y, int type) {
-	int i;
-	forRange (i, =0, <Ball_MAX, ++) {
-		if (!balls[i].used) {
-			balls[i] = (Ball){
-				{x+0.5, y+0.5},
-				{0,0},
-				true,
-				0,
-				0,
-				type,
-			};
-			break;
-		}
-	}
-}
-
 Entity entitys[Entity_MAX];
 Entity* Entity_next = entitys;
 
@@ -147,9 +128,8 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 		} else if (f>=4) {
 			Vec_mul(&e, 0.5);
 			d = 2;
-		} else {
+		} else
 			d = 1;
-		}
 	} else {
 		d = floor(Vec_fastDist(&e)/3)+1;
 		Vec_mul(&e, 1/d);

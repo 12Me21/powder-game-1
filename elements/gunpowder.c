@@ -1,5 +1,6 @@
 break; case Elem_GUNPOWDER:
 {
+#ifdef UPDATE_PART
 	Vector airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.2);
 	Vec_add(&airvel, &p->vel);
@@ -43,4 +44,5 @@ break; case Elem_GUNPOWDER:
 		}
 	}
 	p->type = Elem_FIRE;
+#endif
 }

@@ -1,5 +1,6 @@
 break; case Elem_FIREWORKS:
 {
+#ifdef UPDATE_PART
 	Vector airvel = c->vel;
 	p->vel.x += 0.1*airvel.x;
 	p->vel.y += 0.1*airvel.y;
@@ -44,4 +45,5 @@ break; case Elem_FIREWORKS:
 		}
 		Part_remove(p--);
 	}
+#endif
 }

@@ -1,5 +1,6 @@
 break; case Elem_SUPERBALL:
 {
+#ifdef UPDATE_PART
 	Vector airvel = c->vel;
 	Vec_mul(&airvel, 0.05);
 	Vec_add(&p->vel, &airvel);
@@ -75,4 +76,5 @@ break; case Elem_SUPERBALL:
 		}
 	}
 	*Part_pos2(&p->pos) = p;
+#endif
 }

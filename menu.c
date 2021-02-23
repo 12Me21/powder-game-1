@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include "common.h"
 #include "elements.h"
@@ -7,11 +8,12 @@
 #include "menu.h"
 #include "bg.h"
 #include "entity.h"
+#include "ball.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
 enum PenMode {Pen_FREE, Pen_LINE, Pen_LOCK, Pen_PAINT};
-int wa;
+int wa; //this is the state when navigating the upload menu
 
 axis Pen_x=0, Pen_y=0;
 axis Pen_oldx=0, Pen_oldy=0;
@@ -301,6 +303,13 @@ void Menu_update(void) {
 					when(Menu_CREATE):
 						Entity_create(f, g, Elem_BOX, 10);
 					}
+				}
+			when(Menu_BALL):;
+				cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
+				if (cell->block==0 && rising) {
+					int b = Menu_BUTTONS[Menu_leftSelection].ball ?: Menu_BUTTONS[Menu_rightSelection].ball;
+					if (b)
+						Ball_create(Pen_x, Pen_y, b);
 				}
 				// todo: we still need to do ball, wheel,etc.
 			when(Menu_BLOCK): case Menu_ERASE: case Menu_CLEAR:

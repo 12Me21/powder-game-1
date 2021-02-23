@@ -9,17 +9,17 @@ typedef Vector* Vec;
 
 void mathInit();
 
-void Vec_copy(Vec dest, Vec src);
-void Vec_add(Vec a, Vec b);
-void Vec_sub(Vec a, Vec b);
-void Vec_sub2(Vec out, Vec a, Vec b);
+void Vec_copy(Vec dest, const Vector* src);
+void Vec_add(Vec a, const Vector* b);
+void Vec_sub(Vec a, const Vector* b);
+void Vec_sub2(Vec out, const Vector* a, const Vector* b);
 void Vec_mul(Vec a, double x);
-void Vec_mul2(Vec out, Vec a, double mul);
-double Vec_fastDist(Vec a);
-double Vec_dist(Vec this);
+void Vec_mul2(Vec out, const Vector* a, double mul);
+double Vec_fastDist(const Vector* a);
+double Vec_dist(const Vector* this);
 double Vec_fastNormalize(Vec v);
 void Vec_normalize(Vec v);
-double Vec_angle(Vec v);
+double Vec_angle(const Vector* v);
 void Vec_swap(Vec a, Vec b);
 Vec Vec_unit(int angle);
 

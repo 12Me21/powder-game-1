@@ -1,5 +1,6 @@
 break; case Elem_THUNDER:
 {
+#ifdef UPDATE_PART
 	Part_at[(int)p->pos.y][(int)p->pos.x] = p;
 	p->vel = (Vector){0,0};
 	if (p->meta<0x1000) {
@@ -173,4 +174,5 @@ break; case Elem_THUNDER:
 			}
 		}
 	}
+#endif
 }

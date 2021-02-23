@@ -1,5 +1,6 @@
 break; case Elem_OIL:
 {
+#ifdef UPDATE_PART
 	p->vel.x += 0.2*c->vel.x;
 	p->vel.y += 0.2*c->vel.y;
 	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
@@ -57,4 +58,5 @@ break; case Elem_OIL:
 			break;
 		}
 	}
+#endif
 }

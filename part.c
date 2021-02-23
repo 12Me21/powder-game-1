@@ -166,7 +166,9 @@ void Part_update(void) {
 			*Part_pos2(&p->pos) = Part_EMPTY;
 		switch (p->type) {
 			// todo: maybe put this in a real separately compiled file
-			#include "elements/All.c"
+#define UPDATE_PART 1
+#include "elements/All.c"
+#undef UPDATE_PART
 		}
 		//ElemFunc f = ELEMENTS[p->type].update;
 		//if (f) {

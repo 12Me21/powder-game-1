@@ -1,5 +1,6 @@
 break; case Elem_SNOW: //❄
 {
+#ifdef UPDATE_PART
 	Vector airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.08);
 	Vec_add(&airvel, &p->vel);
@@ -14,4 +15,5 @@ break; case Elem_SNOW: //❄
 		else if (g->type!=Elem_WOOD && g->type!=Elem_WHEEL && g->type!=Elem_SNOW && g->type!=Elem_SNOW && g->type!=Elem_CLONE && g->type!=Elem_VINE && g->type!=Elem_CLOUD)
 			p->type = Elem_WATER;
 	}
+#endif
 }

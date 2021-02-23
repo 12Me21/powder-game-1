@@ -1,5 +1,6 @@
 break; case Elem_CLONE:
 {
+#ifdef UPDATE_PART
 	Part_blow(p, &(Vector){0,0});
 	// if not cloning
 	if (!p->meta) {
@@ -19,4 +20,5 @@ break; case Elem_CLONE:
 		if (Part_at[y][x] <= Part_BGFAN && Random_(100)<10)
 			Part_create(x,y,p->meta);
 	}
+#endif
 }

@@ -1,5 +1,6 @@
 break; case Elem_GLASS:
 {
+#ifdef UPDATE_PART
 	if (p->meta==0) {
 		if (Vec_fastDist(&p->vel)>1)
 			p->meta = 1;
@@ -36,4 +37,5 @@ break; case Elem_GLASS:
 		p->meta = 0;
 	}
 	Part_at[(int)p->pos.y][(int)p->pos.x] = p;
+#endif
 }

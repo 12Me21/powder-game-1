@@ -1,5 +1,6 @@
 break; case Elem_C4:
 {
+#ifdef UPDATE_PART
 	Part_blow(p, &(Vector){0,0});
 	if (p->meta==0) {
 		int x = p->pos.x+Random_int(3)-1;
@@ -50,4 +51,5 @@ break; case Elem_C4:
 		Part_remove(p--);
 		break;
 	}
+#endif
 }
