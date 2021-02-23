@@ -19,7 +19,7 @@ void render() {
 	DEFCALL(Menu_render);
 	DEFCALL(Bg_render);
 	DEFCALL(Dot_render);
-	Entity_render();
+	DEFCALL(Entity_render);
 	DEFCALL(Scale_render);
 }
 

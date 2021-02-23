@@ -11,7 +11,7 @@
 //todo: split this file into menu rendering + menu buttons/controls
 
 enum PenMode {Pen_FREE, Pen_LINE, Pen_LOCK, Pen_PAINT};
-extern int wa;
+int wa;
 
 axis Pen_x=0, Pen_y=0;
 axis Pen_oldx=0, Pen_oldy=0;

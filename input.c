@@ -57,10 +57,8 @@ void Input_update(void) {
 
 	//var a,d,b,c=new Vector,e=new Vector,f=new Vector;
 	//if (!Menu_cursorInMenu /*&& wa==0*/) {
-		int sd=Pen_x;
-		int td=Pen_y;
-		Pen_x=clamp(Mouse_old.x+2*4,2*4,4*((W+8)/4)-1);
-		Pen_y=clamp(Mouse_old.y+2*4,2*4,4*((H+8)/4)-1);
+	//Pen_x=clamp(Mouse_old.x+2*4,2*4,4*((W+8)/4)-1);
+	//Pen_y=clamp(Mouse_old.y+2*4,2*4,4*((H+8)/4)-1);
 		//}
 		/*	if (Menu_zoomLevel>0) {
 			Pen_x = 2*H+floor(Menu_zoomX)+(Mouse_old.x>>Menu_zoomLevel);
