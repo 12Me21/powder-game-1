@@ -29,16 +29,16 @@ int Mouse_fallingDirection;
 
 
 int Platform_mouseX, Platform_mouseY;
-int Platform_mouseLeft, Platform_mouseRight;
+int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
 bool Platform_keys[256]; //todo: this won't capture keypresses that start+end within 1 frame
 
 extern int Pen_oldx, Pen_oldy;
 
 void Input_update(void) {
-	Pen_oldx = Pen_x;
-	Pen_oldy = Pen_y;
-	Pen_x = Mouse_now.x;
-	Pen_y = Mouse_now.y;
+	//Pen_oldx = Pen_x;
+	//Pen_oldy = Pen_y;
+	//Pen_x = Mouse_now.x;
+	//Pen_y = Mouse_now.y;
 	Mouse_rising.left = !Mouse_old.left && Mouse_now.left;
 	Mouse_falling.left = Mouse_old.left && !Mouse_now.left;
 	Mouse_rising.right = !Mouse_old.right && Mouse_now.right;
@@ -50,6 +50,7 @@ void Input_update(void) {
 	Mouse_now.y = Platform_mouseY;
 	Mouse_now.left = Platform_mouseLeft;
 	Mouse_now.right = Platform_mouseRight;
+	Mouse_now.middle = Platform_mouseMiddle;
 	
 	Mouse_risingClick = !(Mouse_falling.left||Mouse_old.left||Mouse_falling.right||Mouse_old.right);
 	Mouse_fallingDirection = Mouse_falling.left ? 1 : Mouse_falling.right ? -1 : 0;

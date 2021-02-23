@@ -1,4 +1,4 @@
-srcs:= elements input main part vector draw menu save bg entity platform render-dot render-menu
+srcs:= elements input main part vector draw menu save bg entity platform render-dot render-menu scale
 output:= pg1
 
 libs:= X11 m Xpm

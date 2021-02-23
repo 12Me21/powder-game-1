@@ -20,11 +20,12 @@ void render() {
 	DEFCALL(Bg_render);
 	DEFCALL(Dot_render);
 	Entity_render();
+	DEFCALL(Scale_render);
 }
 
 void Platform_frame(void) {
-	Random_update();
 	DEFCALL(Menu_input);
+	Random_update();
 	DEFCALL(Menu_update);
 	DEFCALL(Input_update);
 	Cell_update();
