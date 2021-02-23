@@ -8,9 +8,7 @@
 #include "menu.h"
 #include "input.h"
 
-#define PARTS_MAX 40000
-
-int wa;
+#define PARTS_MAX 400000
 
 static Part parts_2[PARTS_MAX+6];
 static Part* const parts = parts_2+5;
@@ -135,6 +133,8 @@ void Part_reset(int a) {
 					Part_at[y][x] = Part_BLOCK;
 	}
 }
+
+extern int wa;
 
 void Part_update(void) {
 	// todo: wheels

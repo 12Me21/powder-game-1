@@ -134,14 +134,14 @@ break; case Elem_THUNDER:
 			}
 			for (b=0; b<4; b++) { //check locations in front/left/right
 				if (b==2) continue; //2 = behind
-				Part* near = pdir(c+b&3);
+				Part* near = pdir((c+b)&3);
 				if (near<Part_0) continue;
 				if (near->type==Elem_METAL||near->type==Elem_MERCURY) {
 					Part_swap(p, near);
 					if (near->type==Elem_METAL)
-						p->meta = 6000+(c+b&0b11);
+						p->meta = 6000+((c+b)&0b11);
 					else
-						p->meta = 6100+(c+b&0b11); //todo: thinking about it, we could probably use pumptype for this...
+						p->meta = 6100+((c+b)&0b11); //todo: thinking about it, we could probably use pumptype for this...
 					near->type = r;
 					near->meta = 0;
 					break;

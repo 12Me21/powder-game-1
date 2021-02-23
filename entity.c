@@ -8,22 +8,9 @@
 #include "part.h"
 #include "draw.h"
 #include "input.h"
-#include <stdio.h>
+#include "entity.h"
 
-enum EntityType {Entity_FIGHTER=10, Entity_BOX=20, Entity_PLAYER=30, Entity_CREATE=40};
-
-typedef struct Ball {
-	Vector pos;
-	Vector vel;
-	bool used;
-	int meta;
-	int held;
-	int type;
-} Ball;
-
-#define Ball_MAX 50
-
-static Ball balls[Ball_MAX];
+Ball balls[Ball_MAX];
 
 void Ball_create(double x, double y, int type) {
 	int i;
@@ -42,36 +29,17 @@ void Ball_create(double x, double y, int type) {
 	}
 }
 
-#define Entity_MAX 50
-#define Entity_PARTS 28
-
-typedef struct EntityNode {
-	Vector pos;
-	Vector oldPos;
-	int touching;
-} EntityNode;
-
-typedef struct Entity {
-	int type;
-	int meta2;
-	int meta1;
-	bool held;
-	Vector Pe;
-	int decay;
-	EntityNode parts[Entity_PARTS];
-} Entity;
-
 Entity entitys[Entity_MAX];
-static Entity* next = entitys;
+Entity* Entity_next = entitys;
 
 void Entity_create(double x, double y, int type, int meta2) {
-	if (next >= entitys+Entity_MAX)
+	if (Entity_next >= entitys+Entity_MAX)
 		return;
 	Entity* oldPlayer = NULL;
 	if (type==Elem_PLAYER || type==Elem_PLAYER2) {
 		Entity* e;
 		int totalPlayers=0;
-		forRange (e, =entitys, <next, ++) {
+		forRange (e, =entitys, <Entity_next, ++) {
 			if (e->type == Entity_PLAYER) {
 				totalPlayers++;
 				oldPlayer = e;
@@ -82,57 +50,57 @@ void Entity_create(double x, double y, int type, int meta2) {
 	}
 	int i;
 	forRange (i, =0, <20, ++) {
-		next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
-		Vec_copy(&next->parts[i].oldPos, &next->parts[i].pos);
+		Entity_next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
+		Vec_copy(&Entity_next->parts[i].oldPos, &Entity_next->parts[i].pos);
 	}
 	forRange (i, =0, <Entity_PARTS, ++)
-		next->parts[i].touching = 0;
-	next->Pe = (Vector){0,0};
-	next->type = Entity_FIGHTER;
-	next->decay = 0;
-	next->held = 0;
-	next->meta2 = meta2;
-	next->meta1 = 0;
+		Entity_next->parts[i].touching = 0;
+	Entity_next->Pe = (Vector){0,0};
+	Entity_next->type = Entity_FIGHTER;
+	Entity_next->decay = 0;
+	Entity_next->held = 0;
+	Entity_next->meta2 = meta2;
+	Entity_next->meta1 = 0;
 	if (type==Elem_BOX) {
 		if (meta2 != 10) {
-			next->type = Entity_BOX;
+			Entity_next->type = Entity_BOX;
 		} else {
-			next->type = Entity_CREATE;
-			next->meta2 = 0;
-			next->parts[0].pos = (Vector){x,y};
-			next->parts[0].oldPos = (Vector){x,y};
+			Entity_next->type = Entity_CREATE;
+			Entity_next->meta2 = 0;
+			Entity_next->parts[0].pos = (Vector){x,y};
+			Entity_next->parts[0].oldPos = (Vector){x,y};
 		}
 	} else if (type==Elem_PLAYER) {
-		next->type = Entity_PLAYER;
+		Entity_next->type = Entity_PLAYER;
 		if (oldPlayer)
-			next->meta1 = 1-oldPlayer->meta1;
-		//next->meta1 = q;
+			Entity_next->meta1 = 1-oldPlayer->meta1;
+		//Entity_next->meta1 = q;
 	} else if (type==Elem_PLAYER2) {
-		next->type = Entity_PLAYER;
+		Entity_next->type = Entity_PLAYER;
 		if (!oldPlayer)
-			next->meta1 = 0;
+			Entity_next->meta1 = 0;
 		else {
 			Vec pos = &oldPlayer->parts[0].pos;
 			int b = (int)pos->x>>2<<2;
 			int c = (int)pos->y>>2<<2;
 			if (x<b)
-				next->meta1 = 1;
+				Entity_next->meta1 = 1;
 			else if (x>b)
-				next->meta1 = 0;
+				Entity_next->meta1 = 0;
 			else if (y<c)
-				next->meta1 = 1;
+				Entity_next->meta1 = 1;
 			else
-				next->meta1 = 0;
-			oldPlayer->meta1 = 1-next->meta1;
+				Entity_next->meta1 = 0;
+			oldPlayer->meta1 = 1-Entity_next->meta1;
 		}
 	}
-	next++;
+	Entity_next++;
 }
 
 void Entity_remove(Entity* entity) {
-	Entity* last = next-1;
+	Entity* last = Entity_next-1;
 	*entity = *last;
-	next--;
+	Entity_next--;
 }
 
 // update node position
@@ -146,7 +114,9 @@ void Entity_moveNode(EntityNode* node, double gravity, double slowdown) {
 }
 
 // this appears to deal with some interaction between 2 nodes
-void Entity_Se(EntityNode* node1, EntityNode* node2, double b, double c, double e) {
+void Entity_Se(Entity* e, int n1, int n2, double b, double c, double d) {
+	EntityNode* node1 = &e->parts[n1];
+	EntityNode* node2 = &e->parts[n2];
 	Vector f;
 	Vec_sub2(&f, &node2->pos, &node1->pos);
 	double g = Vec_fastNormalize(&f);
@@ -155,7 +125,7 @@ void Entity_Se(EntityNode* node1, EntityNode* node2, double b, double c, double 
 		Vector move;
 		Vec_mul2(&move, &f, b*c);
 		Vec_sub(&node1->pos, &move);
-		Vec_mul2(&move, &f, b*e);
+		Vec_mul2(&move, &f, b*d);
 		Vec_add(&node2->pos, &move);
 	}
 }
@@ -262,146 +232,6 @@ int Entity_checkTouching(EntityNode* start, EntityNode* end) {
 	return b;
 }
 
-static void Ball_render(void) {
-	int i;
-	forRange (i, =0, <Ball_MAX, ++) {
-		Ball* ball = &balls[i];
-		if (!ball->used)
-			return;
-		int type = ball->type;
-		Color color = ELEMENTS[type].color;
-		if (Menu_bgMode == Bg_SILUET)
-			color = 0;
-		int x = ball->pos.x;
-		int y = ball->pos.y;
-		Draw_ball(x, y, color);
-		if (y<H+8) {
-			if (Menu_bgMode==Bg_DARK) {
-				if (ELEMENTS[type].ballLight)
-					Bg_pixels[y][x].light = 255000;
-			} else if (Menu_bgMode==Bg_TG) {
-				Bg_pixels[y][x].light = 2*ELEMENTS[type].temperature;
-			}
-		}
-	}
-}
-
-static void line(Entity* e, int a, int b, Color c) {
-	Draw_vline(&e->parts[a].pos, &e->parts[b].pos, c);
-}
-
-static void rectangle(Entity* e, int a, int w, int h, Color c) {
-	Draw_rectangle(e->parts[a].pos.x, e->parts[a].pos.y, w, h, c);
-}
-
-void Entity_render(void) {
-	Color tan = 0xFFE0AE, white=0xFFFFFF;
-	if (Menu_bgMode==Bg_SILUET)
-		white=tan=0;
-	Entity* e;
-	forRange (e, =entitys, <next, ++) {
-		switch (e->type) {
-		when(Entity_FIGHTER):
-		case Entity_FIGHTER+1:
-		case Entity_FIGHTER+2:
-			line(e, 0, 1, tan);
-			line(e, 1, 2, white);
-			line(e, 1, 3, white);
-			line(e, 2, 4, white);
-			line(e, 3, 5, white);
-			rectangle(e, 0, 3, 3, tan);
-		when(Entity_FIGHTER+3):
-			line(e, 1, 2, white);
-			if (e->decay>145) break;
-			line(e, 3, 5, white);
-			if (e->decay>140) break;
-			line(e, 4, 7, white);
-			if (e->decay>135) break;
-			line(e, 6, 9, white);
-			if (e->decay>130) break;
-			line(e, 8, 10, white);
-			if (e->decay>125) break;
-			rectangle(e, 0, 2, 2, tan);
-		when(Entity_BOX):
-		case Entity_BOX+1:
-			line(e, 0, 1, tan);
-			line(e, 1, 2, tan);
-			line(e, 2, 3, tan);
-			line(e, 3, 0, tan);
-			//draw dead box
-		when(Entity_BOX+2):
-		case Entity_BOX+3:
-			line(e, 0, 1, tan);
-			if (e->decay>145) break;
-			line(e, 2, 3, tan);
-			if (e->decay>140) break;
-			line(e, 4, 5, tan);
-			if (e->decay>135) break;
-			line(e, 6, 7, tan);
-			if (e->decay>130) break; //???
-		when(Entity_PLAYER):
-		case Entity_PLAYER+2:
-		case Entity_PLAYER+3:; //dead
-			int f,g,q,n;
-			if (e->type != Entity_PLAYER+3) {
-				line(e, 1, 2, white);
-				line(e, 1, 3, white);
-				line(e, 2, 4, white);
-				line(e, 3, 5, white);
-				f=-2;
-				g=2;
-				q=-1;
-				n=3;
-			} else { //dead
-				line(e, 3, 5, white);
-				if (e->decay>140) break;
-				line(e, 4, 7, white);
-				if (e->decay>135) break;
-				line(e, 6, 9, white);
-				if (e->decay>130) break;
-				line(e, 8, 10, white);
-				if (e->decay>125) break;
-				f=-1;
-				g=1;
-				q=-1;
-				n=1;
-			}
-			Color headcolor = ELEMENTS[e->meta2].color ?: tan;
-			if (Menu_bgMode==Bg_SILUET)
-				headcolor = 0x000000;
-			Draw_head(e->parts[0].pos.x, e->parts[0].pos.y, f, q, g, n, e->meta1==1, headcolor);
-			// add light to region around player
-			if (Menu_bgMode==Bg_DARK) {
-				int y,x;
-				f = clamp(e->parts[0].pos.x,8,407);
-				q = clamp(e->parts[0].pos.y,8,304);
-				forRange (y, =q-4, <=q+4, +=4)
-					forRange (x, =f-4, <=f+4, +=4)
-						Bg_pixels[y][x].light = 0x1FFFFFFF;
-			}
-			break;
-		}
-		// lights in TG mode
-		switch(e->type){
-		case Entity_FIGHTER:
-		case Entity_FIGHTER+1:
-		case Entity_FIGHTER+2:
-		case Entity_FIGHTER+3:
-		case Entity_PLAYER:
-		case Entity_PLAYER+2:
-		case Entity_PLAYER+3:
-			if (Menu_bgMode == Bg_TG) {
-				int d;
-				forRange (d, =0, <6, ++)
-					Bg_pixels
-						[(int)clamp(e->parts[d].pos.y,8,304)]
-						[(int)clamp(e->parts[d].pos.x,8,407)].light = 3000;
-			}
-		}
-	}
-	Ball_render();
-}
-
 typedef struct Player {
 	int Xe; //walk animation cooldown
 	int Ye; //jump  "
@@ -412,7 +242,11 @@ Player players[2];
 
 void Entity_update(void) {
 	Entity* a;
-	forRange (a, =entitys, <next, ++) {
+	forRange (a, =entitys, <Entity_next, ++) {
+		void copyPos(int dest, int src) {
+			a->parts[dest].pos = a->parts[src].pos;
+			a->parts[dest].oldPos = a->parts[src].oldPos;
+		}
 		if (a->type == Entity_PLAYER) {
 			bool left = a->meta1==0 ? Keys[37].pressed : Keys[65].pressed||Keys[97].pressed;
 			bool right = a->meta1==0 ? Keys[39].pressed : Keys[68].pressed||Keys[100].pressed;
@@ -483,13 +317,12 @@ void Entity_update(void) {
 				a->parts[4].pos.y -= 6;
 				a->parts[5].pos.y -= 6;
 			}
-			double b=0.5;
-			Entity_Se(&a->parts[0], &a->parts[1], 4, b, b);
-			Entity_Se(&a->parts[1], &a->parts[2], 4, b, b);
-			Entity_Se(&a->parts[1], &a->parts[3], 4, b, b);
-			Entity_Se(&a->parts[2], &a->parts[4], 5, b, b);
-			Entity_Se(&a->parts[3], &a->parts[5], 5, b, b);
-			Entity_Se(&a->parts[2], &a->parts[3], 5, 0.1, 0.1);
+			Entity_Se(a, 0, 1, 4, 0.5, 0.5);
+			Entity_Se(a, 1, 2, 4, 0.5, 0.5);
+			Entity_Se(a, 1, 3, 4, 0.5, 0.5);
+			Entity_Se(a, 2, 4, 5, 0.5, 0.5);
+			Entity_Se(a, 3, 5, 5, 0.5, 0.5);
+			Entity_Se(a, 2, 3, 5, 0.1, 0.1);
 			int i;
 			for (i=0;i<4;i++)
 				Entity_Ue(&a->parts[i], 0.1, 1, a->held>0 ? 1 : 0);
@@ -586,10 +419,6 @@ void Entity_update(void) {
 				}
 			}
 		} else if (a->type == Entity_PLAYER+2) {
-			void copyPos(int dest, int src) {
-				a->parts[dest].pos = a->parts[src].pos;
-				a->parts[dest].oldPos = a->parts[src].oldPos;
-			}
 			copyPos(10, 5);
 			copyPos(9, 4);
 			copyPos(8, 3);
@@ -613,105 +442,86 @@ void Entity_update(void) {
 			}
 			Vec_mul(&a->Pe, 0.5);
 			double e = (150-a->decay)/150;
-			Entity_Se(&a->parts[1],&a->parts[2],4*e,0.5,0.5);
-			Entity_Se(&a->parts[3],&a->parts[5],4*e,0.5,0.5);
-			Entity_Se(&a->parts[4],&a->parts[7],4*e,0.5,0.5);
-			Entity_Se(&a->parts[6],&a->parts[9],5*e,0.5,0.5);
-			Entity_Se(&a->parts[8],&a->parts[10],5*e,0.5,0.5);
+			Entity_Se(a, 1, 2, 4*e,0.5,0.5);
+			Entity_Se(a, 3, 5, 4*e,0.5,0.5);
+			Entity_Se(a, 4, 7, 4*e,0.5,0.5);
+			Entity_Se(a, 6, 9, 5*e,0.5,0.5);
+			Entity_Se(a, 8, 10, 5*e,0.5,0.5);
 			for (b=0;b<11;b++)
 				Entity_Ue(&a->parts[b], 0.1, 0,0);
 			if (a->decay>150)
 				Entity_remove(a--);
-		}/* else if (a->type==Entity_BOX) {
+		} else if (a->type==Entity_BOX) {
 			a->decay++;
 			int b;
 			for (b=0;b<4;b++)
 				Entity_moveNode(&a->parts[b],0.1,1);
-			//Entities_drag(d,c,c+4);
+			//		Entity_drag(a,0,4);
+			// kick
 			for (b=0;b<4;b++) {
-				for(r=0;r<Entities.used;r++){
-					if(Entities.type[r]==Entities_FIGHTER||Entities.type[r]==Entities_FIGHTER+1||Entities.type[r]==Entities_PLAYER){
-						f=r*Entities.PARTS;
-						g=abs(Entities.pos[f+4].x-Entities.pos[c+b].x);
-						q=abs(Entities.pos[f+4].y-Entities.pos[c+b].y);
-						if(g<=3&&q<=3){
-							Entities.pos[c+b].x+=1*(Entities.pos[f+4].x-Entities_oldpos[f+4].x);
-							Entities.pos[c+b].y+=2*(Entities.pos[f+4].y-Entities_oldpos[f+4].y);
-						}
-						g=abs(Entities.pos[f+5].x-Entities.pos[c+b].x);
-						q=abs(Entities.pos[f+5].y-Entities.pos[c+b].y);
-						if(g<=3&&q<=3){
-							Entities.pos[c+b].x+=1*(Entities.pos[f+5].x-Entities_oldpos[f+5].x);
-							Entities.pos[c+b].y+=2*(Entities.pos[f+5].y-Entities_oldpos[f+5].y);
+				Entity* r;
+				for (r=entitys; r<Entity_next; r++) {
+					if (r->type==Entity_FIGHTER||r->type==Entity_FIGHTER+1||r->type==Entity_PLAYER) {
+						int i;
+						for (i=4;i<=5;i++) {
+							EntityNode* part = &r->parts[i];
+							double g = abs(part->pos.x - a->parts[b].pos.x);
+							double q = abs(part->pos.y - a->parts[b].pos.y);
+							if (g<=3 && q<=3) {
+								a->parts[b].pos.x += 1*(part->pos.x - part->oldPos.x);
+								a->parts[b].pos.y += 2*(part->pos.y - part->oldPos.y);
+							}
 						}
 					}
 				}
 			}
-			b=0.5;
-			r=4*(Entities.meta2[d]+1);
-			Entities_Se(c+0,c+1,r,b,b);
-			Entities_Se(c+1,c+2,r,b,b);
-			Entities_Se(c+2,c+3,r,b,b);
-			Entities_Se(c+3,c+0,r,b,b);
-			Entities_Se(c+0,c+2,1.4142135*r,b,b);
-			Entities_Se(c+1,c+3,1.4142135*r,b,b);
-			w=0.5;
-			for(b=0;b<4;b++){
-				Entities_Ue(c+b,w,0,1);
-			}
-			if(Entities_hurt(c,c+6)==3||Entities_hurt(c,c+6)==-5){
-				Entities.type[d]=Entities_BOX+1;
-			}
-		}else if(Entities.type[d]==Entities_BOX+1){
-			Entities.pos[c+7].copy(Entities.pos[c+0]);
-			Entities_oldpos[c+7].copy(Entities_oldpos[c+0]);
-			Entities.pos[c+6].copy(Entities.pos[c+3]);
-			Entities_oldpos[c+6].copy(Entities_oldpos[c+3]);
-			Entities.pos[c+5].copy(Entities.pos[c+3]);
-			Entities_oldpos[c+5].copy(Entities_oldpos[c+3]);
-			Entities.pos[c+4].copy(Entities.pos[c+2]);
-			Entities_oldpos[c+4].copy(Entities_oldpos[c+2]);
-			Entities.pos[c+3].copy(Entities.pos[c+2]);
-			Entities_oldpos[c+3].copy(Entities_oldpos[c+2]);
-			Entities.pos[c+2].copy(Entities.pos[c+1]);
-			Entities_oldpos[c+2].copy(Entities_oldpos[c+1]);
-			Entities.pos[c+1].copy(Entities.pos[c+1]);
-			Entities_oldpos[c+1].copy(Entities_oldpos[c+1]);
-			Entities.pos[c+0].copy(Entities.pos[c+0]);
-			Entities_oldpos[c+0].copy(Entities_oldpos[c+0]);
-			Entities.held[d]=0;
-			Entities_decay[d]=0;
-			Entities.type[d]= Entities_hurt(c,c+4)==-5 ? Entities_BOX+3 : Entities_BOX+2;
-		}else if(Entities.type[d]==Entities_BOX+2||Entities.type[d]==Entities_BOX+3){
-			Entities_decay[d]++;
-			Entities_drag(d,c,c+8);
-			for(b=0;b<8;b++){
-				Entities_Re(c+b,0.1,0.999);
-			}
-			b=0.5;
-			r=(150-Entities_decay[d])/150*(Entities.meta2[d]+1)*4;
-			Entities_Se(c+0,c+1,r,b,b);
-			Entities_Se(c+2,c+3,r,b,b);
-			Entities_Se(c+4,c+5,r,b,b);
-			Entities_Se(c+6,c+7,r,b,b);
-			if(Entities.type[d]==Entities_BOX+2&&Parts_limits[Menu_dotLimit]-Parts_used>=1000){
-				for(b=0;b<5;b+=2){
-					e.sub2(Entities_oldpos[c+b+1],Entities_oldpos[c+b]);
-					e.mul(random(1));
-					e.add(Entities_oldpos[c+b]);
-					f=floor(e.y)*WIDTH+floor(e.x);
-					if(parts[f]<=Parts_BGFAN){
-						Parts_create(floor(e.x),floor(e.y),4);
-					}
+			double r = 4*(a->meta2+1);
+			Entity_Se(a,0,1,r,0.5,0.5);
+			Entity_Se(a,1,2,r,0.5,0.5);
+			Entity_Se(a,2,3,r,0.5,0.5);
+			Entity_Se(a,3,0,r,0.5,0.5);
+			Entity_Se(a,0,2,1.4142135*r,0.5,0.5);
+			Entity_Se(a,1,3,1.4142135*r,0.5,0.5);
+			for (b=0;b<4;b++)
+				Entity_Ue(&a->parts[b],0.5,0,1);
+			int t = Entity_checkTouching(&a->parts[0], &a->parts[6]);
+			if (t==3 || t==-5)
+				a->type = Entity_BOX+1;
+		} else if (a->type == Entity_BOX+1) {
+			copyPos(7, 0);
+			copyPos(6, 3);
+			copyPos(5, 3);
+			copyPos(4, 2);
+			copyPos(3, 2);
+			copyPos(2, 1);
+			a->held = 0;
+			a->decay = 0;
+			a->type = Entity_checkTouching(&a->parts[0], &a->parts[4])==-5 ? Entity_BOX+3 : Entity_BOX+2;
+		} else if (a->type==Entity_BOX+2 || a->type==Entity_BOX+3) {
+			a->decay++;
+			//			Entities_drag(d,c,c+8);
+			int b;
+			for (b=0;b<8;b++)
+				Entity_moveNode(&a->parts[b], 0.1, 0.999);
+			double r=(150-a->decay)/150*(a->meta2+1)*4;
+			Entity_Se(a, 0, 1, r, 0.5, 0.5);
+			Entity_Se(a, 2, 3, r, 0.5, 0.5);
+			Entity_Se(a, 4, 5, r, 0.5, 0.5);
+			Entity_Se(a, 6, 7, r, 0.5, 0.5);
+			if (a->type==Entity_BOX+2/*&&Parts_limits[Menu_dotLimit]-Parts_used>=1000*/) {
+				for (b=0;b<5;b+=2) {
+					Vector e;
+					Vec_sub2(&e, &a->parts[b+1].oldPos, &a->parts[b].oldPos);
+					Vec_mul(&e, Random_(1));
+					Vec_add(&e, &a->parts[b].oldPos);
+					if (Part_at[(int)e.y][(int)e.x]<=Part_BGFAN)
+						Part_create(e.x, e.y, Elem_FIRE);
 				}
 			}
-			w=0.1;
-			for(b=0;b<8;b++){
-				Entities_Ue(c+b,w,0,0);
-			}
-			if(Entities_decay[d]>150){
-				Entities_remove(d--);
-			}
-			}*/
+			for (b=0;b<8;b++)
+				Entity_Ue(&a->parts[b],0.1,0,0);
+			if (a->decay>150)
+				Entity_remove(a--);
+		}
 	}
 }
