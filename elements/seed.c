@@ -1,5 +1,6 @@
 break; case Elem_SEED:
 {
+#ifdef UPDATE_PART
 	Vector airvel = c->vel;
 	if (p->meta==0) {
 		airvel.y += Random_2(0.01, 0.09);
@@ -26,4 +27,5 @@ break; case Elem_SEED:
 		if (Random_(100)<5)
 			Part_remove(p--);
 	}
+#endif
 }

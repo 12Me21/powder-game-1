@@ -20,7 +20,8 @@ void render() {
 	DEFCALL(Bg_render);
 	DEFCALL(Dot_render);
 	DEFCALL(Entity_render);
-	DEFCALL(Scale_render);
+	DEFCALL(Ball_render);
+	//DEFCALL(Scale_render);
 }
 
 void Platform_frame(void) {
@@ -31,6 +32,7 @@ void Platform_frame(void) {
 	Cell_update();
 	Part_update();
 	Entity_update(); //check order
+	DEFCALL(Ball_update);
 	render();
 	Platform_redraw();
 }

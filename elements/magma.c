@@ -1,5 +1,6 @@
 break; case Elem_MAGMA:
 {
+#ifdef UPDATE_PART
 	p->vel.x += 0.1*c->vel.x;
 	p->vel.y += 0.1*c->vel.y;
 	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
@@ -73,4 +74,5 @@ break; case Elem_MAGMA:
 		break;
 	}
  brk:;
+#endif
 }

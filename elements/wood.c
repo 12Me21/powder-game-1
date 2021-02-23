@@ -1,5 +1,6 @@
 break; case Elem_WOOD:
 {
+#ifdef UPDATE_PART
 	Vector airvel = p->vel;
 	Vec_mul(&p->vel, 0.3);
 	Part_blow(p, &airvel);
@@ -43,4 +44,5 @@ break; case Elem_WOOD:
 		if (Random_(1000)<5)
 			p->type = Elem_POWDER;
 	}
+#endif
 }

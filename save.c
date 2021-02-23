@@ -6,6 +6,7 @@
 #include <math.h>
 #include "vector.h"
 #include "entity.h"
+#include "ball.h"
 #include <stdio.h>
 
 static int number(char x) {

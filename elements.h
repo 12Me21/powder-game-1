@@ -18,6 +18,9 @@ typedef struct ElementDef {
 	double friction; // affects entity movement i think
 	bool ballLight; // if ball generates light in "DARK" bg mode
 	double ze, Ae; //these affect superball movement
+	bool ballValid;
+	double ballWeight;
+	double ballAdvection;
 } ElementDef;
 
 // some of these are pseudo-elements which are only used in savedata

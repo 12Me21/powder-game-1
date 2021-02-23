@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uint32_t Color;
 #define RED(x) ((x)>>16&0xFF)

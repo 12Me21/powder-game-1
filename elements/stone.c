@@ -1,5 +1,6 @@
 break; case Elem_STONE:
 {
+#ifdef UPDATE_PART
 	p->vel.x += 0.05*c->vel.x;
 	p->vel.y += 0.05*c->vel.y;
 	p->vel.y += Random_2(0.01,0.05);
@@ -48,4 +49,5 @@ break; case Elem_STONE:
 		p->vel.y *= 0.5;
 	}
 	Part_at[(int)p->pos.y][(int)p->pos.x] = p;
+#endif
 }

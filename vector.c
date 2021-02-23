@@ -11,24 +11,24 @@
 
 static Vector sinCos[513]; //yes, 513
 
-void Vec_copy(Vec dest, Vec src) {
+void Vec_copy(Vec dest, const Vector* src) {
 	dest X = src X;
 	dest Y = src Y;
 }
 
 // Vec_set(vec,x,y) (unneeded)
 
-void Vec_add(Vec a, Vec b) {
+void Vec_add(Vec a, const Vector* b) {
 	a X += b X;
 	a Y += b Y;
 }
 
-void Vec_sub(Vec a, Vec b) {
+void Vec_sub(Vec a, const Vector* b) {
 	a X -= b X;
 	a Y -= b Y;
 }
 
-void Vec_sub2(Vec out, Vec a, Vec b) {
+void Vec_sub2(Vec out, const Vector* a, const Vector* b) {
 	out->x = a->x - b->x;
 	out->y = a->y - b->y;
 }
@@ -38,7 +38,7 @@ void Vec_mul(Vec a, double x) {
 	a Y *= x;
 }
 
-void Vec_mul2(Vec out, Vec a, double mul) {
+void Vec_mul2(Vec out, const Vector* a, double mul) {
 	out->x = a->x*mul;
 	out->y = a->y*mul;
 }
@@ -52,11 +52,11 @@ static double fastDist(double x, double y) {
 		return 0.3978*x+0.9604*y;
 }
 
-double Vec_fastDist(Vec a) {
+double Vec_fastDist(const Vector* a) {
 	return fastDist(a X, a Y);
 }
 
-double Vec_dist(Vec this) {
+double Vec_dist(const Vector* this) {
 	return sqrt(this->x*this->x + this->y*this->y);
 }
 
@@ -78,7 +78,7 @@ void Vec_normalize(Vec v) {
 }
 
 // this should've used atan2
-double Vec_angle(Vec v) {
+double Vec_angle(const Vector* v) {
 	double angle = acos(v->x/Vec_dist(v));
 	if (v->y>0)
 		return TAU-angle;
