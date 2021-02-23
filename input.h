@@ -11,7 +11,7 @@ typedef struct Key {
 
 typedef struct MouseState {
 	int x, y;
-	bool left, right;
+	bool left, right, middle;
 } MouseState;
 
 extern MouseState Mouse_now;

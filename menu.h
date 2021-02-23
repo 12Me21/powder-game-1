@@ -21,6 +21,8 @@ extern int Menu_fps;
 extern int Menu_zoomLevel;
 extern bool Menu_minimapEnabled;
 extern int buttonflash;
+extern axis Menu_zoomX;
+extern axis Menu_zoomY;
 
 extern int Part_LIMITS[3];
 extern axis Pen_x, Pen_y;

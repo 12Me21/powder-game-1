@@ -52,7 +52,7 @@ void Platform_redraw(void) {
 }
 
 extern int Platform_mouseX, Platform_mouseY;
-extern int Platform_mouseLeft, Platform_mouseRight;
+extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
 extern bool Platform_keys[256];
 
 static void processEvent(void) {
@@ -76,6 +76,8 @@ static void processEvent(void) {
 				Platform_mouseLeft = ev.event.type == ButtonPress;
 			if (ev.button.button == Button3)
 				Platform_mouseRight = ev.event.type == ButtonPress;;
+			if (ev.button.button == Button2)
+				Platform_mouseMiddle = ev.event.type == ButtonPress;;
 			break;
 		case MotionNotify:;
 			Platform_mouseX = ev.motion.x;

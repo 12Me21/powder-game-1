@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include "common.h"
 #include "elements.h"
 #include "part.h"
@@ -26,6 +27,8 @@ int Menu_leftSelection = 10;
 int Menu_rightSelection = 0;
 int Menu_penSize = 0;
 int Menu_zoomLevel = 0;
+axis Menu_zoomX = 0;
+axis Menu_zoomY = 0;
 int Menu_dotLimit = 0;
 int Menu_gridSize = 0;
 int Menu_carefully = 0;
@@ -48,6 +51,11 @@ static int wrap(int a, int b) {
 
 static bool mouseinside(int x, int y, int width, int height) {
 	return !(Mouse_old.x<x||Mouse_old.x>=x+width||Mouse_old.y<y||Mouse_old.y>=y+height);
+}
+
+static void moveZoom(axis x, axis y) {
+	Menu_zoomX = clamp(x, 0, W-ceil((float)W/(1<<Menu_zoomLevel)));
+	Menu_zoomY = clamp(y, 0, H-ceil((float)H/(1<<Menu_zoomLevel)));
 }
 
 void Menu_input(void) {
@@ -83,6 +91,32 @@ void Menu_input(void) {
 			Menu_penMode = wrap(Menu_penMode+Mouse_fallingDirection, 3);
 		when(Menu_PENSIZE):;
 			Menu_penSize = wrap(Menu_penSize+Mouse_fallingDirection, 9);
+		when(Menu_SCALE):;
+			if (Mouse_rising.left) {
+				if (Menu_leftSelection==Menu_SCALE) {
+					if (Menu_zoomLevel<4) {
+						Menu_zoomLevel++;
+						Menu_zoomX += W>>Menu_zoomLevel>>1;
+						Menu_zoomY += H>>Menu_zoomLevel>>1;
+					} else
+						Menu_zoomLevel = 0;
+				}
+				Menu_leftSelection = selection;
+			} else if (Mouse_rising.right) {
+				if (Menu_rightSelection==Menu_SCALE) {
+					if (Menu_zoomLevel>0) {
+						Menu_zoomX -= W>>Menu_zoomLevel>>1;
+						Menu_zoomY -= H>>Menu_zoomLevel>>1;
+						Menu_zoomLevel--;
+					} else {
+						Menu_zoomLevel = 4;
+						Menu_zoomX += W/2-(W>>Menu_zoomLevel>>1);
+						Menu_zoomY += H/2-(H>>Menu_zoomLevel>>1);
+					}
+				}
+				Menu_rightSelection = selection;
+			}
+			moveZoom(Menu_zoomX, Menu_zoomY);
 		when(Menu_SPEED):;
 			Menu_gameSpeed = wrap(Menu_gameSpeed+Mouse_fallingDirection, 3);
 		when(Menu_START):;
@@ -133,6 +167,17 @@ void Menu_input(void) {
 void Menu_update(void) {
 	if (Menu_cursorInMenu)
 		return;
+	Pen_oldx = Pen_x;
+	Pen_oldy = Pen_y;
+	Pen_x = Mouse_old.x;
+	Pen_y = Mouse_old.y;
+	if (Menu_zoomLevel>0) {
+		Pen_x = Menu_zoomX+(Pen_x>>Menu_zoomLevel);
+		Pen_y = Menu_zoomY+(Pen_y>>Menu_zoomLevel);
+	}
+	Pen_x = clamp(Pen_x+8,8,W-1);
+	Pen_y = clamp(Pen_y+8,8,H-1);
+	// todo: line mode etc.
 	int i;
 	for (i=0;i<=1;i++) {
 		int selection = i ? Menu_rightSelection : Menu_leftSelection;
@@ -348,5 +393,10 @@ void Menu_update(void) {
 				}
 			}
 		}
+	}
+	if (Menu_zoomLevel!=0 && Mouse_now.middle) {
+		Menu_zoomX -= (Mouse_old.x-Mouse_older.x)/(1<<Menu_zoomLevel);
+		Menu_zoomY -= (Mouse_old.y-Mouse_older.y)/(1<<Menu_zoomLevel);
+		moveZoom(Menu_zoomX, Menu_zoomY);
 	}
 }
