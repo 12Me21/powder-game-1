@@ -9,7 +9,7 @@ break; case Elem_SUPERBALL:
 	airvel = p->vel;
 	Vec_mul(&airvel, 3.8/(Vec_fastDist(&airvel)+1));
 	
-	Part* f = Part_at[(int)p->pos.y][(int)(p->pos.x+airvel.x)];
+	Part* f = Part_pos2(&p->pos)[Part_ofs(airvel.x,0)];
 	// empty
 	if (f <= Part_BGFAN)
 		p->pos.x += airvel.x;
@@ -39,8 +39,8 @@ break; case Elem_SUPERBALL:
 			p->vel.y *= ELEMENTS[f->type].Ae;
 		}
 	}
-	Part_at[(int)p->pos.y][(int)p->pos.x] = Part_EMPTY;
-	f = Part_at[(int)(p->pos.y+airvel.y)][(int)(p->pos.x)];
+	*Part_pos2(&p->pos) = Part_EMPTY;
+	f = *Part_pos(p->pos.y+airvel.y, p->pos.x);
 	if (f <= Part_BGFAN)
 		p->pos.y += airvel.y;
 	else if (f < Part_0) {

@@ -1,7 +1,7 @@
 break; case Elem_THUNDER:
 {
 #ifdef UPDATE_PART
-	Part_at[(int)p->pos.y][(int)p->pos.x] = p;
+	*Part_pos2(&p->pos) = p;
 	p->vel = (Vector){0,0};
 	if (p->meta<0x1000) {
 		if (!p->meta)
@@ -22,13 +22,13 @@ break; case Elem_THUNDER:
 			if (n%2<=0) { vx=1; vy=0; c=3; }
 			else { vx=0; vy=1; c=0; }
 		}
-		Part* near = Part_at[(int)p->pos.y+vy][(int)p->pos.x+vx];
+		Part* near = Part_pos2(&p->pos)[Part_ofs(vx,vy)];
 		int b = c<<10|n;
 		if (near<=Part_BGFAN) {
-			Part_at[(int)p->pos.y][(int)p->pos.x] = Part_EMPTY;
+			*Part_pos2(&p->pos) = Part_EMPTY;
 			p->pos.x += vx;
 			p->pos.y += vy;
-			Part_at[(int)p->pos.y][(int)p->pos.x] = p;
+			*Part_pos2(&p->pos) = p;
 			p->meta = b;
 		} else if (near>=Part_0) {
 			if (near->type!=Elem_THUNDER || near->meta!=b) {
@@ -46,7 +46,7 @@ break; case Elem_THUNDER:
 					break;
 				}
 				//powders, liquids, magma, wood, ice, vine, glass
-				int type = near->type;
+				Elem type = near->type;
 				if (ELEMENTS[type].state==State_POWDER||ELEMENTS[type].state==State_LIQUID||type==Elem_MAGMA||type==Elem_WOOD||type==Elem_ICE||type==Elem_VINE||type==Elem_GLASS) {
 					p->meta = 5000;
 				} else if (type==Elem_CLOUD) {
@@ -97,7 +97,7 @@ break; case Elem_THUNDER:
 		if (p->meta>=7000) {
 			if (p->meta==7000) {
 				void checkGlass(int x, int y) {
-					Part* near = Part_at[(int)p->pos.y+y][(int)p->pos.x+x];
+					Part* near = Part_pos2(&p->pos)[Part_ofs(x,y)];
 					if (near>=Part_0 && near->type==Elem_GLASS) {
 						near->type = Elem_THUNDER;
 						near->meta = 7000;
@@ -120,18 +120,7 @@ break; case Elem_THUNDER:
 			int r = (p->meta&0xFFFC)==6000 ? Elem_METAL : Elem_MERCURY;
 			int b;
 			Part* pdir(int dir) {
-				switch (dir) {
-				when(0):;
-					return Part_at[(int)p->pos.y+1][(int)p->pos.x];
-				when(1):;
-					return Part_at[(int)p->pos.y][(int)p->pos.x-1];
-				when(2):;
-					return Part_at[(int)p->pos.y-1][(int)p->pos.x];
-				when(3):;
-					return Part_at[(int)p->pos.y][(int)p->pos.x+1];
-				}
-				//never
-				return NULL;
+				return Part_pos2(&p->pos)[(Offset[]){WIDTH,-1,-WIDTH,1}[dir]];
 			}
 			for (b=0; b<4; b++) { //check locations in front/left/right
 				if (b==2) continue; //2 = behind
@@ -158,8 +147,8 @@ break; case Elem_THUNDER:
 			// did not conduct
 			if (b==4) {
 				if (pdir(c)<=Part_BGFAN) {
-					int g = p->pos.x;
-					int q = p->pos.y;
+					axis g = p->pos.x;
+					axis q = p->pos.y;
 					if (c==0)
 						Part_create(g,q+1,Elem_THUNDER);
 					else if (c==1)

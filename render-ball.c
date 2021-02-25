@@ -9,7 +9,7 @@ void Ball_render(void) {
 	forRange (i, =0, <Ball_MAX, ++) {
 		Ball* ball = &balls[i];
 		if (!ball->used)
-			return;
+			continue;
 		int type = ball->type;
 		Color color = ELEMENTS[type].color;
 		if (Menu_bgMode == Bg_SILUET)

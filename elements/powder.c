@@ -10,9 +10,9 @@ break; case Elem_POWDER:
 #elif defined UPDATE_BALL
 	if (touched>=0) {
 		if (ELEMENTS[touched].state==State_LIQUID)
-			Ball_break(i, 0, Elem_POWDER, 0, 0.5*i->vel.x, 0.5*i->vel.y, 0.5);
+			Ball_break(ball, 0, Elem_POWDER, 0, 0.5*ball->vel.x, 0.5*ball->vel.y, 0.5);
 		else if (ELEMENTS[touched].state==State_HOT)
-			Ball_break(i, 0, Elem_FIRE, 0, 0.5*i->vel.x, 0.5*i->vel.y, 0.5);
+			Ball_break(ball, 0, Elem_FIRE, 0, 0.5*ball->vel.x, 0.5*ball->vel.y, 0.5);
 	}
 
 #elif defined UPDATE_BALL_PART

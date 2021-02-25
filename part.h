@@ -32,7 +32,6 @@ void Part_swap(Part* part1, Part* part2);
 void Part_update(void);
 void Part_remove(Part* part);
 void Cell_update(void);
-Part** Part_pos2(Vec pos);
 
 extern Part* Part_at[HEIGHT][WIDTH];
 extern Part* const Part_EMPTY;
@@ -46,3 +45,7 @@ extern Block Part_blocks[HEIGHT/4][WIDTH/4];
 extern Block* const Part_blocks_end;
 void Part_reset(int a);
 void Part_save(int saveData[W*H], int saveMeta[W*H]);
+
+#define Part_pos(x,y) (&Part_at[(int)(y)][(int)(x)])
+#define Part_pos2(pos...) (&Part_at[(int)(pos)->y][(int)(pos)->x])
+#define Part_ofs(x,y) ((int)(x)+(int)(y)*WIDTH)

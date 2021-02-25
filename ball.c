@@ -519,7 +519,7 @@ p			var storing=Balls.meta[ball]&0xFF;
 }
 
 static void Ball_break(Ball* ball, int mode, int createType, int meta, double vx, double vy, double speed) {
-	Part** pc = &Part_at[(int)ball->pos.y][(int)ball->pos.x];
+	Part** pc = Part_pos2(&ball->pos);
 	int i;
 	if (mode==0) {
 		for (i=9;i<21;i++) {
@@ -532,7 +532,7 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, double vx
 				);
 				if (near) {
 					near->vel.x += vx+neighbors[i].breakVel.x*speed;
-					near->vel.y += vx+neighbors[i].breakVel.y*speed;
+					near->vel.y += vy+neighbors[i].breakVel.y*speed;
 					near->meta = meta;
 				}
 			}
@@ -572,7 +572,7 @@ void Ball_update(void) {
 			i->used = false;
 			continue;
 		}
-		Part** p = &Part_at[(int)i->pos.y][(int)i->pos.x];
+		Part** p = Part_pos2(&i->pos);
 		int d;
 		for (d=0;d<21;d++)
 			if (p[neighbors[d].offset] == Part_BALL)
@@ -590,12 +590,12 @@ void Ball_update(void) {
 		}
 		// dragging
 		if (!i->held) {
-			if (Menu_leftSelection==Menu_DRAG&&Mouse_rising.left||Menu_rightSelection==Menu_DRAG&&Mouse_rising.right) {
+			if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
 				if (Vec_fastDist(&(Vector){Pen_x-i->pos.x, Pen_y-i->pos.y})<20)
 					i->held = true;
 			}
 		} else {
-			if (Menu_leftSelection==Menu_DRAG&&Mouse_old.left||Menu_rightSelection==Menu_DRAG&&Mouse_old.right) {
+			if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
 				i->vel.x += 0.05*(Pen_x-i->pos.x);
 				i->vel.y += 0.05*(Pen_y-i->pos.y);
 				Vec_mul(&i->vel, 0.9);
@@ -623,7 +623,7 @@ void Ball_update(void) {
 		int newType = 0;
 		// chcek movement
 		int q = (int)(Vec_dist(&i->vel)/2)+1;
-		double n = 1/q;
+		double n = 1.0/q;
 		int v,g;
 		for (v=g=0; v<q; v++) {
 			double nextx = i->pos.x+i->vel.x*n;
@@ -636,14 +636,14 @@ void Ball_update(void) {
 			// edge loop
 			if (Menu_edgeMode==1) {
 				if (nextx<8) {
-					if (Part_at[(int)nexty][(int)nextx+W]<=Part_BGFAN) {
+					if (Part_pos(nextx+W,nexty)[0]<=Part_BGFAN) {
 						i->pos.x += W;
 						i->vel.x *= 0.8;
 					} else
 						i->vel.x *= -0.8;
 					nextx = i->pos.x+i->vel.x*n;
 				} else if (nextx>=W+8) {
-					if (Part_at[(int)nexty][(int)nextx-W]<=Part_BGFAN) {
+					if (Part_pos(nextx-W,nexty)[0]<=Part_BGFAN) {
 						i->pos.x -= W;
 						i->vel.x *= 0.8;
 					} else
@@ -651,14 +651,14 @@ void Ball_update(void) {
 					nextx = i->pos.x+i->vel.x*n;
 				}
 				if (nexty<8) {
-					if (Part_at[(int)nexty+H][(int)nextx]<=Part_BGFAN) {
+					if (Part_pos(nextx,nexty+H)[0]<=Part_BGFAN) {
 						i->pos.y += H;
 						i->vel.y *= 0.8;
 					} else
 						i->vel.y *= -0.8;
 					nexty = i->pos.y+i->vel.y*n;
 				} else if (nexty>=H+8) {
-					if (Part_at[(int)nexty-H][(int)nextx]<=Part_BGFAN) {
+					if (Part_pos(nextx,nexty-H)[0]<=Part_BGFAN) {
 						i->pos.y -= H;
 						i->vel.y *= 0.8;
 					} else
@@ -667,13 +667,12 @@ void Ball_update(void) {
 				}
 			}
 			Vector z = {0,0};
-			Part** pc = &Part_at[(int)nexty][(int)nextx];
+			Part** pc = Part_pos(nextx,nexty);
 			int d;
 			int y=0;
 			for (d=0;d<37;d++) {
 				Part* near = pc[neighbors[d].offset];
 				if (near<=Part_BGFAN) continue;
-				// here we set a var named g but idk where it's used yet..
 				if (near>=Part_0) {
 					touched = near->type;
 					if (Ball_react(i, near, &newType))
@@ -686,7 +685,7 @@ void Ball_update(void) {
 			}
 			if (y==0) {
 				i->pos.x = nextx;
-				i->pos.x = nexty;
+				i->pos.y = nexty;
 			} else {
 				Vec_normalize(&z);
 				i->vel.y -= weight;
@@ -702,7 +701,7 @@ void Ball_update(void) {
 				i->pos.y += i->vel.y*n;
 				i->vel.y += weight;
 			}
-			pc = &Part_at[(int)i->pos.y][(int)i->pos.x];
+			pc = Part_pos2(&i->pos);
 			z = (Vector){0,0};
 			y=0;
 			for (d=0;d<21;d++) {
@@ -738,6 +737,20 @@ void Ball_update(void) {
 #define UPDATE_BALL 1
 #include "elements/All.c"
 #undef UPDATE_BALL
+		}
+		if (newType != 0) {
+			i->type = newType;
+			i->meta = 0;
+			newType = 0;
+		}
+		if (i->used) {
+			Part** pc = Part_pos2(&i->pos);
+			int d;
+			for (d=0;d<21;d++) {
+				Part** p = &pc[neighbors[d].offset];
+				if (*p<=Part_BGFAN)
+					*p = Part_BALL;
+			}
 		}
 	}
 }
