@@ -5,8 +5,8 @@ break; case Elem_ICE:
 		p->type = Elem_SNOW;
 	Vector airvel = {0,0};
 	Part_blow(p, &airvel);
-	int x = p->pos.x + Random_int(9)-4;
-	Part* g = Part_at[(int)p->pos.y+Random_int(9)-4][x];
+	axis x = Random_int(9)-4;
+	Part* g = Part_pos2(&p->pos)[Part_ofs(x, Random_int(9)-4)];
 	if (g >= Part_0 && ELEMENTS[g->type].state == State_HOT)
 		p->type = Elem_WATER;
 

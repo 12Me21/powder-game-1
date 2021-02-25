@@ -9,6 +9,8 @@ typedef uint32_t Color;
 #define RGB(r,g,b) ((r)<<16|(g)<<8|(b))
 
 typedef int axis;
+typedef int Offset;
+typedef int Elem;
 
 #define when(x) break;case x
 #define orwhen : case

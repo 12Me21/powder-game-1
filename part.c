@@ -25,10 +25,6 @@ Part* Part_at[HEIGHT][WIDTH];
 Block Part_blocks[HEIGHT/4][WIDTH/4];
 Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
 
-Part** Part_pos2(Vec pos) {
-	return &Part_at[(int)pos->y][(int)pos->x];
-}
-
 static int Part_counts[Elem_MAX];
 int* Part_updateCounts(void) {
 	int i;
@@ -184,41 +180,37 @@ void Part_update(void) {
 			}
 		} else { //loop edge
 			if (p->pos.x<8) {
-				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x+W];
+				Part** o = &Part_pos2(&p->pos)[Part_ofs(W,0)];
 				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
 					p->pos.x += W;
 					*o = p;
-				} else {
+				} else
 					Part_remove(p--);
-				}
 			} else if (p->pos.x>=W+8) {
-				Part** o = &Part_at[(int)p->pos.y][(int)p->pos.x-W];
+				Part** o = &Part_pos2(&p->pos)[Part_ofs(-W,0)];
 				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
 					p->pos.x -= W;
 					*o = p;
-				} else {
+				} else
 					Part_remove(p--);
-				}
 			} else if (p->pos.y<8) {
-				Part** o = &Part_at[(int)p->pos.y+H][(int)p->pos.x];
+				Part** o = &Part_pos2(&p->pos)[Part_ofs(0,H)];
 				if (*o<=Part_BGFAN) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
 					p->pos.y += H;
 					*o = p;
-				} else {
+				} else
 					Part_remove(p--);
-				}
 			} else if (p->pos.y>=H+8) {
-				Part** o = &Part_at[(int)p->pos.y-H][(int)p->pos.x];
+				Part** o = &Part_pos2(&p->pos)[Part_ofs(0,-H)];
 				if (*o<=Part_BGFAN) {
 					*Part_pos2(&p->pos) = Part_EMPTY;
 					p->pos.y -= H;
 					*o = p;
-				} else {
+				} else
 					Part_remove(p--);
-				}
 			}
 		}
 	}

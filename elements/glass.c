@@ -14,7 +14,7 @@ break; case Elem_GLASS:
 		int b;
 		// spread cracks
 		for (b=1; b<6; b++) {
-			Part* near = Part_at[(int)(p->pos.y+0.5+airvel.y*b)][(int)(p->pos.x+0.5+airvel.x*b)];
+			Part* near = Part_pos(p->pos.x+0.5+airvel.x*b, p->pos.y+0.5+airvel.y*b)[0];
 			if (near>=Part_0 && near->type==Elem_GLASS) {
 				near->meta = 1;
 				Vec_mul2(&near->vel, &p->vel, 0.98);
@@ -22,7 +22,7 @@ break; case Elem_GLASS:
 				break;
 		}
 		void nb(int x, int y) {
-			Part* near = Part_at[(int)p->pos.y+y][(int)p->pos.x+x];
+			Part* near = Part_pos2(&p->pos)[Part_ofs(x,y)];
 			if (near>=Part_0 && near->type==Elem_GLASS && near->meta==0) {
 				near->meta = 1;
 				int y = Random_int(512);
@@ -36,6 +36,6 @@ break; case Elem_GLASS:
 		p->type = Elem_STONE;
 		p->meta = 0;
 	}
-	Part_at[(int)p->pos.y][(int)p->pos.x] = p;
+	*Part_pos2(&p->pos) = p;
 #endif
 }

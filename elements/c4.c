@@ -4,15 +4,14 @@ break; case Elem_C4:
 	Part_blow(p, &(Vector){0,0});
 	if (p->meta==0) {
 		int x = p->pos.x+Random_int(3)-1;
-		Part* near = Part_at[(int)p->pos.y+Random_int(3)-1][x];
+		Part* near = *Part_pos(x, p->pos.y+Random_int(3)-1);
 		if (near>=Part_0 && ELEMENTS[near->type].state==State_HOT)
 			p->meta = 1;
 	} else {
 		//spread explodeystate
 		int b;
-		static int neighbors[] = {1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1};
 		for (b=0; b<8; b++) {
-			Part* near = (&Part_at[(int)p->pos.y][(int)p->pos.x])[neighbors[b]];
+			Part* near = Part_pos2(&p->pos)[(axis[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
 			if (near >= Part_0 && near->type==Elem_C4)
 				near->meta = 1;
 		}

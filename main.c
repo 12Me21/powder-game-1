@@ -36,10 +36,3 @@ void Platform_frame(void) {
 	render();
 	Platform_redraw();
 }
-
-int main(int argc, char** argv) {
-	Platform_init();
-	mathInit();
-	Load_test();
-	Platform_loop();
-}

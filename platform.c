@@ -1,3 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include "common.h"
+#include "input.h"
+#include "save.h"
+#include "vector.h"
+
+extern Color grp[HEIGHT][WIDTH];
+
+extern int Platform_mouseX, Platform_mouseY;
+extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
+extern bool Platform_keys[256];
+
+void Platform_frame(void);
+
+#ifdef _WIN32
+
+HWND win;
+
+void DrawPixels(HWND hwnd) {
+	PAINTSTRUCT ps;
+	RECT r;
+
+	GetClientRect(hwnd, &r);
+
+	if (r.bottom == 0)
+		return;
+
+	HDC hdc = BeginPaint(hwnd, &ps);
+	for (int y=0; y<WINDOW_HEIGHT; y++)
+		for (int x=0; x<WINDOW_WIDTH; x++) {
+			SetPixel(hdc, x, y, grp[y+8][x+8]);
+		}
+	EndPaint(hwnd, &ps);
+}
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch(msg) {
+	case WM_PAINT:
+		DrawPixels(hwnd);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+	}
+	return DefWindowProcW(hwnd, msg, wParam, lParam);
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	MSG msg;
+	WNDCLASSW wc = {
+		.style = CS_HREDRAW | CS_VREDRAW,
+		.lpszClassName = L"Pixels",
+		.hInstance = hInstance,
+		.hbrBackground = GetSysColorBrush(COLOR_3DFACE),
+		.lpfnWndProc = WndProc,
+		.hCursor = LoadCursor(0, IDC_ARROW),
+	};
+	RegisterClassW(&wc);
+	RECT rect = {
+		.top=0,
+		.left=0,
+		.bottom=WINDOW_HEIGHT,
+		.right=WINDOW_WIDTH,
+	};
+	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW | WS_VISIBLE, false);
+	win = CreateWindowW(wc.lpszClassName, L"Pixels", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
+	
+	mathInit();
+	Load_test();
+	
+	while (GetMessage(&msg, NULL, 0, 0)) {
+		Platform_frame();
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	
+	return msg.wParam;
+}
+void Platform_init(void) {}
+void Platform_redraw(void) {
+	DrawPixels(win);
+}
+
+#else
 //
 // X11 flavor
 //
@@ -6,12 +94,8 @@
 #include <X11/Xutil.h>
 #include <X11/xpm.h>
 #include <X11/keysym.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "common.h"
 #include "input.h"
-
-extern Color grp[HEIGHT][WIDTH];
 
 Display* D;
 Window win;
@@ -50,10 +134,6 @@ void Platform_init(void) {
 void Platform_redraw(void) {
 	XPutImage(D, win, DefaultGC(D, 0), ximage, 8, 8, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
-
-extern int Platform_mouseX, Platform_mouseY;
-extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
-extern bool Platform_keys[256];
 
 static void processEvent(void) {
 	while (1) {
@@ -112,11 +192,14 @@ static void processEvent(void) {
 	}
 }
 
-void Platform_frame(void);
-
-void Platform_loop(void) {
+int main(int argc, char** argv) {
+	Platform_init();
+	mathInit();
+	Load_test();
 	while (1) {
 		Platform_frame();
 		processEvent();
 	}
 }
+
+#endif

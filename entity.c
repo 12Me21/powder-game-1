@@ -152,7 +152,7 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			Part* part = Part_at[(int)b][(int)node->pos.x];
+			Part* part = *Part_pos(node->pos.x, b);
 			int type = part->type;
 			if (part <= Part_BGFAN) {
 				node->pos.y = b;
@@ -175,7 +175,7 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			part = Part_at[(int)part->pos.y][(int)b];
+			part = (*Part_at)[Part_ofs(b, part->pos.y)];
 			type = part->type;
 			if (part <= Part_BGFAN) {
 				node->pos.x = b;
@@ -234,8 +234,12 @@ void Entity_update(void) {
 			bool down = a->meta1==0 ? Keys[40].pressed : Keys[83].pressed||Keys[115].pressed;
 			Player* player = &players[a->meta1 != 0];
 			a->decay++;
-			bool w = Part_at[(int)a->parts[4].pos.y+1][(int)a->parts[4].pos.x]>Part_BGFAN || Part_at[(int)a->parts[4].pos.y][(int)a->parts[4].pos.x]>Part_BGFAN;
-			bool rightFoot = Part_at[(int)a->parts[5].pos.y+1][(int)a->parts[5].pos.x]>Part_BGFAN || Part_at[(int)a->parts[5].pos.y][(int)a->parts[5].pos.x]>Part_BGFAN;
+			bool w =
+				Part_pos2(&a->parts[4].pos)[Part_ofs(0,1)]>Part_BGFAN ||
+				Part_pos2(&a->parts[4].pos)[0]>Part_BGFAN;
+			bool rightFoot =
+				Part_pos2(&a->parts[5].pos)[Part_ofs(0,1)]>Part_BGFAN ||
+				Part_pos2(&a->parts[5].pos)[0]>Part_BGFAN;
 			if (down && a->meta2 == Elem_BIRD) {
 				int b;
 				for (b=0;b<6;b++)
@@ -311,7 +315,7 @@ void Entity_update(void) {
 			int x,y;
 			for (y=0;y<3;y++) {
 				for (x=-1;x<2;x++) {
-					Part* p = Part_at[(int)a->parts[0].oldPos.y+y][(int)a->parts[0].oldPos.x+x];
+					Part* p = Part_pos2(&a->parts[0].oldPos)[Part_ofs(x,y)];
 					if (p == Part_BGFAN)
 						a->meta2 = Elem_FAN;
 					else if (p >= Part_0 && ELEMENTS[p->type].playerValid==1)
@@ -494,7 +498,7 @@ void Entity_update(void) {
 					Vec_sub2(&e, &a->parts[b+1].oldPos, &a->parts[b].oldPos);
 					Vec_mul(&e, Random_(1));
 					Vec_add(&e, &a->parts[b].oldPos);
-					if (Part_at[(int)e.y][(int)e.x]<=Part_BGFAN)
+					if (Part_pos2(&e)[0]<=Part_BGFAN)
 						Part_create(e.x, e.y, Elem_FIRE);
 				}
 			}
