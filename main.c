@@ -1,5 +1,3 @@
-//https://www.linuxquestions.org/questions/programming-9/how-to-draw-color-images-with-xlib-339366/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -11,7 +9,6 @@
 #include "part.h"
 #include "save.h"
 #include "entity.h"
-#include "platform.h"
 
 #define DEFCALL(name) void name(void); name()
 
@@ -34,5 +31,5 @@ void Platform_frame(void) {
 	Entity_update(); //check order
 	DEFCALL(Ball_update);
 	render();
-	Platform_redraw();
+	DEFCALL(Platform_redraw);
 }
