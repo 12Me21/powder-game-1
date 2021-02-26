@@ -37,5 +37,25 @@ break; case Elem_GLASS:
 		p->meta = 0;
 	}
 	*Part_pos2(&p->pos) = p;
+#elif defined UPDATE_BALL
+	double dist = Vec_dist(&vel);
+	if (dist>5 && (touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB))
+		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0.1*d);
+	else if (touched==Elem_THUNDER)
+		Ball_break(ball, 1, Elem_GLASS, 0, 0, 0, 0);
+	else if (touched==Elem_LASER)
+		Ball_break(ball, 2, Elem_GLASS, 0, 0, 0, 0);
+	else if (touched==Elem_ACID)
+		Ball_break(ball, 0, Elem_GLASS, 0, 0, 0, 0);
+#elif defined UPDATE_BALL_PART
+	switch (part->type) {
+	when(Elem_WATER):;
+		ball->meta = 0;
+	when(Elem_MAGMA):;
+		if (++ball->meta>=20)
+			*newType = Elem_MAGMA;
+	when(Elem_THUNDER): case Elem_LASER:;
+		return 1;
+	}
 #endif
 }

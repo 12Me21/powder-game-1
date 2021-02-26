@@ -31,5 +31,4 @@ void Platform_frame(void) {
 	Entity_update(); //check order
 	DEFCALL(Ball_update);
 	render();
-	DEFCALL(Platform_redraw);
 }

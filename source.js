@@ -6593,7 +6593,7 @@ yd.prototype.Balls_update=function(){
 								Y=parts[b+ballneighborhood[d]];
 								if(Y<=Parts_BGFAN){
 									e=Parts_create(floor(Balls.pos[i].x)+Balls_breakXOffset[d],floor(Balls.pos[i].y)+Balls_breakYOffset[d],FIRE)
-									if(e<0){
+									if(e<0){ //wrong?
 										f=random(20);
 										Parts_vel[e].x+=Balls.vel[i].x*f+Balls_breakXVelocity[d]*f/2;
 										Parts_vel[e].y+=Balls.vel[i].y*f+Balls_breakYVelocity[d]*f/2;
@@ -7168,7 +7168,7 @@ function Balls_react(ball,parttype,part){
 			}
 			Parts_type[part]=STEAM;
 			Parts_meta1[part]=0;
-		//reheat
+		//reheatpp
 		break;case MAGMA:
 			Balls.meta[ball]=0;
 		//cool into glass ball with soapy

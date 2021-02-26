@@ -9,10 +9,3 @@ include .Nice.mk
 
 fast: $(srcs:%=%.c)
 	gcc $(CFLAGS) $(addprefix -l,$(libs)) $^ -o $(output)
-
-windows: pg1.exe
-
-pg1.exe: $(srcs:%=%.c)
-	i686-w64-mingw32-gcc $(CFLAGS) -mwindows $^ -o $@
-
-.PHONY: windows

@@ -74,5 +74,38 @@ break; case Elem_MAGMA:
 		break;
 	}
  brk:;
+#elif defined UPDATE_BALL
+	//nothing
+#elif defined UPDATE_BALL_PART
+	switch (part->type) {
+	when(Elem_WATER):;
+		if (++ball->meta>=20)
+			*newType = Elem_METAL;
+		part->type = Elem_STEAM;
+		part->meta = 0;
+	when(Elem_MAGMA):;
+		ball->meta = 0;
+	when(Elem_SOAPY):;
+		if (++ball->meta>=20)
+			*newType = Elem_GLASS;
+		part->type = Elem_STEAM;
+		part->meta = 0;
+	when(Elem_SALTWATER):;
+		if (++ball->meta>=20)
+			*newType = Elem_STONE;
+		part->type = Elem_STEAM;
+		part->meta = 0;
+	when(Elem_POWDER): case Elem_SEED: case Elem_WOOD: case Elem_GUNPOWDER: case Elem_SUPERBALL: case Elem_OIL: case Elem_C4: case Elem_NITRO: case Elem_ANT: case Elem_GAS: case Elem_VINE: case Elem_BIRD: case Elem_FUSE:
+		part->type = Elem_FIRE;
+		part->meta = 0;
+	when(Elem_ICE): case Elem_SNOW:
+		part->type = Elem_WATER;
+		part->meta = 0;
+	when(Elem_FIREWORKS):;
+		if (part->meta>0 && part->meta<100) {
+			part->vel.y -= 50;
+			part->meta += 100;
+		}
+	}
 #endif
 }

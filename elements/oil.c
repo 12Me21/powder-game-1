@@ -58,5 +58,29 @@ break; case Elem_OIL:
 			break;
 		}
 	}
+
+#elif defined UPDATE_BALL
+	if (touched<0) break;
+	if (ELEMENTS[touched].state==State_HOT) {
+		for (int i=9;i<21;i++) {
+			Part* near = Part_pos2(&ball->pos)[neighbors[i].offset];
+			if (near<=Part_BGFAN && Random_(100)<50)
+				Part_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
+		}
+		if (Random_(100)<1)
+			Ball_break(ball, 0, Elem_OIL, 0, 0, 0, 0);
+	} else if (touched==Elem_ACID)
+		Ball_break(ball, 0, Elem_OIL, 0, 0, 0, 0);
+
+#elif defined UPDATE_BALL_PART
+	switch (part->type) {
+	when(Elem_MAGMA): case Elem_THUNDER: case Elem_LASER:
+		return 1;
+	when(Elem_SOAPY):;
+		Part_remove(part);
+	when(Elem_FUSE):;
+		if (part->meta<256)
+			part->meta = Elem_OIL;
+	}
 #endif
 }
