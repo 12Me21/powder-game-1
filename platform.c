@@ -77,7 +77,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	
+	puts("WM_exit");
 	return msg.wParam;
 }
 void Platform_init(void) {}
@@ -89,6 +89,7 @@ void Platform_redraw(void) {
 //
 // X11 flavor
 //
+//https://www.linuxquestions.org/questions/programming-9/how-to-draw-color-images-with-xlib-339366/
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
