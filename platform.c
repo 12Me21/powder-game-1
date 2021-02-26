@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #ifdef _WIN32
 #include <windows.h>
+#undef RGB
 #endif
 #include "common.h"
 #include "input.h"
@@ -17,36 +18,48 @@ extern bool Platform_keys[256];
 void Platform_frame(void);
 
 #ifdef _WIN32
+// https://gist.github.com/niconii/4269d1f938ba56cac6cb44376468f7bb
 
 HWND win;
 
-void DrawPixels(HWND hwnd) {
-	PAINTSTRUCT ps;
-	RECT r;
-
-	GetClientRect(hwnd, &r);
-
-	if (r.bottom == 0)
-		return;
-
-	HDC hdc = BeginPaint(hwnd, &ps);
-	for (int y=0; y<WINDOW_HEIGHT; y++)
-		for (int x=0; x<WINDOW_WIDTH; x++) {
-			SetPixel(hdc, x, y, grp[y+8][x+8]);
-		}
-	EndPaint(hwnd, &ps);
+void DrawPixels(HDC hdc) {
+	static const BITMAPINFO bmi = {
+		{
+			sizeof(BITMAPINFOHEADER),
+			WIDTH, -HEIGHT,
+			1, 32, BI_RGB, 0,
+			0, 0, 0, 0
+		},
+		{{0, 0, 0, 0}}
+	};
+	StretchDIBits(
+		hdc,
+		0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+		8, 0, WINDOW_WIDTH, WINDOW_HEIGHT, //idk why this isn't 8,8
+		grp, &bmi,
+		DIB_RGB_COLORS,
+		SRCCOPY
+	);
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch(msg) {
-	case WM_PAINT:
-		DrawPixels(hwnd);
+	case WM_PAINT:;
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hwnd, &ps);
+		DrawPixels(hdc);
+		EndPaint(hwnd, &ps);
+		break;
+	case WM_CLOSE:
+		DestroyWindow(hwnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		return 0;
+		break;
+	default:
+		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
-	return DefWindowProcW(hwnd, msg, wParam, lParam);
+	return 0;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -66,23 +79,47 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		.bottom=WINDOW_HEIGHT,
 		.right=WINDOW_WIDTH,
 	};
-	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW | WS_VISIBLE, false);
-	win = CreateWindowW(wc.lpszClassName, L"Pixels", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
+	DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+	AdjustWindowRect(&rect, style, false);
+	win = CreateWindowW(wc.lpszClassName, L"Pixels", style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
 	
-	mathInit();
 	Load_test();
-	
-	while (GetMessage(&msg, NULL, 0, 0)) {
+
+	HDC hdc = GetDC(win);
+	float delta = 0;
+	while(1) {
+		DWORD dwStart = timeGetTime();
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != 0) {
+			if (msg.message == WM_QUIT)
+				goto exit;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		POINT p;
+		GetCursorPos(&p);
+		ScreenToClient(win, &p);
+		Platform_mouseX = p.x;
+		Platform_mouseY = p.y;
+		SHORT b = GetAsyncKeyState(VK_LBUTTON);
+		Platform_mouseLeft = !!(b & 1<<15);
+		b = GetAsyncKeyState(VK_RBUTTON);
+		Platform_mouseRight = !!(b & 1<<15);
+		
 		Platform_frame();
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		
+		DrawPixels(hdc);
+
+		delta = timeGetTime() - dwStart;
+		int amt = delta-1000.0/60;
+		//printf("%ld\n", timeGetTime() - dwStart);
+		if (amt>0) {
+			Sleep(amt);
+			//delta-=amt;
+		}
 	}
-	puts("WM_exit");
+ exit:
 	return msg.wParam;
-}
-void Platform_init(void) {}
-void Platform_redraw(void) {
-	DrawPixels(win);
 }
 
 #else
@@ -101,36 +138,6 @@ void Platform_redraw(void) {
 Display* D;
 Window win;
 XImage* ximage;
-
-void Platform_init(void) {
-	D = XOpenDisplay(NULL);
-	Visual* visual = DefaultVisual(D, 0);
-	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0);
-	if (visual->class!=TrueColor) {
-		fprintf(stderr, "Cannot handle non true color visual ...\n");
-		exit(1);
-	}
-	ximage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)grp, WIDTH, HEIGHT, 32, 0);
-	XSelectInput(D, win, ButtonPressMask|ButtonReleaseMask|ExposureMask|KeyPressMask|KeyReleaseMask|PointerMotionMask);
-	XMapWindow(D, win);
-	// set fixed window size
-	XSizeHints* shints = XAllocSizeHints();
-	shints->flags = PMinSize|PMaxSize;
-	shints->min_width = shints->max_width = WINDOW_WIDTH;
-	shints->min_height = shints->max_height = WINDOW_HEIGHT;
-	XSetWMNormalHints(D, win, shints);
-	XFree(shints);
-	// icon
-	Pixmap pixmap = 0;
-	Pixmap mask = 0;
-#include "icon.xpm"
-	XpmCreatePixmapFromData(D, DefaultRootWindow(D), icon, &pixmap, &mask, 0);
-	XWMHints* hints = XGetWMHints(D, win) ?: XAllocWMHints();
-	hints->flags |= IconPixmapHint;
-	hints->icon_pixmap = pixmap;
-	XSetWMHints(D, win, hints);
-	XFree(hints);
-}
 
 void Platform_redraw(void) {
 	XPutImage(D, win, DefaultGC(D, 0), ximage, 8, 8, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -194,11 +201,45 @@ static void processEvent(void) {
 }
 
 int main(int argc, char** argv) {
-	Platform_init();
-	mathInit();
+	D = XOpenDisplay(NULL);
+	Visual* visual = DefaultVisual(D, 0);
+	if (visual->class!=TrueColor) {
+		fprintf(stderr, "Cannot handle non true color visual ...\n");
+		exit(1);
+	}
+
+	// Create window
+	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0);
+	XSelectInput(D, win, ButtonPressMask|ButtonReleaseMask|ExposureMask|KeyPressMask|KeyReleaseMask|PointerMotionMask);
+	XMapWindow(D, win);
+
+	// Lock window size
+	XSizeHints* shints = XAllocSizeHints();
+	shints->flags = PMinSize|PMaxSize;
+	shints->min_width = shints->max_width = WINDOW_WIDTH;
+	shints->min_height = shints->max_height = WINDOW_HEIGHT;
+	XSetWMNormalHints(D, win, shints);
+	XFree(shints);
+
+	// Set icon
+	Pixmap pixmap = 0;
+	Pixmap mask = 0;
+#include "icon.xpm"
+	XpmCreatePixmapFromData(D, DefaultRootWindow(D), icon, &pixmap, &mask, 0);
+	XWMHints* hints = XGetWMHints(D, win) ?: XAllocWMHints();
+	hints->flags |= IconPixmapHint;
+	hints->icon_pixmap = pixmap;
+	XSetWMHints(D, win, hints);
+	XFree(hints);
+
+	// create image
+	ximage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)grp, WIDTH, HEIGHT, 32, 0);
+	
+	// start
 	Load_test();
 	while (1) {
 		Platform_frame();
+		Platform_redraw();
 		processEvent();
 	}
 }

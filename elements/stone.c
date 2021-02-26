@@ -49,5 +49,31 @@ break; case Elem_STONE:
 		p->vel.y *= 0.5;
 	}
 	Part_at[(int)p->pos.y][(int)p->pos.x] = p;
+
+#elif defined UPDATE_BALL
+	double dist = Vec_dist(&vel);
+	if (dist>7 && (touched==-1 || touched==Elem_METAL || touched==Elem_BOMB))
+		ball->type = Elem_POWDER;
+	else if (touched==Elem_ACID)
+		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0);
+
+#elif defined UPDATE_BALL_PART
+	switch (part->type) {
+	when(Elem_WATER):;
+		ball->meta = 0;
+	when(Elem_MAGMA):;
+		if (++ball->meta>=20)
+			*newType = Elem_MAGMA;
+	when(Elem_METAL):;
+		// todo check limit
+		if (ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {
+			int x = floor(ball->pos.x) + floor(Random_(5))-2;
+			int y = floor(ball->pos.y) + floor(Random_(5))-2;
+			if (Part_pos(x, y)[0]<=Part_BGFAN)
+				Part_create(x, y, Elem_SPARK);
+		}
+	when(Elem_SPARK):;
+		return 1;
+	}
 #endif
 }

@@ -109,13 +109,14 @@ void Part_reset(int a) {
 		}
 	}
 	if (a==0) {
-		for (x=1;x<(W+8+8)/4-1;x++) {
-			Part_blocks[1][x].block = 1;
+		// todo: make sure all the right blocks are filled here
+		for (x=1;x<(W+8)/4;x++) {
+			Part_blocks[2][x].block = 1;
 			Part_blocks[(H+8)/4-1][x].block = 1;
 		}
-		for (y=1;y<(H+8)/4-1;y++) {
-			Part_blocks[y][1].block = 1;
-			Part_blocks[y][(W+8+8)/4-1].block = 1;
+		for (y=1;y<(H+8)/4;y++) {
+			Part_blocks[y][2].block = 1;
+			Part_blocks[y][(W+8)/4-1].block = 1;
 		}
 	}
 	Part_next = parts;

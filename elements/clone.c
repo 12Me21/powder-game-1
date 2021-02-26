@@ -20,5 +20,19 @@ break; case Elem_CLONE:
 		if (Part_pos2(&p->pos)[Part_ofs(x, y)] <= Part_BGFAN && Random_(100)<10)
 			Part_create(x,y,p->meta);
 	}
+#elif defined UPDATE_BALL
+	if (ball->meta==0 && touched>0)
+		ball->meta = touched;
+	else if (ball->meta /* && check part limit*/) {
+		int x = ball->pos.x;
+		int y = ball->pos.y;
+		if (ELEMENTS[ball->meta].state==State_POWDER || ball->meta==Elem_MAGMA || ball->meta==Elem_SPARK)
+			y+=4;
+		if (Part_pos(x, y)[0]<=Part_BGFAN)
+			Part_create(x, y, ball->meta);
+	}
+#elif defined UPDATE_BALL_PART
+	if (part->type==Elem_THUNDER || part->type==Elem_LASER)
+		return 1;
 #endif
 }

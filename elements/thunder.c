@@ -163,5 +163,26 @@ break; case Elem_THUNDER:
 			}
 		}
 	}
+
+#elif defined UPDATE_BALL
+	//nothing
+
+#elif defined UPDATE_BALL_PART
+	switch (part->type) {
+	when(Elem_SALTWATER):;
+		part->type = Elem_THUNDER;
+		part->meta = 0;
+		return 0;//why?
+	when(Elem_THUNDER):;
+		return 1;
+	when(Elem_METAL):;
+		part->type = Elem_THUNDER;
+		part->meta = 6000;
+		// no return?
+	when(Elem_MERCURY):;
+		part->type = Elem_THUNDER;
+		part->meta = 6100;
+		return 1;
+	}
 #endif
 }

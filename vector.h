@@ -7,8 +7,6 @@ typedef struct Vector {
 
 typedef Vector* Vec;
 
-void mathInit();
-
 void Vec_copy(Vec dest, const Vector* src);
 void Vec_add(Vec a, const Vector* b);
 void Vec_sub(Vec a, const Vector* b);

@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include "common.h"
 #include "vector.h"
 
 // Note!
@@ -127,7 +128,7 @@ void Random_update(void) {
 	randomStep = rand() % 512 | 1;
 }
 
-void mathInit() {
+AUTORUN {
 	// init random numbers
 	int i;
 	for (i=0;i<1024;i++)

@@ -1,5 +1,3 @@
-VPATH = .:..
-
 junkdir?= .junk
 # location for intermediate files (.o and .mk)
 # (will be created automatically, as well as any subdirectories)
@@ -14,7 +12,7 @@ cc=@echo '$(call printlist,33,$@)	[37mfrom: $(call printlist,32,$^)[m' ; i686-
 
 # Link
 $(output): $(srcs:%=$(junkdir)/%.o)
-	$(cc) $(CFLAGS) $(addprefix -l,$(libs)) -mwindows $^ -o $@
+	$(cc) $(CFLAGS) -mwindows $^ -o $@ $(addprefix -l,$(libs)) 
 
 # this uses a feature of gcc, which parses a C file
 # and outputs a list of headers it depends on

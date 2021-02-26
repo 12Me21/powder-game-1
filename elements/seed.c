@@ -27,5 +27,32 @@ break; case Elem_SEED:
 		if (Random_(100)<5)
 			Part_remove(p--);
 	}
+#elif defined UPDATE_BALL
+	if (touched<0) break;
+	// destroyed by acid
+	if (touched==Elem_ACID)
+		Ball_break(ball, 0, Elem_SEED, 0, 0.5*ball->vel.x, 0.5*ball->vel.y, 0.5);
+	// burned by hot elements (except spark)
+	else if (touched!=Elem_SPARK && ELEMENTS[touched].state==State_HOT)
+		Ball_break(ball, 0, Elem_FIRE, 0, 0.5*ball->vel.x, 0.5*ball->vel.y, 0.5);
+#elif defined UPDATE_BALL_PART
+	switch (part->type) {
+	when(Elem_POWDER):;
+		if (ball->meta==1)
+			// when hydrated, turn into wood ball
+			*newType = Elem_WOOD;
+		else {
+			// otherwise, turn powder into seed
+			part->type = Elem_SEED;
+			part->meta = 0;
+		}
+	when(Elem_WATER):;
+		// hydrated
+		ball->meta = 1;
+	when(Elem_VINE):;
+		// turn vine into wood
+		part->type = Elem_WOOD;
+		part->meta = 0;
+	}
 #endif
 }

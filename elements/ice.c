@@ -12,9 +12,11 @@ break; case Elem_ICE:
 
 #elif defined UPDATE_BALL
 	double d = Vec_dist(&ball->vel);
-	if (touched==Elem_THUNDER||touched==Elem_ACID||((touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB)&&d>5)) {
+	// break immediately if touching thunder/acid
+	// in other cases, break if velocity is >5
+	if (touched==Elem_THUNDER||touched==Elem_ACID|| 
+	    ((touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB)&&d>5))
 		Ball_break(ball, 0, Elem_SNOW, 0, ball->vel.x, ball->vel.y, d);
-	}
 
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
