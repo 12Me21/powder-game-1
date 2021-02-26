@@ -194,7 +194,7 @@ void Menu_render(void) {
 	Draw_printf(64,H+151,-1,0,-1," %d",Pen_x-8);
 	Draw_printf(64,H+151,-1,0,-1,"      %d",Pen_y-8);
 	//Draw_printf(141,451,-1,0,-1,"   %d",Parts_limits[Menu_dotLimit]-Parts_used);
-	Draw_printf(16,H+151,-1,0,0,"%dfps",Menu_fps);
+	Draw_printf(16-8,H+151,-1,0,0,"%3dfps",Menu_fps);
 	//if(sldebug==1){
 	//	k.drawtext(64,451,Sc+"sl",0xFFFFFF,0);
 	//}

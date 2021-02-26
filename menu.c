@@ -9,6 +9,7 @@
 #include "bg.h"
 #include "entity.h"
 #include "ball.h"
+#include "platform.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
@@ -167,6 +168,12 @@ void Menu_input(void) {
 }
 
 void Menu_update(void) {
+	static long last;
+	long ms = Platform_millisec();
+	double fps = (1000.0)/(ms-last);
+	last = ms;
+	Menu_fps = (Menu_fps*9+fps)/10;
+	
 	if (Menu_cursorInMenu)
 		return;
 	Pen_oldx = Pen_x;

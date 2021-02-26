@@ -15,6 +15,8 @@
 #include "c4.c"
 #include "stone.c"
 #include "magma.c"
+#include "virus.c"
+#include "nitro.c"
 
 #include "thunder.c"
 #include "metal.c"
