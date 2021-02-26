@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #ifdef _WIN32
 #include <windows.h>
+#include <dwmapi.h>
 #undef RGB
 #endif
 #include "common.h"
@@ -21,6 +22,10 @@ void Platform_frame(void);
 // https://gist.github.com/niconii/4269d1f938ba56cac6cb44376468f7bb
 
 HWND win;
+
+long Platform_millisec(void) {
+	return GetTickCount();
+}
 
 void DrawPixels(HDC hdc) {
 	static const BITMAPINFO bmi = {
@@ -110,13 +115,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		
 		DrawPixels(hdc);
 
-		delta = timeGetTime() - dwStart;
+		//DwmFlush();
+		/*delta = timeGetTime() - dwStart;
 		int amt = delta-1000.0/60;
 		//printf("%ld\n", timeGetTime() - dwStart);
 		if (amt>0) {
 			Sleep(amt);
 			//delta-=amt;
-		}
+			}*/
 	}
  exit:
 	return msg.wParam;
@@ -127,7 +133,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 // X11 flavor
 //
 //https://www.linuxquestions.org/questions/programming-9/how-to-draw-color-images-with-xlib-339366/
-
+#include <time.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/xpm.h>
@@ -138,6 +144,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 Display* D;
 Window win;
 XImage* ximage;
+
+long Platform_millisec(void) {
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (long)ts.tv_sec * 1000L + ts.tv_nsec/1000000;
+}
 
 void Platform_redraw(void) {
 	XPutImage(D, win, DefaultGC(D, 0), ximage, 8, 8, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
