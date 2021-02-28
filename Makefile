@@ -1,4 +1,4 @@
-srcs:= elements input main part vector draw menu save bg entity platform render-dot render-menu scale render-entity ball render-ball
+srcs:= elements input main part vector draw menu save bg entity platform-x11 render-dot render-menu scale render-entity ball render-ball
 output:= pg1
 
 libs:= X11 m Xpm
