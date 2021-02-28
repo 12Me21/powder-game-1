@@ -51,7 +51,7 @@ break; case Elem_NITRO:
 	}
 	int f=10;
 	int gg=(int)p->pos.x&0xFFFC;
-	int q=(int)p->pos.x&0xFFFC;
+	int q=(int)p->pos.y&0xFFFC;
 	int n=gg-f;
 	if (n<4) n=4;
 	int z=q-f;
@@ -59,7 +59,7 @@ break; case Elem_NITRO:
 	int v=gg+f;
 	if (v>WIDTH-4-1) v=WIDTH-4-1;
 	int r=q+f;
-	if (r>H+12-1) v = H+12-1;
+	if (r>H+12-1) r = H+12-1;
 	for (int b=z;b<=r;b++)
 		for (int e=n;e<=v;e++) {
 			if ((e-gg)*(e-gg)+(b-q)*(b-q)<=f*f) {
