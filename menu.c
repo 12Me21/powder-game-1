@@ -10,6 +10,7 @@
 #include "entity.h"
 #include "ball.h"
 #include "platform.h"
+#include "cell.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
@@ -18,7 +19,7 @@ int wa; //this is the state when navigating the upload menu
 
 axis Pen_x=0, Pen_y=0;
 axis Pen_oldx=0, Pen_oldy=0;
-Vector Pen_dir;
+Vector Pen_dir = {0,0};
 
 int Menu_hover = -1;
 bool Menu_numberMenu = false;
@@ -187,6 +188,26 @@ void Menu_update(void) {
 	Pen_x = clamp(Pen_x+8,8,W-1);
 	Pen_y = clamp(Pen_y+8,8,H-1);
 	// todo: line mode etc.
+	Vector c = {Pen_x,Pen_y};
+	Pen_dir.x = Pen_oldx-5*Pen_dir.x;
+	Pen_dir.y = Pen_oldy-5*Pen_dir.y;
+	double q = 5;
+	Vector ee;
+	Vec_sub2(&ee, &c, &Pen_dir);
+	q -= Vec_fastNormalize(&ee);
+	double d = q*0.5;
+	double a = q*0.5;
+	c.x += ee.x*a;
+	c.y += ee.y*a;
+	Pen_dir.x -= ee.x*d;
+	Pen_dir.y -= ee.y*d;
+	Vec_sub2(&Pen_dir, &c, &Pen_dir);
+	Vec_fastNormalize(&Pen_dir);
+	if (Menu_zoomLevel!=0 && Mouse_now.middle) {
+		Menu_zoomX -= (Mouse_old.x-Mouse_older.x)/(1<<Menu_zoomLevel);
+		Menu_zoomY -= (Mouse_old.y-Mouse_older.y)/(1<<Menu_zoomLevel);
+		moveZoom(Menu_zoomX, Menu_zoomY);
+	}
 	int i;
 	for (i=0;i<=1;i++) {
 		int selection = i ? Menu_rightSelection : Menu_leftSelection;
@@ -409,10 +430,5 @@ void Menu_update(void) {
 				}
 			}
 		}
-	}
-	if (Menu_zoomLevel!=0 && Mouse_now.middle) {
-		Menu_zoomX -= (Mouse_old.x-Mouse_older.x)/(1<<Menu_zoomLevel);
-		Menu_zoomY -= (Mouse_old.y-Mouse_older.y)/(1<<Menu_zoomLevel);
-		moveZoom(Menu_zoomX, Menu_zoomY);
 	}
 }

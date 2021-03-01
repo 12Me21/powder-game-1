@@ -13,3 +13,4 @@ void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format,
 void Draw_ball(int x, int y, Color color);
 Color* Draw_pxRef(int x, int y);
 void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Color color);
+extern Color grp[HEIGHT][WIDTH];

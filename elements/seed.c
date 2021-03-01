@@ -24,7 +24,7 @@ break; case Elem_SEED:
 			Part_at[y][x] = p;
 			Part_create(x, y+1, Elem_WOOD);
 		}
-		if (Random_(100)<5)
+		if (Rnd_perchance(5))
 			Part_remove(p--);
 	}
 #elif defined UPDATE_BALL

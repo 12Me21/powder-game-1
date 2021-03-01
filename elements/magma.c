@@ -1,20 +1,7 @@
 break; case Elem_MAGMA:
 {
 #ifdef UPDATE_PART
-	p->vel.x += 0.1*c->vel.x;
-	p->vel.y += 0.1*c->vel.y;
-	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
-		if (Part_at[(int)p->pos.y][(int)p->pos.x-1] == Part_EMPTY)
-			p->vel.x -= Random_2(0, 0.1);
-		if (Part_at[(int)p->pos.y][(int)p->pos.x+1] == Part_EMPTY)
-			p->vel.x += Random_2(0, 0.1);
-	}
-	p->vel.x += Random_2(-0.01, 0.01);
-	p->vel.y += Random_2(0.01, 0.1);
-	Vec_mul(&p->vel, 0.9);
-	Vector airvel = c->vel;
-	Vec_add(&airvel, &p->vel);
-	Part_blow(p, &airvel);
+	Part_liquidUpdate(p, c, 0.1, 0,0.1, 0.01, 0.01,0.1, 0.9);
 	int x = p->pos.x+Random_int(5)-2;
 	Part* near = Part_at[(int)p->pos.y+Random_int(5)-2][x];
 	if (near>=Part_0) {
@@ -24,7 +11,7 @@ break; case Elem_MAGMA:
 			break;
 			//magma+water/soapy = stone+steam
 		case Elem_WATER: case Elem_SOAPY:
-			if (Random_(100)<50) {
+			if (Rnd_perchance(50)) {
 				Part_remove(p--);
 				goto brk;
 			}
@@ -34,12 +21,12 @@ break; case Elem_MAGMA:
 			//melt stone
 		case Elem_STONE:
 			near->vel.x += Random_2(-0.1,0.1);
-			if (Random_(100)<5)
+			if (Rnd_perchance(5))
 				near->type = Elem_MAGMA;
 			break;
 			//magma+saltwater=stone+salt (no steam, note)
 		case Elem_SALTWATER:
-			if (Random_(100)<50) {
+			if (Rnd_perchance(50)) {
 				Part_remove(p--);
 				goto brk;
 			}
@@ -48,12 +35,12 @@ break; case Elem_MAGMA:
 			break;
 			//melt glass
 		case Elem_GLASS:
-			if (Random_(100)<50)
+			if (Rnd_perchance(50))
 				near->type = Elem_MAGMA;
 			//slowly melt mercury
 			break;
 		case Elem_MERCURY:
-			if (Random_(100)<1)
+			if (Rnd_perchance(1))
 				near->type = Elem_MAGMA;
 		}
 	}

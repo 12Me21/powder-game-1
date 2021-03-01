@@ -1611,7 +1611,7 @@ yd.prototype.move=function(){
 								Air.pres[a]-=y;
 							}else{
 								Air.vel2[a].sub(e);
-								Air.vel2[a].sub(e);
+ppp								Air.vel2[a].sub(e);
 							}
 							if(blocks[a+z+v]<=0){
 								Air.vel2[a].sub(f);
@@ -4353,7 +4353,9 @@ yd.prototype.C=function(part,airvel){
 							v=v-3&7;
 						}else if(Ka>=0&&La>=0&&ab<0&&xy<0){
 							v=v-3&7;
-						}else if(r>=0&&c<0?v=v+2&7:c>=0&&r<0){
+						}else if(r>=0&&c<0){
+							v=v+2&7
+						}else if (c>=0&&r<0){
 							v=v-2&7;
 						}
 				}
@@ -6739,7 +6741,7 @@ yd.prototype.Balls_update=function(){
 										if(parts[d]>=0){
 											Parts_meta1[parts[d]]=Parts_type[parts[d]];
 											Parts_type[parts[d]]=BOMB;
-											meta2[parts[d]]=0;
+											Parts_pumptype[parts[d]]=0;
 											Parts_vel[parts[d]].x+=0.5*c.x+0.5*(g-e);
 											Parts_vel[parts[d]].y+=0.5*c.y+0.5*(q-b);
 										}

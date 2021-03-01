@@ -1,11 +1,12 @@
-#include "ball.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "ball.h"
 #include "menu.h"
 #include "input.h"
 #include "entity.h"
 #include "elements.h"
+#include "cell.h"
 
 Ball balls[Ball_MAX+1];
 Ball* const Ball_END = &balls[Ball_MAX];

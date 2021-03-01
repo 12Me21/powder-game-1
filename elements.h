@@ -5,7 +5,7 @@
 
 enum State {State_NONE=0, State_POWDER, State_LIQUID, State_HOT, State_SOLID, State_GAS};
 
-typedef bool (*ElemFunc)(Part* p, Block* b);
+//typedef bool (*ElemFunc)(Part* p, Block* b);
 
 typedef struct ElementDef {
 	char* name; //for debug

@@ -1,8 +1,12 @@
 #include "common.h"
 #include "menu.h"
 #include "draw.h"
+#include "elements.h"
 #include "part.h"
+#include "cell.h"
 #include "bg.h"
+
+extern Color grp[HEIGHT][WIDTH];
 
 BgPixel Bg_pixels[WIDTH][H+8+1]; //idk why this goes to 309
 BgPixel* const Bg_pixels_end = &Bg_pixels[WIDTH-1][H+8+1-1]+1;
@@ -62,6 +66,86 @@ void Bg_render(void) {
 						Draw_line(d+e.x*r*10, n+e.y*r*10, d, n, f<<16);
 					}
 				}
+			}
+		}
+		break;
+	case Bg_SHADE:
+		for (y=8;y<H+8;y++) {
+			Color* row = grp[y];
+			for (x=8;x<W+8-1;x++) {
+				int r = (RED(row[x])+RED(row[x+1]))>>1;
+				int g = (GREEN(row[x])+GREEN(row[x+1]))>>1;
+				int b = (BLUE(row[x])+BLUE(row[x+1]))>>1;
+				row[x] = RGB(r,g,b);
+			}
+			for (x=W+8-1;x>=8-1;x--) {
+				int r = (RED(row[x])+RED(row[x-1]))>>1;
+				int g = (GREEN(row[x])+GREEN(row[x-1]))>>1;
+				int b = (BLUE(row[x])+BLUE(row[x-1]))>>1;
+				row[x] = RGB(r,g,b);
+			}
+		}
+		for (x=8;x<W+8;x++) {
+			for (y=8;y<H+8-1;y++) {
+				int r = (RED(grp[y][x])+RED(grp[y+1][x]))>>1;
+				int g = (GREEN(grp[y][x])+GREEN(grp[y+1][x]))>>1;
+				int b = (BLUE(grp[y][x])+BLUE(grp[y+1][x]))>>1;
+				grp[y][x] = RGB(r,g,b);
+			}
+			for (y=H+8-1;y>=8-1;y--) {
+				int r = (RED(grp[y][x])+RED(grp[y-1][x]))>>1;
+				int g = (GREEN(grp[y][x])+GREEN(grp[y-1][x]))>>1;
+				int b = (BLUE(grp[y][x])+BLUE(grp[y-1][x]))>>1;
+				grp[y][x] = RGB(r,g,b);
+			}
+		}
+		for (y=0;y<H+8;y++) {
+			for (x=0;x<WIDTH;x++)
+				if (Part_at[y][x] == Part_BLOCK)
+					grp[y][x] = 0x606060;
+		}
+		break;
+	case Bg_TOON:
+		for (Offset a=(H+8)*WIDTH;a>=WIDTH*7;a--) {
+			Part* p = Part_at[0][a];
+			if (p==Part_BLOCK)
+				grp[0][a] = 0x606060;
+			else if (p==Part_BALL)
+				grp[0][a] = 0;
+			else if (p==Part_BGFAN)
+				grp[0][a] = 0x8080FF;
+			else if (p==Part_EMPTY) {
+				grp[0][a] = Part_at[0][a+1]>=Part_0 ?
+					ELEMENTS[Part_at[0][a+1]->type].color :
+					Part_at[0][a-1]>=Part_0 ?
+					ELEMENTS[Part_at[0][a-1]->type].color :
+					Part_at[1][a]>=Part_0 ?
+					ELEMENTS[Part_at[1][a]->type].color :
+					Part_at[-1][a]>=Part_0 ?
+					ELEMENTS[Part_at[-1][a]->type].color :
+					Part_at[1][a+1]>=Part_0 ?
+					ELEMENTS[Part_at[1][a+1]->type].color :
+					Part_at[1][a-1]>=Part_0 ?
+					ELEMENTS[Part_at[1][a-1]->type].color :
+					Part_at[-1][a+1]>=Part_0 ?
+					ELEMENTS[Part_at[-1][a+1]->type].color :
+					Part_at[-1][a-1]>=Part_0 ?
+					ELEMENTS[Part_at[-1][a-1]->type].color :
+					0;
+			} else if (p>=Part_0) {
+				grp[0][a] = ELEMENTS[p->type].color;
+			}
+		}
+		for (Offset a=(H+8)*WIDTH;a>=WIDTH*8;a--) {
+			if (grp[0][a] == 0) {
+				if (grp[0][a+1] && grp[0][a+1]!=0xEEEEEE)
+					grp[0][a] = 0xEEEEEE;
+				else if (grp[0][a-1] && grp[0][a-1]!=0xEEEEEE)
+					grp[0][a] = 0xEEEEEE;
+				if (grp[1][a] && grp[1][a]!=0xEEEEEE)
+					grp[0][a] = 0xEEEEEE;
+				if (grp[-1][a] && grp[-1][a]!=0xEEEEEE)
+					grp[0][a] = 0xEEEEEE;
 			}
 		}
 	}

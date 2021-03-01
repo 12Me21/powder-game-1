@@ -11,6 +11,7 @@
 #include "input.h"
 
 static Color normalMenuImage[MENU_HEIGHT][WIDTH];
+extern Color grp[HEIGHT][WIDTH];
 
 AUTORUN {
 	Draw_rectangle(0,0,WIDTH,HEIGHT,0x404040);
@@ -111,6 +112,42 @@ AUTORUN {
 }
 
 void Menu_render(void) {
+	if (!Menu_cursorInMenu /*&& !wa*/) {
+		if (Menu_leftSelection==Menu_BLOCK||Menu_leftSelection==Menu_ERASE||Menu_leftSelection==Menu_CLEAR||Menu_rightSelection==Menu_BLOCK||Menu_rightSelection==Menu_ERASE||Menu_rightSelection==Menu_CLEAR) {
+			const char* paths[] = {
+				"",
+				"111222333444",
+				"1111111222222233333334444444",
+				"11111111111222222222223333333333344444444444",
+				"111111122221111222222233332222333333344443333444444411114444",
+				"1111111111122221111222222222223333222233333333333444433334444444444411114444",
+				"11111111111111122221111222222222222222333322223333333333333334444333344444444444444411114444",
+				"111111111112222111122221111222222222223333222233332222333333333334444333344443333444444444441111444411114444",
+				"1111111111111112222111122221111222222222222222333322223333222233333333333333344443333444433334444444444444441111444411114444",
+				"11111111111111111112222111122221111222222222222222222233332222333322223333333333333333333444433334444333344444444444444444441111444411114444",
+				"111111111111111222211111111222222221111222222222222222333322222222333333332222333333333333333444433333333444444443333444444444444444111144444444111111114444",
+			};
+			axis cy = ((Pen_oldy>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,2,2,2,3,3,3,4}[Menu_penSize])*4;
+			axis cx = ((Pen_oldx>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,1,1,1,1,1,1,1}[Menu_penSize])*4;
+			for (const char* c=paths[Menu_penSize]; *c; c++) {
+				axis x = clamp(cx, 0, H+8);
+				axis y = clamp(cy, 0, WIDTH-1);
+				grp[y][x] = 0xC00000;
+				switch (*c) {
+				when('1'):; cx++;
+				when('2'):; cy++;
+				when('3'):; cx--;
+				when('4'):; cy--;
+				}
+			}
+		}
+		if (Menu_leftSelection==Menu_FAN||Menu_rightSelection==Menu_FAN||Menu_leftSelection==Menu_WIND||Menu_rightSelection==Menu_WIND||Menu_leftSelection==Menu_LASER||Menu_rightSelection==Menu_LASER){ //fan,wind,laser (buttons, not element ids)
+			Vector a;
+			Vec_mul2(&a, &Pen_dir, 30);
+			Draw_line(Pen_x+a.x, Pen_y+a.y, Pen_x, Pen_y, 0xFF0000);
+		}
+	}
+
 	memcpy(Draw_pxRef(0, H+8), normalMenuImage, sizeof(normalMenuImage));
 	int c=12;
 	int e=H+11;

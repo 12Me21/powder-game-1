@@ -48,7 +48,7 @@ break; case Elem_GAS:
 			Part* near = Part_pos(x, y)[0];
 			if (near>=Part_0 && near->type==Elem_GAS)
 				near->meta = 1;
-			if (near<=Part_BGFAN && Random_(100)<1)
+			if (near<=Part_BGFAN && Rnd_perchance(1))
 				Part_create(x, y, Elem_FIRE);
 		}
 	}

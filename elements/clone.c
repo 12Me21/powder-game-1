@@ -17,7 +17,7 @@ break; case Elem_CLONE:
 		// todo: check part limit
 		int x = p->pos.x + Random_int(3)-1;
 		int y = p->pos.y + Random_int(3)-1;
-		if (Part_pos2(&p->pos)[Part_ofs(x, y)] <= Part_BGFAN && Random_(100)<10)
+		if (Part_pos(x,y)[0] <= Part_BGFAN && Random_(100)<10)
 			Part_create(x,y,p->meta);
 	}
 #elif defined UPDATE_BALL
