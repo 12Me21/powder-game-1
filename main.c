@@ -6,7 +6,7 @@ void render() {
 	DEFCALL(Bg_render);
 	
 	DEFCALL(Dot_render);
-	//wheel
+	DEFCALL(Wheel_render);
 	//bubble
 	DEFCALL(Entity_render);
 	DEFCALL(Ball_render);
@@ -25,8 +25,8 @@ void Platform_frame(void) {
 	
 	DEFCALL(Cell_update);
 	DEFCALL(Part_update);
-	//wheel
-	//ball
+	DEFCALL(Wheel_update);
+	//bubble
 	DEFCALL(Entity_update);
 	DEFCALL(Ball_update);
 	

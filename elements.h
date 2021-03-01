@@ -21,6 +21,7 @@ typedef struct ElementDef {
 	bool ballValid;
 	double ballWeight;
 	double ballAdvection;
+	int wheelWeight;
 } ElementDef;
 
 // some of these are pseudo-elements which are only used in savedata
