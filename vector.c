@@ -12,16 +12,9 @@
 
 static Vector sinCos[513]; //yes, 513
 
-void Vec_copy(Vec dest, const Vector* src) {
-	dest X = src X;
-	dest Y = src Y;
-}
-
-// Vec_set(vec,x,y) (unneeded)
-
 void Vec_add(Vec a, const Vector* b) {
-	a X += b X;
-	a Y += b Y;
+	a->x += b->x;
+	a->y += b->y;
 }
 
 void Vec_sub(Vec a, const Vector* b) {
@@ -121,6 +114,10 @@ double Random_2(double min, double max) {
 
 int Random_int(double mag) {
 	return (int)Random_(mag);
+}
+
+bool Rnd_perchance(int chance) {
+	return Random_(100)<chance;
 }
 
 void Random_update(void) {

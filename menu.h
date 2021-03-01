@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include "common.h"
+#include "vector.h"
 
 extern bool Menu_numberMenu;
 extern bool Menu_copyMode;
@@ -23,9 +24,11 @@ extern bool Menu_minimapEnabled;
 extern int buttonflash;
 extern axis Menu_zoomX;
 extern axis Menu_zoomY;
+extern Vector Pen_dir;
 
 extern int Part_LIMITS[3];
 extern axis Pen_x, Pen_y;
+extern axis Pen_oldx, Pen_oldy;
 
 #define Menu_BUTTONWIDTH 56
 #define Menu_BUTTONHEIGHT 14

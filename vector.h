@@ -7,7 +7,6 @@ typedef struct Vector {
 
 typedef Vector* Vec;
 
-void Vec_copy(Vec dest, const Vector* src);
 void Vec_add(Vec a, const Vector* b);
 void Vec_sub(Vec a, const Vector* b);
 void Vec_sub2(Vec out, const Vector* a, const Vector* b);
@@ -25,6 +24,7 @@ double Random_(double mag);
 double Random_2(double min, double max);
 int Random_int(double mag);
 void Random_update(void);
+bool Rnd_perchance(int chance);
 
 double clamp(double value, double min, double max);
 

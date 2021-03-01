@@ -10,39 +10,23 @@ break; case Elem_GUNPOWDER:
 	Part* g = Part_at[(int)p->pos.y+Random_int(5)-2][x];
 	if (g<Part_0 || ELEMENTS[g->type].state != State_HOT)
 		break;
-	int b = 10;
-	int n = (int)p->pos.x & 0xFFF4;
-	int r = (int)p->pos.y & 0xFFF4;
-	int w = n-b;
-	if (w<4) w = 4;
-	int cc = r-b;
-	if (cc<4) cc = 4;
-	int y = n+b;
-	if (y>W+12-1) y=W+12-1;
-	int z=r+b;
-	if (z>H+12-1) z=H+12-1;
-	int q;
-	for (q=cc; q<=z; q++) {
-		for (cc=w; cc<=y; cc++) {
-			int dist=(cc-n)*(cc-n)+(q-r)*(q-r);
-			if (dist<=b*b) {
-				Part* g = Part_at[q][cc];
-				if (g>=Part_0 && g->type != Elem_GUNPOWDER) {
-					g->vel.x += 10*(cc-n);
-					g->vel.y += 10*(q-r);
-				}
-				if ((q&3)+(cc&3)==0) {
-					Block* cell = &Part_blocks[q>>2][cc>>2];
-					if (cell->block<=0) {
-						if (abs(cc-n)>=1)
-							cell->vel.x += 10.0/(cc-n);
-						if (abs(q-r)>=1)
-							cell->vel.y += 10.0/(q-r);
-					}
-				}
+	void func(axis x, axis y, axis sx, axis sy) {
+		Part* g = Part_at[y][x];
+		if (g>=Part_0 && g->type != Elem_GUNPOWDER) {
+			g->vel.x += 10*(x-sx);
+			g->vel.y += 10*(y-sy);
+		}
+		if ((y&3)+(x&3)==0) {
+			Block* cell = &Part_blocks[y>>2][x>>2];
+			if (cell->block<=0) {
+				if (x!=sx)
+					cell->vel.x += 10.0/(x-sx);
+				if (y!=sy)
+					cell->vel.y += 10.0/(y-sy);
 			}
 		}
 	}
+	Part_doRadius((int)p->pos.x & 0xFFF4, (int)p->pos.y & 0xFFF4, 10, func);
 	p->type = Elem_FIRE;
 
 #elif defined UPDATE_BALL

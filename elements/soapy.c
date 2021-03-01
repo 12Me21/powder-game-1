@@ -5,20 +5,7 @@ break; case Elem_SOAPY:
 		Part_remove(p--);
 		break;
 	}
-	p->vel.x += 0.3*c->vel.x;
-	p->vel.y += 0.3*c->vel.y;
-	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
-		if (Part_at[(int)p->pos.y][(int)p->pos.x-1] == Part_EMPTY)
-			p->vel.x -= Random_2(0.1, 0.2);
-		if (Part_at[(int)p->pos.y][(int)p->pos.x+1] == Part_EMPTY)
-			p->vel.x += Random_2(0.1, 0.2);
-	}
-	p->vel.x += Random_2(-0.01, 0.01);
-	p->vel.y += Random_2(0.01, 0.05);
-	Vec_mul(&p->vel, 0.9);
-	Vector airvel = c->vel;
-	Vec_add(&airvel, &p->vel);
-	Part_blow(p, &airvel);
+	Part_liquidUpdate(p, c, 0.3, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	int dir = Random_int(8);
 		
 	Part* g;

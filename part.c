@@ -7,6 +7,7 @@
 #include "bg.h"
 #include "menu.h"
 #include "input.h"
+#include "cell.h"
 
 #define PARTS_MAX 400000
 
@@ -21,9 +22,6 @@ Part* const Part_0 = parts;
 Part* Part_next = parts;
 
 Part* Part_at[HEIGHT][WIDTH];
-
-Block Part_blocks[HEIGHT/4][WIDTH/4];
-Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
 
 static int Part_counts[Elem_MAX];
 int* Part_updateCounts(void) {
@@ -217,118 +215,45 @@ void Part_update(void) {
 	}
 }
 
-double pd = 0; //mystery
+// this is a very common pattern used by elements for explosions
+void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis)) {
+	int n=x-radius;
+	if (n<4) n=4;
+	int z=y-radius;
+	if (z<4) z=4;
+	int v=x+radius;
+	if (v>WIDTH-4-1) v=WIDTH-4-1;
+	int r=y+radius;
+	if (r>H+12-1) r = H+12-1;
+	for (int b=z;b<=r;b++)
+		for (int e=n;e<=v;e++)
+			if ((e-x)*(e-x)+(b-y)*(b-y)<=radius*radius)
+				func(e, b, x, y);
+}
 
-void Cell_update(void) {
-	int open = 0;
-	Block* c;
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
-		if (!c->block)
-			open++;
-	if (open>0) {
-		pd /= open;
-		forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
-			if (!c->block)
-				c->pres += pd;
-		pd = 0;
+bool Part_checkPump(Part* part, Part* pump, int dir) {
+	if (pump->type == Elem_PUMP && !pump->pumpType) {
+		pump->meta = 4|dir;
+		pump->pumpType = part->type;
+		Part_remove(part);
+		return true;
 	}
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
-		c->vel2 = c->vel;
-	int b, d;
-	forRange (b, =2, <(H+8)/4, ++) {
-		forRange (d, =2, <(W+8)/4, ++) {
-			Block* a = &Part_blocks[b][d];
-			if (a->block!=1) {
-				Vector c = a->vel;
-				double nn = Vec_fastNormalize(&c);
-				if (nn!=0) {
-					double r = fabs(c.x);
-					double w = fabs(c.y);
-					double y = r/(r+w)*nn*0.5;
-					double n = w/(r+w)*nn*0.5;
-					Vector e, f;
-					Vec_mul2(&e, &c, y);
-					Vec_mul2(&f, &c, n);
-					int z = c.x<0 ? -1 : 1;
-					int v = c.y<0 ? -1 : 1;
-					Block* horiz = &Part_blocks[b][d+z];
-					Block* vert = &Part_blocks[b+v][d];
-					Block* both = &Part_blocks[b+v][d+z];
-					if (r>w) {
-						if (horiz->block <= 0) {
-							Vec_sub(&a->vel2, &e);
-							Vec_add(&horiz->vel2, &e);
-							horiz->pres += y;
-							a->pres -= y;
-						} else {
-							Vec_sub(&a->vel2, &e); //yes, twice.
-							Vec_sub(&a->vel2, &e);
-						}
-						if (both->block <= 0) {
-							Vec_sub(&a->vel2, &f);
-							Vec_add(&both->vel2, &f);
-							a->pres -= n;
-							both->pres += n;
-						} else {
-							Vec_sub(&a->vel2, &f);
-							Vec_sub(&a->vel2, &f);
-						}
-					} else {
-						if (vert->block <= 0) {
-							Vec_sub(&a->vel2, &f);
-							Vec_add(&vert->vel2, &f);
-							a->pres -= n;
-							vert->pres += n;
-						} else {
-							Vec_sub(&a->vel2, &f);
-							Vec_sub(&a->vel2, &f);
-						}
-						if (both->block <= 0) {
-							Vec_sub(&a->vel2, &e);
-							Vec_add(&both->vel2, &e);
-							a->pres -= y;
-							both->pres += y;
-						} else {
-							Vec_sub(&a->vel2, &e);
-							Vec_sub(&a->vel2, &e);
-						}
-					}
-				}
-			}
-		}
-	} //
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
-		c->pres2 = c->pres;
-	forRange (b, =2, <(H+8)/4, ++) {
-		forRange (d, =2, <(W+8)/4, ++) {
-			Block* a = &Part_blocks[b][d];
-			if (a->block == 1) continue;
-			void pcheck(int x, int y, double m) {
-				Block* o = &Part_blocks[b+y][d+x];
-				if (o->block <= 0) {
-					double diff = (a->pres - o->pres);
-					a->vel2.x += diff*m*x;
-					a->vel2.y += diff*m*y;
-					a->pres2 -= diff*m;
-				}
-			}
-			pcheck(-1, 0,0.0625);
-			pcheck( 1, 0,0.0625);
-			pcheck( 0,-1,0.0625);
-			pcheck( 0, 1,0.0625);
-			pcheck(-1,-1,0.044194173);
-			pcheck( 1,-1,0.044194173);
-			pcheck(-1, 1,0.044194173);
-			pcheck( 1, 1,0.044194173);
-		}
+	return false;
+}
+
+void Part_liquidUpdate(Part* p, Block* c, double adv, double x1, double x2, double xr1, double yr1, double yr2, double frc) {
+	p->vel.x += adv*c->vel.x;
+	p->vel.y += adv*c->vel.y;
+	if (Part_pos3(&p->pos,0,1) != Part_EMPTY) {
+		if (Part_pos3(&p->pos,-1,0) == Part_EMPTY)
+			p->vel.x -= Random_2(x1, x2);
+		if (Part_pos3(&p->pos,1,0) == Part_EMPTY)
+			p->vel.x += Random_2(x1, x2);
 	}
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
-		if (c->block != -1) { //woah -1??
-			c->vel = c->vel2;
-			c->pres = c->pres2;
-		} else {
-			c->pres = 0;
-			c->vel = (Vector){0,0};
-		}
-	}
+	p->vel.x += Random_2(-xr1, xr1);
+	p->vel.y += Random_2(yr1, yr2);
+	Vec_mul(&p->vel, frc);
+	Vector airvel = c->vel;
+	Vec_add(&airvel, &p->vel);
+	Part_blow(p, &airvel);
 }

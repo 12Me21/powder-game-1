@@ -1,14 +1,15 @@
 #include <stdbool.h>
 #include <math.h>
 #include <stdlib.h>
+#include "common.h"
 #include "vector.h"
 #include "elements.h"
-#include "menu.h"
+#include "menu.h" //todo: split this into sim properties (edge mode etc.) and others
 #include "bg.h"
 #include "part.h"
-#include "draw.h"
 #include "input.h"
 #include "entity.h"
+#include "cell.h"
 
 Entity entitys[Entity_MAX];
 Entity* Entity_next = entitys;
@@ -30,10 +31,9 @@ void Entity_create(double x, double y, int type, int meta2) {
 			return;
 	}
 	int i;
-	forRange (i, =0, <20, ++) {
-		Entity_next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
-		Vec_copy(&Entity_next->parts[i].oldPos, &Entity_next->parts[i].pos);
-	}
+	// idk why this one goes to 20...
+	forRange (i, =0, <20, ++)
+		Entity_next->parts[i].oldPos = Entity_next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
 	forRange (i, =0, <Entity_PARTS, ++)
 		Entity_next->parts[i].touching = 0;
 	Entity_next->Pe = (Vector){0,0};

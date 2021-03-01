@@ -1,20 +1,7 @@
 break; case Elem_OIL:
 {
 #ifdef UPDATE_PART
-	p->vel.x += 0.2*c->vel.x;
-	p->vel.y += 0.2*c->vel.y;
-	if (Part_at[(int)p->pos.y+1][(int)p->pos.x] != Part_EMPTY) {
-		if (Part_at[(int)p->pos.y][(int)p->pos.x-1] == Part_EMPTY)
-			p->vel.x -= Random_2(0.1, 0.2);
-		if (Part_at[(int)p->pos.y][(int)p->pos.x+1] == Part_EMPTY)
-			p->vel.x += Random_2(0.1, 0.2);
-	}
-	p->vel.x += Random_2(-0.01, 0.01);
-	p->vel.y += Random_2(0.01, 0.05);
-	Vec_mul(&p->vel, 0.9);
-	Vector airvel = c->vel;
-	Vec_add(&airvel, &p->vel);
-	Part_blow(p, &airvel);
+	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	int dir = Random_int(8);
 	
 	Part* g;
@@ -29,7 +16,7 @@ break; case Elem_OIL:
 	if (g>=Part_0) {
 		//powders (except stone), water, nitro, saltwater
 		if (dir<7 && ((ELEMENTS[g->type].state==State_POWDER && g->type!=Elem_STONE) || g->type==Elem_WATER || g->type==Elem_NITRO || g->type==Elem_SALTWATER)) {
-			if (Random_(100)<10)
+			if (Rnd_perchance(10))
 				Part_swap(p, g);
 			//burn
 		} else if (ELEMENTS[g->type].state==State_HOT) {
@@ -53,7 +40,7 @@ break; case Elem_OIL:
 		Part* near = Part_at[y][x];
 		if (near<=Part_BGFAN)
 			Part_create(x, y, Elem_FIRE);
-		if (Random_(100)<10) {
+		if (Rnd_perchance(10)) {
 			Part_remove(p--);
 			break;
 		}
@@ -64,10 +51,10 @@ break; case Elem_OIL:
 	if (ELEMENTS[touched].state==State_HOT) {
 		for (int i=9;i<21;i++) {
 			Part* near = Part_pos2(&ball->pos)[neighbors[i].offset];
-			if (near<=Part_BGFAN && Random_(100)<50)
+			if (near<=Part_BGFAN && Rnd_perchance(50))
 				Part_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
 		}
-		if (Random_(100)<1)
+		if (Rnd_perchance(1))
 			Ball_break(ball, 0, Elem_OIL, 0, 0, 0, 0);
 	} else if (touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_OIL, 0, 0, 0, 0);
