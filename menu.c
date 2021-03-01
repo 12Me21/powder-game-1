@@ -11,6 +11,7 @@
 #include "ball.h"
 #include "platform.h"
 #include "cell.h"
+#include "wheel.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
@@ -339,7 +340,12 @@ void Menu_update(void) {
 					if (b)
 						Ball_create(Pen_x, Pen_y, b);
 				}
-				// todo: we still need to do ball, wheel,etc.
+			when(Menu_WHEEL):;
+				if (rising) {
+					axis x = clamp(Pen_x, 24, W-9);
+					axis y = clamp(Pen_y, 24, H-9);
+					Wheel_create(x, y);
+				}
 			when(Menu_BLOCK): case Menu_ERASE: case Menu_CLEAR:
 				if (Menu_penMode==Pen_LINE)
 					old = (i==0 ? Mouse_falling.left : Mouse_falling.right);

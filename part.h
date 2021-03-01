@@ -8,7 +8,7 @@ typedef struct Part {
 	Vector pos;
 	Vector vel;
 	unsigned char type; //what if we stored type as a pointer to the element table?
-	int meta;
+	int meta; //I think this is at least 16 bits.
 	unsigned char pumpType;
 	unsigned char held;
 } Part;

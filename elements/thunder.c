@@ -7,20 +7,20 @@ break; case Elem_THUNDER:
 		if (!p->meta)
 			p->meta = ((int)p->pos.y/4*(WIDTH/4)+(int)p->pos.x)%1000; //is this the right 1000?
 		int c = p->meta>>10;
-		int n = p->meta & 0x3FF;
+		int n = p->meta & ((1<<10)-1);
 		n = 73*n%955+44;
 		int vx,vy;
 		if (c==0) {
 			int f = n%3;
-			if (f==0) { vx=-1; vy=0; c=1; }
-			else if (f==1) {vx=1; vy=0; c=3; }
-			else { vx=0; vy=1; c=0; }
+			if (f==0)      { vx=-1; vy=0; c=1; }
+			else if (f==1) { vx= 1; vy=0; c=3; }
+			else           { vx= 0; vy=1; c=0; }
 		} else if (c==1) {
-			if (n%2<=0) { vx=-1; vy=0; c=1; }
-			else { vx=0; vy=1; c=0; }
+			if (n%2==0) { vx=-1; vy=0; c=1; }
+			else        { vx= 0; vy=1; c=0; }
 		} else {
-			if (n%2<=0) { vx=1; vy=0; c=3; }
-			else { vx=0; vy=1; c=0; }
+			if (n%2==0) { vx=1; vy=0; c=3; }
+			else        { vx=0; vy=1; c=0; }
 		}
 		Part* near = Part_pos2(&p->pos)[Part_ofs(vx,vy)];
 		int b = c<<10|n;
@@ -63,33 +63,18 @@ break; case Elem_THUNDER:
 	} else {
 		//Air.vel forget
 		if (p->meta==5000) {
-			int xy=6;
-			int b = p->pos.x;
-			int r = p->pos.y;
-			int w = b-xy;
-			if (w<4) w=4;
-			int n = r-xy;
-			if (n<4) n=4;
-			int y = b+xy;
-			if (y>WIDTH-4-1) y=WIDTH-4-1;
-			int z = r+xy;
-			if (z>HEIGHT-4-1) z=HEIGHT-4-1;
-			int q,g;
-			for (q=n;q<=z;q++) {
-				for (g=w;g<=y;g++) {
-					if ((g-b)*(g-b)+(q-r)*(q-r)>xy*xy)
-						continue;
-					Part* near = Part_at[q][g];
-					if (near>=Part_0 && near->type!=Elem_THUNDER) {
-						if (near->type==Elem_ICE)
-							near->type = Elem_SNOW; //❤️💚💙
-						else if (near->type==Elem_FIREWORKS && near->meta>0 && near->meta<5000)
-							near->meta += 100;
-						near->vel.x -= 3*(g-p->pos.x);
-						near->vel.y -= 3*(q-p->pos.y);
-					}
+			void func(axis x, axis y, axis sx, axis sy) {
+				Part* near = Part_at[y][x];
+				if (near>=Part_0 && near->type!=Elem_THUNDER) {
+					if (near->type==Elem_ICE)
+						near->type = Elem_SNOW; //❤️💚💙
+					else if (near->type==Elem_FIREWORKS && near->meta>0 && near->meta<5000)
+						near->meta += 100;
+					near->vel.x -= 3*(x-p->pos.x);
+					near->vel.y -= 3*(y-p->pos.y);
 				}
 			}
+			Part_doRadius(p->pos.x, p->pos.y, 6, func);
 			Part_remove(p--);
 			break;
 		}

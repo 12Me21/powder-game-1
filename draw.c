@@ -5,7 +5,6 @@
 
 #include "common.h"
 #include "draw.h"
-#include "font.c"
 #include "part.h"
 #include "elements.h"
 
