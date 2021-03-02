@@ -68,8 +68,8 @@ Color composite(Color base, Color new, int alpha) {
 }
 
 void Draw_line(double x1, double y1, double x2, double y2, Color color) {
-	x1 = floor(x1);
-	y1 = floor(y1);
+	//x1 = floor(x1);
+	//y1 = floor(y1);
 	x2 -= x1;
 	y2 -= y1;
 	double g;

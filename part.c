@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include "common.h"
 #include "vector.h"
@@ -70,7 +71,7 @@ void Part_swap(Part* part1, Part* part2) {
 
 }
 
-Part* Part_blow(Part* part, Vec airvel) {
+Part* Part_blow(Part* part, Vector* airvel) {
 	Vec_mul(airvel, 3.8/(Vec_fastDist(airvel)+1));
 	if (*Part_pos2(&(Vector){part->pos.x+airvel->x, part->pos.y})<=Part_BGFAN)
 		part->pos.x += airvel->x;
@@ -93,6 +94,7 @@ void Part_shuffle(void) {
 	}
 }
 
+// todo: full reset function
 void Part_reset(int a) {
 	int x,y;
 	for (y=0;y<(H+8)/4;y++) {

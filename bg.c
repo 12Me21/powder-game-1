@@ -105,6 +105,19 @@ void Bg_render(void) {
 					grp[y][x] = 0x606060;
 		}
 		break;
+	case Bg_LIGHT:;
+		Color* grpb = &grp[0][0];
+		for (Offset a=(H+8)*WIDTH;a>=WIDTH*8;a--) {
+			if ((&Part_at[0][0])[a]==Part_BLOCK)
+				grpb[a] = 0x6060FF;
+			else {
+				int r = (220*RED(grpb[a]))>>8;
+				int g = (220*GREEN(grpb[a]))>>8;
+				int b = (220*BLUE(grpb[a]))>>8;
+				grpb[a] = RGB(r,g,b);
+			}
+		}
+		break;
 	case Bg_TOON:
 		for (Offset a=(H+8)*WIDTH;a>=WIDTH*7;a--) {
 			Part* p = Part_at[0][a];
