@@ -1,4 +1,4 @@
-srcs:= elements input main part vector draw menu save bg entity platform-windows render-dot render-menu scale render-entity ball render-ball cell wheel wheel-frames font bubble
+srcs:= elements input main part vector draw menu save bg entity platform-windows render-dot render-menu render-entity ball render-ball cell wheel wheel-frames font bubble
 output:= pg1.exe
 libs:= winmm dwmapi
 
