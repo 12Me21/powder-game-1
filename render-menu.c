@@ -130,8 +130,8 @@ void Menu_render(void) {
 			axis cy = ((Pen_oldy>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,2,2,2,3,3,3,4}[Menu_penSize])*4;
 			axis cx = ((Pen_oldx>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,1,1,1,1,1,1,1}[Menu_penSize])*4;
 			for (const char* c=paths[Menu_penSize]; *c; c++) {
-				axis x = clamp(cx, 0, H+8);
-				axis y = clamp(cy, 0, WIDTH-1);
+				axis x = clamp(cx, 0, WIDTH-1);
+				axis y = clamp(cy, 0, H+8);
 				grp[y][x] = 0xC00000;
 				switch (*c) {
 				when('1'):; cx++;
