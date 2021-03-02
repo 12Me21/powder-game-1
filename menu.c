@@ -12,6 +12,7 @@
 #include "platform.h"
 #include "cell.h"
 #include "wheel.h"
+#include "bubble.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
@@ -315,6 +316,8 @@ void Menu_update(void) {
 					addPressure(0,-1,v);
 					addPressure(-1,-1,v);
 				}
+			when(Menu_BUBBLE):;
+				Bubble_draw(Pen_x, Pen_y, rising, old);
 			when(Menu_PLAYER): case Menu_FIGHTER: case Menu_BOX: case Menu_CREATE:
 				if (!rising) break;
 				int f = Pen_x>>2<<2;

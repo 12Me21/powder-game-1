@@ -91,6 +91,7 @@ static void processEvent(void) {
 }
 
 int main(int argc, char** argv) {
+	srand(time(NULL));///todo put this in windows
 	D = XOpenDisplay(NULL);
 	Visual* visual = DefaultVisual(D, 0);
 	if (visual->class!=TrueColor) {
