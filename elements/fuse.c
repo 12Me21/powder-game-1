@@ -1,11 +1,11 @@
 break; case Elem_FUSE:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, &(Vector){0,0});
+	Part_blow(p, (Point){0,0});
 	if (p->meta<0x100) {
 		axis x = Random_int(3)-1;
 		axis y = Random_int(3)-1;
-		Part* near = Part_pos3(&p->pos, x, y);
+		Part* near = Part_pos3(p->pos, x, y);
 		if (near>=Part_0) {
 			if (ELEMENTS[near->type].state==State_HOT && near->type!=Elem_SPARK)
 				p->meta += 0x100;
@@ -26,10 +26,10 @@ break; case Elem_FUSE:
 			otherwise:
 				g=Elem_SPARK;
 			}
-			Part** at = Part_pos2(&p->pos);
+			Part** at = Part_pos2(p->pos);
 			void create(axis x, axis y) {
 				if (at[Part_ofs(x,y)]<=Part_BGFAN)
-					Part_create(p->pos.x+x,p->pos.y+y,g);
+					Part_create(p->pos.x+x, p->pos.y+y, g);
 			}
 			if (at[1]>=Part_0) {
 				create(-1, 0);
@@ -52,7 +52,7 @@ break; case Elem_FUSE:
 				create(1, 1);
 			}
 			for (int b=0; b<8; b++) {
-				Part* near = Part_pos2(&p->pos)[(Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
+				Part* near = Part_pos2(p->pos)[(Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
 				if (near>=Part_0) {
 					if (near->type==Elem_FUSE && near->meta<0x100)
 						near->meta += 0x100;

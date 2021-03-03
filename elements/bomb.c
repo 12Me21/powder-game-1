@@ -3,9 +3,9 @@ break; case Elem_BOMB:
 #ifdef UPDATE_PART
 	p->vel.y += 0.03;
 	Vec_mul(&p->vel, 0.92);
-	Vector airvel = c->vel;
-	Vec_add(&airvel, &p->vel);
-	Part_blow(p, &airvel);
+	Point airvel = c->vel;
+	Vec_add(&airvel, p->vel);
+	Part_blow(p, airvel);
 	if (p->meta) {
 		if (p->meta==Elem_BOMB) {
 			Part_remove(p--);
@@ -44,10 +44,10 @@ break; case Elem_BOMB:
 	}
 	int x = Random_int(3)-1;
 	int y = Random_int(3)-1;
-	Part* near = Part_pos3(&p->pos, x, y);
+	Part* near = Part_pos3(p->pos, x, y);
 	if (near<Part_0 || near->type==Elem_BOMB || near->type==Elem_CLONE)
 		break;
-	airvel = (Vector){0,0};
+	airvel = (Point){0,0};
 	void func1(axis x, axis y, axis sx, axis sy) {
 		Part* c = *Part_pos(x,y);
 		if (c>=Part_0 && c->type!=Elem_BOMB) {
@@ -75,7 +75,7 @@ break; case Elem_BOMB:
 
 #elif defined UPDATE_BALL
 	if (touched>=0 && touched!=Elem_BOMB && touched!=Elem_FIRE && touched!=Elem_GAS && touched!=Elem_LASER && ELEMENTS[touched].state>0) {
-		Vector airvel = {0,0};
+		Point airvel = {0,0};
 		void func1(axis x, axis y, axis sx, axis sy) {
 			Part* c = *Part_pos(x,y);
 			if (c>=Part_0 && c->type!=Elem_BOMB) {

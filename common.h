@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef double real;
+typedef float real;
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 

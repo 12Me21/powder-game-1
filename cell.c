@@ -28,16 +28,15 @@ void Cell_update(void) {
 		forRange (d, =2, <(W+8)/4, ++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block!=1) {
-				Vector c = a->vel;
+				Point c = a->vel;
 				real nn = Vec_fastNormalize(&c);
 				if (nn!=0) {
 					real r = fabs(c.x);
 					real w = fabs(c.y);
 					real y = r/(r+w)*nn*0.5;
 					real n = w/(r+w)*nn*0.5;
-					Vector e, f;
-					Vec_mul2(&e, &c, y);
-					Vec_mul2(&f, &c, n);
+					Point e = Vec_mul2(c, y);
+					Point f = Vec_mul2(c, n);
 					int z = c.x<0 ? -1 : 1;
 					int v = c.y<0 ? -1 : 1;
 					Block* horiz = &Part_blocks[b][d+z];
@@ -45,41 +44,41 @@ void Cell_update(void) {
 					Block* both = &Part_blocks[b+v][d+z];
 					if (r>w) {
 						if (horiz->block <= 0) {
-							Vec_sub(&a->vel2, &e);
-							Vec_add(&horiz->vel2, &e);
+							Vec_sub(&a->vel2, e);
+							Vec_add(&horiz->vel2, e);
 							horiz->pres += y;
 							a->pres -= y;
 						} else {
-							Vec_sub(&a->vel2, &e); //yes, twice.
-							Vec_sub(&a->vel2, &e);
+							Vec_sub(&a->vel2, e); //yes, twice.
+							Vec_sub(&a->vel2, e);
 						}
 						if (both->block <= 0) {
-							Vec_sub(&a->vel2, &f);
-							Vec_add(&both->vel2, &f);
+							Vec_sub(&a->vel2, f);
+							Vec_add(&both->vel2, f);
 							a->pres -= n;
 							both->pres += n;
 						} else {
-							Vec_sub(&a->vel2, &f);
-							Vec_sub(&a->vel2, &f);
+							Vec_sub(&a->vel2, f);
+							Vec_sub(&a->vel2, f);
 						}
 					} else {
 						if (vert->block <= 0) {
-							Vec_sub(&a->vel2, &f);
-							Vec_add(&vert->vel2, &f);
+							Vec_sub(&a->vel2, f);
+							Vec_add(&vert->vel2, f);
 							a->pres -= n;
 							vert->pres += n;
 						} else {
-							Vec_sub(&a->vel2, &f);
-							Vec_sub(&a->vel2, &f);
+							Vec_sub(&a->vel2, f);
+							Vec_sub(&a->vel2, f);
 						}
 						if (both->block <= 0) {
-							Vec_sub(&a->vel2, &e);
-							Vec_add(&both->vel2, &e);
+							Vec_sub(&a->vel2, e);
+							Vec_add(&both->vel2, e);
 							a->pres -= y;
 							both->pres += y;
 						} else {
-							Vec_sub(&a->vel2, &e);
-							Vec_sub(&a->vel2, &e);
+							Vec_sub(&a->vel2, e);
+							Vec_sub(&a->vel2, e);
 						}
 					}
 				}
@@ -118,7 +117,7 @@ void Cell_update(void) {
 			c->pres = c->pres2;
 		} else {
 			c->pres = 0;
-			c->vel = (Vector){0,0};
+			c->vel = (Point){0,0};
 		}
 	}
 }

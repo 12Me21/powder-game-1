@@ -1,8 +1,8 @@
 break; case Elem_FAN:
 {
 #ifdef UPDATE_PART
-	Vec_add(&c->vel, &p->vel);
-	Part** n = Part_pos2(&p->pos);
+	Vec_add(&c->vel, p->vel);
+	Part** n = Part_pos2(p->pos);
 	if (*n == Part_EMPTY)
 		*n = Part_BGFAN;
 #elif defined UPDATE_BALL

@@ -144,8 +144,7 @@ void Menu_render(void) {
 			}
 		}
 		if (Menu_leftSelection==Menu_FAN||Menu_rightSelection==Menu_FAN||Menu_leftSelection==Menu_WIND||Menu_rightSelection==Menu_WIND||Menu_leftSelection==Menu_LASER||Menu_rightSelection==Menu_LASER){ //fan,wind,laser (buttons, not element ids)
-			Vector a;
-			Vec_mul2(&a, &Pen_dir, 30);
+			Point a = Vec_mul2(Pen_dir, 30);
 			Draw_line(Pen_x+a.x, Pen_y+a.y, Pen_x, Pen_y, 0xFF0000);
 		}
 	}

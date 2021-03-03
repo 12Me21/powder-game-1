@@ -1,8 +1,8 @@
 break; case Elem_THUNDER:
 {
 #ifdef UPDATE_PART
-	*Part_pos2(&p->pos) = p;
-	p->vel = (Vector){0,0};
+	*Part_pos2(p->pos) = p;
+	p->vel = (Point){0,0};
 	if (p->meta<0x1000) {
 		if (!p->meta)
 			p->meta = ((int)p->pos.y/4*(WIDTH/4)+(int)p->pos.x)%1000; //is this the right 1000?
@@ -22,13 +22,13 @@ break; case Elem_THUNDER:
 			if (n%2==0) { vx=1; vy=0; c=3; }
 			else        { vx=0; vy=1; c=0; }
 		}
-		Part* near = Part_pos2(&p->pos)[Part_ofs(vx,vy)];
+		Part* near = Part_pos3(p->pos,vx,vy);
 		int b = c<<10|n;
 		if (near<=Part_BGFAN) {
-			*Part_pos2(&p->pos) = Part_EMPTY;
+			*Part_pos2(p->pos) = Part_EMPTY;
 			p->pos.x += vx;
 			p->pos.y += vy;
-			*Part_pos2(&p->pos) = p;
+			*Part_pos2(p->pos) = p;
 			p->meta = b;
 		} else if (near>=Part_0) {
 			if (near->type!=Elem_THUNDER || near->meta!=b) {
@@ -82,7 +82,7 @@ break; case Elem_THUNDER:
 		if (p->meta>=7000) {
 			if (p->meta==7000) {
 				void checkGlass(int x, int y) {
-					Part* near = Part_pos2(&p->pos)[Part_ofs(x,y)];
+					Part* near = Part_pos3(p->pos,x,y);
 					if (near>=Part_0 && near->type==Elem_GLASS) {
 						near->type = Elem_THUNDER;
 						near->meta = 7000;
@@ -105,7 +105,7 @@ break; case Elem_THUNDER:
 			int r = (p->meta&0xFFFC)==6000 ? Elem_METAL : Elem_MERCURY;
 			int b;
 			Part* pdir(int dir) {
-				return Part_pos2(&p->pos)[(Offset[]){WIDTH,-1,-WIDTH,1}[dir]];
+				return Part_pos2(p->pos)[(Offset[]){WIDTH,-1,-WIDTH,1}[dir]];
 			}
 			for (b=0; b<4; b++) { //check locations in front/left/right
 				if (b==2) continue; //2 = behind

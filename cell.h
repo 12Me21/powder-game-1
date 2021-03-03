@@ -3,11 +3,11 @@
 #include "common.h"
 
 typedef struct Block {
-	Vector vel;
+	Point vel;
 	real pres;
-	Vector vel2;
+	Point vel2;
 	real pres2;
-	int block; //uh this is an int
+	char block; //uh this is an int
 } Block;
 
 extern real pd;

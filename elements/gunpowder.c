@@ -1,11 +1,11 @@
 break; case Elem_GUNPOWDER:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
+	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.2);
-	Vec_add(&airvel, &p->vel);
+	Vec_add(&airvel, p->vel);
 	Vec_mul(&p->vel, 0.8);
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	int x = p->pos.x+Random_int(5)-2;
 	Part* g = Part_at[(int)p->pos.y+Random_int(5)-2][x];
 	if (g<Part_0 || ELEMENTS[g->type].state != State_HOT)
@@ -34,7 +34,7 @@ break; case Elem_GUNPOWDER:
 	// explode when touching a hot element AND meta is 0
 	if (ball->meta==0 && ELEMENTS[touched].state==State_HOT) {
 		for (int i=0;i<37;i++) {
-			Part* near = Part_pos2(&ball->pos)[neighbors[i].offset];
+			Part* near = Part_pos2(ball->pos)[neighbors[i].offset];
 			if (near<=Part_BGFAN) {
 				Part* e = Part_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
 				if (e>=Part_0) {

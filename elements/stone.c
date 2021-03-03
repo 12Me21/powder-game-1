@@ -5,8 +5,8 @@ break; case Elem_STONE:
 	p->vel.y += 0.05*c->vel.y;
 	p->vel.y += Random_2(0.01,0.05);
 	Vec_mul(&p->vel, 0.95);
-	Vector airvel = p->vel;
-	real mag = Vec_fastDist(&airvel);
+	Point airvel = p->vel;
+	real mag = Vec_fastDist(airvel);
 	if (mag>10 && Rnd_perchance(50))
 		p->type = Elem_POWDER;
 	Vec_mul(&airvel, 3.8/(mag+1));
@@ -22,14 +22,14 @@ break; case Elem_STONE:
 				real temp = p->pos.x;
 				p->pos.x = near->pos.x;
 				near->pos.x = temp;
-				*Part_pos2(&p->pos) = near;
+				*Part_pos2(p->pos) = near;
 				//powder seed gunpowder fireworks ant
 			} else if (near->type==Elem_POWDER||near->type==Elem_SEED||near->type==Elem_GUNPOWDER||near->type==Elem_FIREWORKS||near->type==Elem_ANT)
 				near->vel.x += Random_(p->vel.x);
 		}
 		p->vel.x *= 0.5;
 	}
-	*Part_pos2(&p->pos) = Part_EMPTY;
+	*Part_pos2(p->pos) = Part_EMPTY;
 	near = *Part_pos(p->pos.x, p->pos.y+airvel.y);
 	if (near<=Part_BGFAN) {
 		p->pos.y += airvel.y;
@@ -41,17 +41,17 @@ break; case Elem_STONE:
 				real temp = p->pos.y;
 				p->pos.y = near->pos.y;
 				near->pos.y = temp;
-				*Part_pos2(&p->pos) = near;
+				*Part_pos2(p->pos) = near;
 				//powder seed gunpowder fireworks ant
 			} else if (near->type==Elem_POWDER||near->type==Elem_SEED||near->type==Elem_GUNPOWDER||near->type==Elem_FIREWORKS||near->type==Elem_ANT)
 				near->vel.y += Random_(p->vel.y);
 		}
 		p->vel.y *= 0.5;
 	}
-	*Part_pos2(&p->pos) = p;
+	*Part_pos2(p->pos) = p;
 
 #elif defined UPDATE_BALL
-	real dist = Vec_dist(&vel);
+	real dist = Vec_dist(vel);
 	if (dist>7 && (touched==-1 || touched==Elem_METAL || touched==Elem_BOMB))
 		ball->type = Elem_POWDER;
 	else if (touched==Elem_ACID)

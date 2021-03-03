@@ -1,10 +1,10 @@
 break; case Elem_FIRE:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
+	Point airvel = c->vel;
 	if (p->meta == 2) {
 		Vec_mul(&p->vel, .8);
-		Vec_add(&airvel, &p->vel);
+		Vec_add(&airvel, p->vel);
 	}
 	Vec_mul(&airvel, .2);
 	if (p->meta==0 || p->meta==2) {
@@ -18,7 +18,7 @@ break; case Elem_FIRE:
 		c->pres += -q;
 		pd -= -q;
 	}
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	int x = p->pos.x+Random_int(5)-2;
 	Part* g = Part_at[(int)p->pos.y+Random_int(5)-2][x];
 	if (g>=Part_0) {

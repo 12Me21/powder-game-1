@@ -22,7 +22,7 @@ int wa; //this is the state when navigating the upload menu
 
 axis Pen_x=0, Pen_y=0;
 axis Pen_oldx=0, Pen_oldy=0;
-Vector Pen_dir = {0,0};
+Point Pen_dir = {0,0};
 
 int Menu_hover = -1;
 bool Menu_numberMenu = false;
@@ -191,12 +191,11 @@ void Menu_update(void) {
 	Pen_x = clamp(Pen_x+8,8,W-1);
 	Pen_y = clamp(Pen_y+8,8,H-1);
 	// todo: line mode etc.
-	Vector c = {Pen_x,Pen_y};
+	Point c = {Pen_x,Pen_y};
 	Pen_dir.x = Pen_oldx-5*Pen_dir.x;
 	Pen_dir.y = Pen_oldy-5*Pen_dir.y;
 	real q = 5;
-	Vector ee;
-	Vec_sub2(&ee, &c, &Pen_dir);
+	Point ee = Vec_sub2(c, Pen_dir);
 	q -= Vec_fastNormalize(&ee);
 	real d = q*0.5;
 	real a = q*0.5;
@@ -204,7 +203,7 @@ void Menu_update(void) {
 	c.y += ee.y*a;
 	Pen_dir.x -= ee.x*d;
 	Pen_dir.y -= ee.y*d;
-	Vec_sub2(&Pen_dir, &c, &Pen_dir);
+	Pen_dir = Vec_sub2(c, Pen_dir);
 	Vec_fastNormalize(&Pen_dir);
 	if (Menu_zoomLevel!=0 && Mouse_now.middle) {
 		Menu_zoomX -= (Mouse_old.x-Mouse_older.x)/(1<<Menu_zoomLevel);
@@ -255,7 +254,7 @@ void Menu_update(void) {
 										if (e==Elem_FIREWORKS) {
 											meta = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
 										} else if (e==Elem_LASER) {
-											meta = 8*Vec_angle(&Pen_dir)/TAU+0.5;
+											meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
 											if (meta>=8)
 												meta = 0;
 											meta = meta+1;
@@ -272,11 +271,11 @@ void Menu_update(void) {
 									Part* e = Part_create(f, g, pa);
 									if (e>=Part_0) {
 										if (pa==Elem_FAN) {
-											Vec_mul2(&e->vel, &Pen_dir, 0.1);
+											e->vel = Vec_mul2(Pen_dir, 0.1);
 										} else if (pa==Elem_FIREWORKS) {
 											e->meta = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
 										} else if (pa==Elem_LASER) {
-											int meta = 8*Vec_angle(&Pen_dir)/TAU+0.5;
+											int meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
 											if (meta>=8)
 												meta = 0;
 											e->meta = meta+1;
@@ -291,12 +290,11 @@ void Menu_update(void) {
 		} else {
 			switch (selection) {
 			when(Menu_WIND):;
-				Vector b;
-				Vec_mul2(&b, &Pen_dir, 10);
+				Point b = Vec_mul2(Pen_dir, 10);
 				Block* e = &Part_blocks[Pen_y>>2][Pen_x>>2];
 				if (old && e->block == 0) {
-					Vec_add(&e->vel, &b);
-					if (Vec_fastDist(&e->vel)>10 && Menu_paused) {
+					Vec_add(&e->vel, b);
+					if (Vec_fastDist(e->vel)>10 && Menu_paused) {
 						Vec_fastNormalize(&e->vel);
 						Vec_mul(&e->vel, 10);
 					}
@@ -375,18 +373,18 @@ void Menu_update(void) {
 								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
 									Block* cell = &Part_blocks[(int)clamp(g,2,(H+16)/4-3)][(int)clamp(f,2,(W+16)/4-3)];
 									switch(selection) {
-									when(Menu_BLOCK):
+									when(Menu_BLOCK):;
 										cell->block = 1;
-										cell->vel = (Vector){0,0};
+										cell->vel = (Point){0,0};
 										pd += cell->pres;
 										cell->pres = 0;
-									when(Menu_ERASE):
+									when(Menu_ERASE):;
 										cell->block = -2;
-									when(Menu_CLEAR):
+									when(Menu_CLEAR):;
 										if (cell->block == 0) {
 											cell->block = -2;
-											cell->vel = (Vector){0,0};
-											pd+=cell->pres;
+											cell->vel = (Point){0,0};
+											pd += cell->pres;
 											cell->pres=0;
 										}
 									}

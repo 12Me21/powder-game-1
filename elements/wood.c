@@ -1,9 +1,9 @@
 break; case Elem_WOOD:
 {
 #ifdef UPDATE_PART
-	Vector airvel = p->vel;
+	Point airvel = p->vel;
 	Vec_mul(&p->vel, 0.3);
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	//not burning
 	if (p->meta==0) {
 		int x = p->pos.x + Random_int(5)-2;

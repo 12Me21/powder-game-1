@@ -1,7 +1,7 @@
 break; case Elem_C4:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, &(Vector){0,0});
+	Part_blow(p, (Point){0,0});
 	if (p->meta==0) {
 		int x = p->pos.x+Random_int(3)-1;
 		Part* near = *Part_pos(x, p->pos.y+Random_int(3)-1);
@@ -11,7 +11,7 @@ break; case Elem_C4:
 		//spread explodeystate
 		int b;
 		for (b=0; b<8; b++) {
-			Part* near = Part_pos2(&p->pos)[(axis[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
+			Part* near = Part_pos2(p->pos)[(axis[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
 			if (near >= Part_0 && near->type==Elem_C4)
 				near->meta = 1;
 		}

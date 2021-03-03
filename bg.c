@@ -52,7 +52,7 @@ void Bg_render(void) {
 			Block* c;
 			forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
 				if (c->block==0) {
-					Vector e = c->vel;
+					Point e = c->vel;
 					real r = Vec_fastNormalize(&e);
 					if (r>=0.2) {
 						if (r>8) r=8;

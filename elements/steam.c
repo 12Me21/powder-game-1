@@ -1,10 +1,10 @@
 break; case Elem_STEAM:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
-	Vec_add(&airvel, &p->vel);
+	Point airvel = c->vel;
+	Vec_add(&airvel, p->vel);
 	Vec_mul(&p->vel, 0.7);
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	if (Random_(100)<10)
 		Part_remove(p--);
 #elif defined UPDATE_BALL

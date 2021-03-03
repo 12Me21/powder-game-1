@@ -1,14 +1,14 @@
 break; case Elem_SALT:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
+	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.1);
-	Vec_add(&airvel, &p->vel);
+	Vec_add(&airvel, p->vel);
 	Vec_mul(&p->vel, 0.75);
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	axis x = Random_int(3)-1;
 	axis y = Random_int(3)-1;
-	Part* near = Part_pos3(&p->pos, x, y);
+	Part* near = Part_pos3(p->pos, x, y);
 	if (near>=Part_0) {
 		if (near->type==Elem_WATER) {
 			near->type = Elem_SALTWATER;

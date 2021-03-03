@@ -1,25 +1,26 @@
 #pragma once
 #include "common.h"
+#include <complex.h>
 
-typedef struct Vector {
-	real x;
-	real y;
-} Vector;
+typedef union Point {
+	struct {
+		real x;
+		real y;
+	};
+	_Complex float z;
+} Point;
 
-typedef Vector* Vec;
-
-void Vec_add(Vec a, const Vector* b);
-void Vec_sub(Vec a, const Vector* b);
-void Vec_sub2(Vec out, const Vector* a, const Vector* b);
-void Vec_mul(Vec a, real x);
-void Vec_mul2(Vec out, const Vector* a, real mul);
-real Vec_fastDist(const Vector* a);
-real Vec_dist(const Vector* this);
-real Vec_fastNormalize(Vec v);
-void Vec_normalize(Vec v);
-real Vec_angle(const Vector* v);
-void Vec_swap(Vec a, Vec b);
-Vec Vec_unit(int angle);
+void Vec_add(Point* a, Point b);
+void Vec_sub(Point* a, Point b);
+Point Vec_sub2(Point a, Point b);
+void Vec_mul(Point* a, real x);
+Point Vec_mul2(Point a, real mul);
+real Vec_fastDist(Point a);
+real Vec_dist(Point this);
+real Vec_fastNormalize(Point* v);
+void Vec_normalize(Point* v);
+real Vec_angle(Point v);
+Point Vec_unit(int angle);
 
 real Random_(real mag);
 real Random_2(real min, real max);

@@ -7,8 +7,8 @@ enum EntityType {Entity_FIGHTER=10, Entity_BOX=20, Entity_PLAYER=30, Entity_CREA
 #define Entity_PARTS 28
 
 typedef struct EntityNode {
-	Vector pos;
-	Vector oldPos;
+	Point pos;
+	Point oldPos;
 	int touching;
 } EntityNode;
 
@@ -17,7 +17,7 @@ typedef struct Entity {
 	int meta2;
 	int meta1;
 	bool held;
-	Vector vel;
+	Point vel;
 	int decay;
 	EntityNode parts[Entity_PARTS];
 } Entity;

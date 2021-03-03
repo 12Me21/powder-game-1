@@ -50,7 +50,7 @@ break; case Elem_OIL:
 	if (touched<0) break;
 	if (ELEMENTS[touched].state==State_HOT) {
 		for (int i=9;i<21;i++) {
-			Part* near = Part_pos2(&ball->pos)[neighbors[i].offset];
+			Part* near = Part_pos2(ball->pos)[neighbors[i].offset];
 			if (near<=Part_BGFAN && Rnd_perchance(50))
 				Part_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
 		}

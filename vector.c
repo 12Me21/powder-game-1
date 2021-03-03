@@ -7,34 +7,30 @@
 // many of the algorithms here are not the most efficient or accurate,
 // but cannot be changed without breaking old saves
 
-#define X ->x
-#define Y ->y
+static Point sinCos[513]; //yes, 513
 
-static Vector sinCos[513]; //yes, 513
-
-void Vec_add(Vec a, const Vector* b) {
-	a->x += b->x;
-	a->y += b->y;
+void Vec_add(Point* a, Point b) {
+	a->x += b.x;
+	a->y += b.y;
 }
 
-void Vec_sub(Vec a, const Vector* b) {
-	a X -= b X;
-	a Y -= b Y;
+void Vec_sub(Point* a, Point b) {
+	a->x -= b.x;
+	a->y -= b.y;
 }
 
-void Vec_sub2(Vec out, const Vector* a, const Vector* b) {
-	out->x = a->x - b->x;
-	out->y = a->y - b->y;
+Point Vec_sub2(Point a, Point b) {
+	return (Point){a.x-b.x, a.y-b.y};
 }
 
-void Vec_mul(Vec a, real x) {
-	a X *= x;
-	a Y *= x;
+void Vec_mul(Point* a, real mul) {
+	a->z *= mul;
+	//a->x *= mul;
+	//a->y *= mul;
 }
 
-void Vec_mul2(Vec out, const Vector* a, real mul) {
-	out->x = a->x*mul;
-	out->y = a->y*mul;
+Point Vec_mul2(Point a, real mul) {
+	return (Point){a.x*mul, a.y*mul};
 }
 
 static real fastDist(real x, real y) {
@@ -46,16 +42,16 @@ static real fastDist(real x, real y) {
 		return 0.3978*x+0.9604*y;
 }
 
-real Vec_fastDist(const Vector* a) {
-	return fastDist(a X, a Y);
+real Vec_fastDist(Point a) {
+	return fastDist(a.x, a.y);
 }
 
-real Vec_dist(const Vector* this) {
-	return sqrt(this->x*this->x + this->y*this->y);
+real Vec_dist(Point this) {
+	return (real)sqrt(this.x*this.x + this.y*this.y);
 }
 
-real Vec_fastNormalize(Vec v) {
-	real magnitude = Vec_fastDist(v);
+real Vec_fastNormalize(Point* v) {
+	real magnitude = Vec_fastDist(*v);
 	if (magnitude!=0) {
 		v->x /= magnitude;
 		v->y /= magnitude;
@@ -63,8 +59,8 @@ real Vec_fastNormalize(Vec v) {
 	return magnitude;
 }
 
-void Vec_normalize(Vec v) {
-	real magnitude = Vec_dist(v);
+void Vec_normalize(Point* v) {
+	real magnitude = Vec_dist(*v);
 	if (magnitude!=0) {
 		v->x /= magnitude;
 		v->y /= magnitude;
@@ -72,25 +68,15 @@ void Vec_normalize(Vec v) {
 }
 
 // this should've used atan2
-real Vec_angle(const Vector* v) {
-	real angle = acos(v->x/Vec_dist(v));
-	if (v->y>0)
+real Vec_angle(Point v) {
+	real angle = acos(v.x/Vec_dist(v));
+	if (v.y>0)
 		return TAU-angle;
 	return angle;
 }
 
-void Vec_swap(Vec a, Vec b) {
-	real temp;
-	temp = a->x;
-	a->x = b->x;
-	b->x = temp;
-	temp = a->y;
-	a->y = b->y;
-	b->y = temp;
-}
-
-Vec Vec_unit(int angle) {
-	return &sinCos[angle];
+Point Vec_unit(int angle) {
+	return sinCos[angle];
 }
 
 // this random number system is very strange but again, I can't change it
@@ -139,7 +125,7 @@ AUTORUN {
 	// init sine table
 	for (i=0;i<512;i++) {
 		real d = 350*i/512*PI/180;
-		sinCos[i] = (Vector){(real)sin(d),(real)cos(d)};
+		sinCos[i] = (Point){(real)sin(d),(real)cos(d)};
 	}
 	sinCos[i] = sinCos[0];
 	Random_update();
