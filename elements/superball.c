@@ -23,15 +23,15 @@ break; case Elem_SUPERBALL:
 		if (ELEMENTS[f->type].state == State_LIQUID && f->type != Elem_MERCURY) {
 			f->pos.x -= p->vel.x;
 			p->vel.x *= 0.5;
-			double c = p->pos.x;
+			real c = p->pos.x;
 			p->pos.x = f->pos.x;
 			f->pos.x = c;
 		} else if (f->type == Elem_FIRE) {
-			double c = p->pos.x;
+			real c = p->pos.x;
 			p->pos.x = f->pos.x;
 			f->pos.x = c;
 		} else if (f->type == Elem_SUPERBALL) {
-			double c = 0.9*p->vel.x;
+			real c = 0.9*p->vel.x;
 			p->vel.x = 0.9*f->vel.x;
 			f->vel.x = c;
 		} else {
@@ -51,21 +51,21 @@ break; case Elem_SUPERBALL:
 		if (ELEMENTS[f->type].state == State_LIQUID && f->type != Elem_MERCURY) {
 			f->pos.y -= p->vel.y;
 			p->vel.y *= 0.5;
-			double c = p->pos.y;
+			real c = p->pos.y;
 			p->pos.y = f->pos.y;
 			f->pos.y = c;
 		} else if (f->type == Elem_FIRE) {
-			double c = p->pos.y;
+			real c = p->pos.y;
 			p->pos.y = f->pos.y;
 			f->pos.y = c;
 		} else if (f->type == Elem_SUPERBALL) {
 			if (p->vel.y > 0) {
-				double c = 0.45*p->vel.y;
+				real c = 0.45*p->vel.y;
 				p->vel.y *= -0.45;
 				p->vel.y += f->vel.y;
 				f->vel.y = c;
 			} else {
-				double c = 0.45*f->vel.y;
+				real c = 0.45*f->vel.y;
 				f->vel.y *= -0.45;
 				f->vel.y += p->vel.y;
 				p->vel.y = c;

@@ -11,7 +11,7 @@ break; case Elem_ICE:
 		p->type = Elem_WATER;
 
 #elif defined UPDATE_BALL
-	double d = Vec_dist(&ball->vel);
+	real d = Vec_dist(&ball->vel);
 	// break immediately if touching thunder/acid
 	// in other cases, break if velocity is >5
 	if (touched==Elem_THUNDER||touched==Elem_ACID|| 

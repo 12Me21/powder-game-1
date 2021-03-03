@@ -10,6 +10,9 @@
 
 // we are assuming that colors are represented in a normal format etc.
 Color grp[HEIGHT][WIDTH] = {0};
+Color Menu_grp[MENU_HEIGHT][MENU_WIDTH] = {0};
+
+extern const char Draw_FONT[96][12][8];
 
 int blendmode = 0;
 
@@ -67,12 +70,12 @@ Color composite(Color base, Color new, int alpha) {
 	return red<<16|green<<8|blue;
 }
 
-void Draw_line(double x1, double y1, double x2, double y2, Color color) {
+void Draw_line(real x1, real y1, real x2, real y2, Color color) {
 	//x1 = floor(x1);
 	//y1 = floor(y1);
 	x2 -= x1;
 	y2 -= y1;
-	double g;
+	real g;
 	if (fabs(x2) >= fabs(y2)) {
 		g = floor(fabs(x2));
 		if (g!=0)
@@ -102,6 +105,23 @@ void Draw_box(int x, int y, int width, int height, Color color) {
 	Draw_line(x,y+height-1,x+width-1,y+height-1,color);
 	Draw_line(x,y,x,y+height-1,color);
 	Draw_line(x+width-1,y,x+width-1,y+height-1,color);
+}
+
+void Draw_mrectangle(int x, int y, int width, int height, Color color) {
+	width += x;
+	if (width>=WIDTH) width = WIDTH;
+	height += y;
+	if (height>=HEIGHT) height = HEIGHT;
+	if (x<0) x = 0;
+	if (y<0) y = 0;
+	//if (blendmode==0) {
+	for (; y<height; y++) {
+		int i;
+		for (i=x; i<width; i++) {
+			Menu_grp[y][i] = color;
+		}
+	}
+	//}
 }
 
 void Draw_rectangle(int x, int y, int width, int height, Color color) {
@@ -142,7 +162,7 @@ void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format,
 
 void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacing) {
 	char Y = color != (Color)-1 ? '.' : 'x'; //todo
-	char Ka = bg != (Color)-1 ? ' ' : 'x';
+	char Ka = bg != (Color)-1 ? '#' : 'x';
 	int textlength = strlen(text);
 	int i;
 	for (i=0; i<textlength; i++, x+= 8+spacing) {
@@ -154,11 +174,11 @@ void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacin
 			int ix, iy;
 			for (iy=0; iy<12; iy++) {
 				for (ix=0; ix<8; ix++) {
-					char n = FONT[iy][ix+character*8];
+					char n = Draw_FONT[character][iy][ix];
 					if (n == Y)
-						grp[y+iy][x+ix] = color;
+						Menu_grp[y+iy][x+ix] = color;
 					if (n == Ka)
-						grp[y+iy][x+ix] = bg;
+						Menu_grp[y+iy][x+ix] = bg;
 				}
 			}
 			if (j!=0)

@@ -38,7 +38,7 @@ break; case Elem_GUNPOWDER:
 			if (near<=Part_BGFAN) {
 				Part* e = Part_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
 				if (e>=Part_0) {
-					double f = Random_(20);
+					real f = Random_(20);
 					e->vel.x += ball->vel.x*f+neighbors[i].breakVel.x*f/2;
 					e->vel.y += ball->vel.y*f+neighbors[i].breakVel.y*f/2;
 					e->meta = 2;

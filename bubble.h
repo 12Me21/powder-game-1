@@ -2,9 +2,11 @@
 #include <stdbool.h>
 #include "common.h"
 
+extern int Qd;
+
 typedef struct Bubble {
-	double x;
-	double y;
+	real x;
+	real y;
 	int ke;
 	bool held;
 } Bubble;

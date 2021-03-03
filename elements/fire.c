@@ -8,13 +8,13 @@ break; case Elem_FIRE:
 	}
 	Vec_mul(&airvel, .2);
 	if (p->meta==0 || p->meta==2) {
-		double q = Random_2(-0.01, -0.05);
+		real q = Random_2(-0.01, -0.05);
 		c->vel.x += Random_2(-0.02, 0.02);
 		c->vel.y += q;
 		c->pres += -q;
 		pd -= -q;
 	} else if (p->meta==1) {
-		double q = Random_2(-0.01, -0.05);
+		real q = Random_2(-0.01, -0.05);
 		c->pres += -q;
 		pd -= -q;
 	}

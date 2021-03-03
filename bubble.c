@@ -13,13 +13,13 @@ Bubble Bubble_bubbles[2000];
 Bubble* const Bubble_end = &Bubble_bubbles[2000];
 Bubble* Bubble_next = Bubble_bubbles;
 
-int Qd = 0; //todo: reset this on clear
+int Qd = 0;
 
 static bool onscreen(axis x, axis y){
 	return x>=8 && x<WIDTH-8 && y>=8 && y<H+8;
 }
 
-static void partLine(double a, double d, double b, double c, int type) {
+static void partLine(real a, real d, real b, real c, int type) {
 	b -= a;
 	c -= d;
 	int f;
@@ -44,7 +44,7 @@ static void partLine(double a, double d, double b, double c, int type) {
 
 static void pull(Bubble* a, Bubble* b) {
 	Vector diff = {b->x-a->x, b->y-a->y};
-	double dist = Vec_fastNormalize(&diff);
+	real dist = Vec_fastNormalize(&diff);
 	if (dist!=0) {
 		dist = 5-dist;
 		a->x -= diff.x*dist*0.5;
@@ -89,7 +89,7 @@ void Bubble_update(void) {
 		v.y /= e;
 		for (d=b; d<b+e; d++) {
 			Vector f = {v.x-d->x, v.y-d->y};
-			double c = Vec_fastNormalize(&f);
+			real c = Vec_fastNormalize(&f);
 			if (c!=0) {
 				c = e*(5/(PI+PI)*2)-c; //PI+PI is slightly less than TAU
 				d->x -= f.x*c*0.1;

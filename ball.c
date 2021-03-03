@@ -8,10 +8,10 @@
 #include "elements.h"
 #include "cell.h"
 
-Ball balls[Ball_MAX+1];
+Ball balls[Ball_MAX];
 Ball* const Ball_END = &balls[Ball_MAX];
 
-void Ball_create(double x, double y, int type) {
+void Ball_create(real x, real y, Elem type) {
 	Ball* ball;
 	forRange (ball, =balls, <Ball_END, ++) {
 		if (!ball->used) {
@@ -28,52 +28,54 @@ void Ball_create(double x, double y, int type) {
 	}
 }
 
+#define XYOFS(x,y) x,y,(x)+(y)*WIDTH
+
 static const struct neighbor {
-	int offset;
 	Vector breakVel;
 	int breakX;
 	int breakY;
+	int offset;
 } neighbors[] = {
-   {-WIDTH-1,  (Vector){-0.7 ,-0.7 },-1,-1,},
-   {-WIDTH,    (Vector){0    ,-1   },0, -1,},
-   {-WIDTH+1,  (Vector){0.7  ,-0.7 },1, -1,},
-   {-1,        (Vector){-1   ,0    },-1,0,	},
-   {0,         (Vector){0    ,0    },0, 0,	},
-   {1,         (Vector){1    ,0    },1, 0,	},
-   {WIDTH-1,   (Vector){-0.7 ,0.7  },-1,1,	},
-   {WIDTH,     (Vector){0    ,1    },0, 1,	},
-   {WIDTH+1,   (Vector){0.7  ,0.7  },1, 1,	},
-   {2*-WIDTH-1,(Vector){-0.44,-0.89},-1,-2,},
-   {2*-WIDTH,  (Vector){0    ,-1   },0, -2,},
-   {2*-WIDTH+1,(Vector){0.44 ,-0.89},1, -2,},
-   {2*WIDTH-1, (Vector){-0.44,0.89 },-1,2,	},
-   {2*WIDTH,   (Vector){0    ,1    },0, 2,	},
-   {2*WIDTH+1, (Vector){0.44 ,0.89 },1, 2,	},
-   {-2-WIDTH,  (Vector){-0.89,-0.44},-2,-1,},
-   {-2,        (Vector){-1   ,0    },-2,0,	},
-   {-2+WIDTH,  (Vector){-0.89,0.44 },-2,1,	},
-   {2-WIDTH,   (Vector){0.89 ,-0.44},2, -1,},
-   {2,         (Vector){1    ,0    },2, 0,	},
-   {2+WIDTH,   (Vector){0.89 ,0.44 },2, 1,	},
-   {3*-WIDTH-1,(Vector){-0.31,-0.94},-1,-3,},
-   {3*-WIDTH,  (Vector){0    ,-1   },0, -3,},
-   {3*-WIDTH+1,(Vector){0.31 ,-0.94},1, -3,},
-   {3*WIDTH-1, (Vector){-0.31,0.94 },-1,3,	},
-   {3*WIDTH,   (Vector){0    ,1    },0, 3,	},
-   {3*WIDTH+1, (Vector){0.31 ,0.94 },1, 3,	},
-   {-3-WIDTH,  (Vector){-0.94,-0.31},-3,-1,},
-   {-3,        (Vector){-1   ,0    },-3,0,	},
-   {-3+WIDTH,  (Vector){-0.94,0.31 },-3,1,	},
-   {3-WIDTH,   (Vector){0.94 ,-0.31},3, -1,},
-   {3,         (Vector){1    ,0    },3, 0,	},
-   {3+WIDTH,   (Vector){0.94 ,0.31 },3, 1,	},
-   {-2-2*WIDTH,(Vector){-0.7 ,-0.7 },-2,-2,},
-   {2-2*WIDTH, (Vector){0.7  ,-0.7 },2, -2,},
-   {-2+2*WIDTH,(Vector){-0.7 ,0.7  },-2,2,	},
-   {2+2*WIDTH, (Vector){0.7  ,0.7  },2, 2,	},
+	{(Vector){-0.7 ,-0.7 },XYOFS(-1,-1),},
+   {(Vector){ 0   ,-1   },XYOFS( 0,-1),},
+   {(Vector){ 0.7 ,-0.7 },XYOFS( 1,-1),},
+   {(Vector){-1   , 0   },XYOFS(-1, 0),},
+   {(Vector){ 0   , 0   },XYOFS( 0, 0),},
+   {(Vector){ 1   , 0   },XYOFS( 1, 0),},
+   {(Vector){-0.7 , 0.7 },XYOFS(-1, 1),},
+   {(Vector){ 0   , 1   },XYOFS( 0, 1),},
+   {(Vector){ 0.7 , 0.7 },XYOFS( 1, 1),},
+   {(Vector){-0.44,-0.89},XYOFS(-1,-2),},
+   {(Vector){ 0   ,-1   },XYOFS( 0,-2),},
+   {(Vector){ 0.44,-0.89},XYOFS( 1,-2),},
+   {(Vector){-0.44, 0.89},XYOFS(-1, 2),},
+   {(Vector){ 0   , 1   },XYOFS( 0, 2),},
+   {(Vector){ 0.44, 0.89},XYOFS( 1, 2),},
+   {(Vector){-0.89,-0.44},XYOFS(-2,-1),},
+   {(Vector){-1   , 0   },XYOFS(-2, 0),},
+   {(Vector){-0.89, 0.44},XYOFS(-2, 1),},
+   {(Vector){ 0.89,-0.44},XYOFS( 2,-1),},
+   {(Vector){ 1   , 0   },XYOFS( 2, 0),},
+   {(Vector){ 0.89, 0.44},XYOFS( 2, 1),},
+   {(Vector){-0.31,-0.94},XYOFS(-1,-3),},
+   {(Vector){ 0   ,-1   },XYOFS( 0,-3),},
+   {(Vector){ 0.31,-0.94},XYOFS( 1,-3),},
+   {(Vector){-0.31, 0.94},XYOFS(-1, 3),},
+   {(Vector){ 0   , 1   },XYOFS( 0, 3),},
+   {(Vector){ 0.31, 0.94},XYOFS( 1, 3),},
+   {(Vector){-0.94,-0.31},XYOFS(-3,-1),},
+   {(Vector){-1   , 0   },XYOFS(-3, 0),},
+   {(Vector){-0.94, 0.31},XYOFS(-3, 1),},
+   {(Vector){ 0.94,-0.31},XYOFS( 3,-1),},
+   {(Vector){ 1   , 0   },XYOFS( 3, 0),},
+   {(Vector){ 0.94, 0.31},XYOFS( 3, 1),},
+   {(Vector){-0.7 ,-0.7 },XYOFS(-2,-2),},
+   {(Vector){ 0.7 ,-0.7 },XYOFS( 2,-2),},
+   {(Vector){-0.7 , 0.7 },XYOFS(-2, 2),},
+   {(Vector){ 0.7 , 0.7 },XYOFS( 2, 2),},
 };
 
-static void Ball_break(Ball* ball, int mode, int createType, int meta, double vx, double vy, double speed) {
+static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
 	Part** pc = Part_pos2(&ball->pos);
 	int i;
 	if (mode==0) {
@@ -147,10 +149,10 @@ void Ball_update(void) {
 		for (d=0;d<21;d++)
 			if (p[neighbors[d].offset] == Part_BALL)
 				p[neighbors[d].offset] = Part_EMPTY;
-		double weight = ELEMENTS[i->type].ballWeight;
+		real weight = ELEMENTS[i->type].ballWeight;
 		i->vel.y += weight;
 
-		double adv = ELEMENTS[i->type].ballAdvection;
+		real adv = ELEMENTS[i->type].ballAdvection;
 		if (adv) {
 			Block* cell = &Part_blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
 			i->vel.x += cell->vel.x*d;
@@ -180,8 +182,8 @@ void Ball_update(void) {
 			if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
 				int f;
 				for (f=4; f<=5; f++) {
-					double dx = abs(en->parts[f].pos.x - i->pos.x);
-					double dy = abs(en->parts[f].pos.y - i->pos.y);
+					real dx = abs(en->parts[f].pos.x - i->pos.x);
+					real dy = abs(en->parts[f].pos.y - i->pos.y);
 					if (dx<=9 && dy<=9) {
 						i->vel.x += 0.1*(en->parts[f].pos.x - en->parts[f].oldPos.x);
 						i->vel.y += 0.2*(en->parts[f].pos.y - en->parts[f].oldPos.y);
@@ -194,11 +196,11 @@ void Ball_update(void) {
 		Vector vel = i->vel;
 		// chcek movement
 		int q = (int)(Vec_dist(&i->vel)/2)+1;
-		double n = 1.0/q;
+		real n = 1.0/q;
 		int v,g;
 		for (v=g=0; v<q; v++) {
-			double nextx = i->pos.x+i->vel.x*n;
-			double nexty = i->pos.y+i->vel.y*n;
+			real nextx = i->pos.x+i->vel.x*n;
+			real nexty = i->pos.y+i->vel.y*n;
 			// way offscreen
 			if (nextx<4 || nextx>=WIDTH-4 || nexty<4 || nexty>=H+12) {
 				i->used = false;
@@ -260,7 +262,7 @@ void Ball_update(void) {
 			} else {
 				Vec_normalize(&z);
 				i->vel.y -= weight;
-				double d = 0.999*Vec_dist(&i->vel);
+				real d = 0.999*Vec_dist(&i->vel);
 				Vec_mul(&z, -(z.x*i->vel.x + z.y*i->vel.y));
 				Vec_add(&i->vel, &z);
 				Vec_mul(&i->vel, 0.999);

@@ -27,17 +27,17 @@ void Vec_sub2(Vec out, const Vector* a, const Vector* b) {
 	out->y = a->y - b->y;
 }
 
-void Vec_mul(Vec a, double x) {
+void Vec_mul(Vec a, real x) {
 	a X *= x;
 	a Y *= x;
 }
 
-void Vec_mul2(Vec out, const Vector* a, double mul) {
+void Vec_mul2(Vec out, const Vector* a, real mul) {
 	out->x = a->x*mul;
 	out->y = a->y*mul;
 }
 
-static double fastDist(double x, double y) {
+static real fastDist(real x, real y) {
 	x = fabs(x);
 	y = fabs(y);
 	if (x>=y)
@@ -46,16 +46,16 @@ static double fastDist(double x, double y) {
 		return 0.3978*x+0.9604*y;
 }
 
-double Vec_fastDist(const Vector* a) {
+real Vec_fastDist(const Vector* a) {
 	return fastDist(a X, a Y);
 }
 
-double Vec_dist(const Vector* this) {
+real Vec_dist(const Vector* this) {
 	return sqrt(this->x*this->x + this->y*this->y);
 }
 
-double Vec_fastNormalize(Vec v) {
-	double magnitude = Vec_fastDist(v);
+real Vec_fastNormalize(Vec v) {
+	real magnitude = Vec_fastDist(v);
 	if (magnitude!=0) {
 		v->x /= magnitude;
 		v->y /= magnitude;
@@ -64,7 +64,7 @@ double Vec_fastNormalize(Vec v) {
 }
 
 void Vec_normalize(Vec v) {
-	double magnitude = Vec_dist(v);
+	real magnitude = Vec_dist(v);
 	if (magnitude!=0) {
 		v->x /= magnitude;
 		v->y /= magnitude;
@@ -72,15 +72,15 @@ void Vec_normalize(Vec v) {
 }
 
 // this should've used atan2
-double Vec_angle(const Vector* v) {
-	double angle = acos(v->x/Vec_dist(v));
+real Vec_angle(const Vector* v) {
+	real angle = acos(v->x/Vec_dist(v));
 	if (v->y>0)
 		return TAU-angle;
 	return angle;
 }
 
 void Vec_swap(Vec a, Vec b) {
-	double temp;
+	real temp;
 	temp = a->x;
 	a->x = b->x;
 	b->x = temp;
@@ -95,24 +95,24 @@ Vec Vec_unit(int angle) {
 
 // this random number system is very strange but again, I can't change it
 
-// this can probably be double (more memory but less time spent converting
-static float randomFloats[1024];
+// this can probably be real (more memory but less time spent converting
+static real randomFloats[1024];
 static int randomIndex = 0, randomStep = 0;
-static float randomFloat(void) {
+static real randomFloat(void) {
 	randomIndex += randomStep;
 	randomIndex &= 0x3FF;
 	return randomFloats[randomIndex];
 }
 
-double Random_(double mag) {
+real Random_(real mag) {
 	return mag*randomFloat();
 }
 
-double Random_2(double min, double max) {
+real Random_2(real min, real max) {
 	return Random_(max-min)+min;
 }
 
-int Random_int(double mag) {
+int Random_int(real mag) {
 	return (int)Random_(mag);
 }
 
@@ -129,23 +129,23 @@ AUTORUN {
 	// init random numbers
 	int i;
 	for (i=0;i<1024;i++)
-		randomFloats[i] = (float)i/1024;
+		randomFloats[i] = (real)i/1024;
 	for (i=0;i<1024;i++) {
 		int s = rand() % 1024;
-		float temp = randomFloats[i];
+		real temp = randomFloats[i];
 		randomFloats[i] = randomFloats[s];
 		randomFloats[s] = temp;
 	}
 	// init sine table
 	for (i=0;i<512;i++) {
-		double d = 350*i/512*PI/180;
-		sinCos[i] = (Vector){sin(d),cos(d)};
+		real d = 350*i/512*PI/180;
+		sinCos[i] = (Vector){(real)sin(d),(real)cos(d)};
 	}
 	sinCos[i] = sinCos[0];
 	Random_update();
 }
 
-double clamp(double value, double min, double max){
+real clamp(real value, real min, real max){
 	if (value<min)
 		return min;
 	if(value>max)

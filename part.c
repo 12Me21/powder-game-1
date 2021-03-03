@@ -36,7 +36,7 @@ int* Part_updateCounts(void) {
 	return Part_counts;
 }
 
-Part* Part_create(double x, double y, unsigned char element) {
+Part* Part_create(real x, real y, unsigned char element) {
 	if (Part_next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
 	*Part_next = (Part){
@@ -68,14 +68,13 @@ void Part_swap(Part* part1, Part* part2) {
 	Vector temp = part1->pos;
 	part1->pos = part2->pos;
 	part2->pos = temp;
-
 }
 
 Part* Part_blow(Part* part, Vector* airvel) {
 	Vec_mul(airvel, 3.8/(Vec_fastDist(airvel)+1));
-	if (*Part_pos2(&(Vector){part->pos.x+airvel->x, part->pos.y})<=Part_BGFAN)
+	if (*Part_pos(part->pos.x+airvel->x, part->pos.y)<=Part_BGFAN)
 		part->pos.x += airvel->x;
-	if (*Part_pos2(&(Vector){part->pos.x, part->pos.y+airvel->y})<=Part_BGFAN)
+	if (*Part_pos(part->pos.x, part->pos.y+airvel->y)<=Part_BGFAN)
 		part->pos.y += airvel->y;
 	*Part_pos2(&part->pos) = part;
 	return part;
@@ -91,43 +90,6 @@ void Part_shuffle(void) {
 
 		*Part_pos2(&p->pos) = p->type==Elem_FAN ? Part_BGFAN : p;
 		*Part_pos2(&c->pos) = c->type==Elem_FAN ? Part_BGFAN : c;
-	}
-}
-
-// todo: full reset function
-void Part_reset(int a) {
-	int x,y;
-	for (y=0;y<(H+8)/4;y++) {
-		for (x=0;x<(W+8+8)/4;x++) {
-			Part_blocks[y][x] = (Block){
-				.vel={0,0},
-				.vel2={0,0},
-				.pres=0,
-				.pres2=0,
-				.block=0,
-			};
-		}
-	}
-	if (a==0) {
-		// todo: make sure all the right blocks are filled here
-		for (x=1;x<(W+8)/4;x++) {
-			Part_blocks[2][x].block = 1;
-			Part_blocks[(H+8)/4-1][x].block = 1;
-		}
-		for (y=1;y<(H+8)/4;y++) {
-			Part_blocks[y][2].block = 1;
-			Part_blocks[y][(W+8)/4-1].block = 1;
-		}
-	}
-	Part_next = parts;
-	for (y=0;y<(H+8);y++)
-		for (x=0;x<(W+8+8);x++)
-			Part_at[y][x] = Part_EMPTY;
-	if (a==0) {
-		for (y=0;y<(H+8);y++)
-			for (x=0;x<(W+8+8);x++)
-				if (Part_blocks[y/4][x/4].block==1)
-					Part_at[y][x] = Part_BLOCK;
 	}
 }
 
@@ -158,7 +120,7 @@ void Part_update(void) {
 				p->held = false;
 			}
 		}
-		Block* c = &Part_blocks[(int)p->pos.y/4][(int)p->pos.x/4];
+		Block* c = &Part_blocks[(axis)p->pos.y/4][(axis)p->pos.x/4];
 		if (p->type != Elem_FAN)
 			*Part_pos2(&p->pos) = Part_EMPTY;
 		switch (p->type) {
@@ -167,11 +129,6 @@ void Part_update(void) {
 #include "elements/All.c"
 #undef UPDATE_PART
 		}
-		//ElemFunc f = ELEMENTS[p->type].update;
-		//if (f) {
-		//	if (f(p, &Part_blocks[(int)p->pos.y/4][(int)p->pos.x/4]))
-		//		p--; //part died
-		//}
 	}
 	// check parts that go off screen
 	forRange (p, =parts, <Part_next, ++) {
@@ -219,16 +176,16 @@ void Part_update(void) {
 
 // this is a very common pattern used by elements for explosions
 void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis)) {
-	int n=x-radius;
+	axis n=x-radius;
 	if (n<4) n=4;
-	int z=y-radius;
+	axis z=y-radius;
 	if (z<4) z=4;
-	int v=x+radius;
+	axis v=x+radius;
 	if (v>WIDTH-4-1) v=WIDTH-4-1;
-	int r=y+radius;
+	axis r=y+radius;
 	if (r>H+12-1) r = H+12-1;
-	for (int b=z;b<=r;b++)
-		for (int e=n;e<=v;e++)
+	for (axis b=z;b<=r;b++)
+		for (axis e=n;e<=v;e++)
 			if ((e-x)*(e-x)+(b-y)*(b-y)<=radius*radius)
 				func(e, b, x, y);
 }
@@ -243,7 +200,7 @@ bool Part_checkPump(Part* part, Part* pump, int dir) {
 	return false;
 }
 
-void Part_liquidUpdate(Part* p, Block* c, double adv, double x1, double x2, double xr1, double yr1, double yr2, double frc) {
+void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc) {
 	p->vel.x += adv*c->vel.x;
 	p->vel.y += adv*c->vel.y;
 	if (Part_pos3(&p->pos,0,1) != Part_EMPTY) {
@@ -258,4 +215,40 @@ void Part_liquidUpdate(Part* p, Block* c, double adv, double x1, double x2, doub
 	Vector airvel = c->vel;
 	Vec_add(&airvel, &p->vel);
 	Part_blow(p, &airvel);
+}
+
+// flood fill
+void Part_paint(axis x, axis y, Elem replace, Elem type, int meta) {
+	axis x1 = x;
+	while (1) {
+		Part* f = *Part_pos(x1,y);
+		if (f>=Part_0 && f->type==replace) {
+			f->type = type;
+			f->meta = meta;
+			f->pumpType = 0;
+			x1--;
+		} else
+			break;
+	}
+	x1++;
+	axis x2 = x+1;
+	while (1) {
+		Part* f = *Part_pos(x2,y);
+		if (f>=Part_0 && f->type==replace) {
+			f->type = type;
+			f->meta = meta;
+			f->pumpType = 0;
+			x2++;
+		} else
+			break;
+	}
+	x2--;
+	for (x=x1; x<=x2; x++) {
+		Part* p = *Part_pos(x,y-1);
+		if (p>=Part_0 && p->type==replace)
+			Part_paint(x,y-1,replace,type,meta);
+		p = *Part_pos(x,y+1);
+		if (p>=Part_0 && p->type==replace)
+			Part_paint(x,y+1,replace,type,meta);
+	}
 }

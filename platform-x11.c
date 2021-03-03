@@ -8,9 +8,8 @@
 #include "common.h"
 #include "input.h"
 #include "save.h"
+#include "draw.h"
 #include "vector.h"
-
-extern Color grp[HEIGHT][WIDTH];
 
 extern int Platform_mouseX, Platform_mouseY;
 extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
@@ -22,6 +21,7 @@ void Platform_frame(void);
 Display* D;
 Window win;
 XImage* ximage;
+XImage* ximage2;
 
 long Platform_millisec(void) {
 	struct timespec ts;
@@ -30,7 +30,8 @@ long Platform_millisec(void) {
 }
 
 void Platform_redraw(void) {
-	XPutImage(D, win, DefaultGC(D, 0), ximage, 8, 8, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	XPutImage(D, win, DefaultGC(D, 0), ximage, 8, 8, 0, 0, W, H);
+	XPutImage(D, win, DefaultGC(D, 0), ximage2, 0, 0, 0, H, W, MENU_HEIGHT);
 }
 
 static void processEvent(void) {
@@ -125,6 +126,8 @@ int main(int argc, char** argv) {
 
 	// create image
 	ximage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)grp, WIDTH, HEIGHT, 32, 0);
+	// menu
+	ximage2 = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W, MENU_HEIGHT, 32, 0);
 	
 	// start
 	Load_test();

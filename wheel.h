@@ -1,7 +1,7 @@
 typedef struct Wheel {
 	int x, y;
-	double angle;
-	double vel;
+	real angle;
+	real vel;
 } Wheel;
 
 extern Wheel Wheel_wheels[100];

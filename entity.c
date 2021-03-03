@@ -14,7 +14,7 @@
 Entity entitys[Entity_MAX];
 Entity* Entity_next = entitys;
 
-void Entity_create(double x, double y, int type, int meta2) {
+void Entity_create(real x, real y, int type, int meta2) {
 	if (Entity_next >= entitys+Entity_MAX)
 		return;
 	Entity* oldPlayer = NULL;
@@ -36,7 +36,7 @@ void Entity_create(double x, double y, int type, int meta2) {
 		Entity_next->parts[i].oldPos = Entity_next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
 	forRange (i, =0, <Entity_PARTS, ++)
 		Entity_next->parts[i].touching = 0;
-	Entity_next->Pe = (Vector){0,0};
+	Entity_next->vel = (Vector){0,0};
 	Entity_next->type = Entity_FIGHTER;
 	Entity_next->decay = 0;
 	Entity_next->held = 0;
@@ -85,7 +85,7 @@ void Entity_remove(Entity* entity) {
 }
 
 // update node position
-void Entity_moveNode(EntityNode* node, double gravity, double slowdown) {
+void Entity_moveNode(EntityNode* node, real gravity, real slowdown) {
 	Vector movement;
 	Vec_sub2(&movement, &node->pos, &node->oldPos);
 	node->oldPos = node->pos;
@@ -95,12 +95,12 @@ void Entity_moveNode(EntityNode* node, double gravity, double slowdown) {
 }
 
 // this appears to deal with some interaction between 2 nodes
-void Entity_Se(Entity* e, int n1, int n2, double b, double c, double d) {
+void Entity_Se(Entity* e, int n1, int n2, real b, real c, real d) {
 	EntityNode* node1 = &e->parts[n1];
 	EntityNode* node2 = &e->parts[n2];
 	Vector f;
 	Vec_sub2(&f, &node2->pos, &node1->pos);
-	double g = Vec_fastNormalize(&f);
+	real g = Vec_fastNormalize(&f);
 	if (g) {
 		b -= g;
 		Vector move;
@@ -111,7 +111,7 @@ void Entity_Se(Entity* e, int n1, int n2, double b, double c, double d) {
 	}
 }
 
-void Entity_Ue(EntityNode* node, double d, double b, double c) {
+void Entity_Ue(EntityNode* node, real d, real b, real c) {
 	Vector e;
 	Vec_sub2(&e, &node->pos, &node->oldPos);
 	node->pos = node->oldPos;
@@ -121,7 +121,7 @@ void Entity_Ue(EntityNode* node, double d, double b, double c) {
 		e.y += cell->vel.y*d;
 	}
 	if (c==0) {
-		double f = Vec_fastDist(&e)+1;
+		real f = Vec_fastDist(&e)+1;
 		if (f>=8) {
 			Vec_mul(&e, 3.8/f);
 			d = 2;
@@ -252,9 +252,9 @@ void Entity_update(void) {
 				Entity_moveNode(&a->parts[4], 0.3, 0.995);
 				Entity_moveNode(&a->parts[5], 0.3, 0.995);
 			}
-			Vec_add(&a->parts[0].pos, &a->Pe);
-			Vec_mul(&a->Pe, 0.5);
-			if (a->Pe.x!=0)
+			Vec_add(&a->parts[0].pos, &a->vel);
+			Vec_mul(&a->vel, 0.5);
+			if (a->vel.x!=0)
 				a->type = Entity_PLAYER+2;
 			if (player->Xe>0)
 				player->Xe--;
@@ -269,7 +269,7 @@ void Entity_update(void) {
 					player->facing = 0;
 				}
 			} else {
-				double b = 0.8;
+				real b = 0.8;
 				if (right) {
 					player->Xe = 15;
 					if (a->parts[4].pos.x < a->parts[5].pos.x) {
@@ -414,7 +414,7 @@ void Entity_update(void) {
 			copyPos(2, 1);
 			copyPos(1, 0);
 			copyPos(0, 0);
-			a->Pe.y -= 1;
+			a->vel.y -= 1;
 			a->decay = 0;
 			a->type = Entity_PLAYER+3;
 		} else if (a->type == Entity_PLAYER+3) {
@@ -422,10 +422,10 @@ void Entity_update(void) {
 			int b;
 			for (b=0;b<11;b++) {
 				Entity_moveNode(&a->parts[b], 0.1, 0.999);
-				Vec_add(&a->parts[b].pos, &a->Pe);
+				Vec_add(&a->parts[b].pos, &a->vel);
 			}
-			Vec_mul(&a->Pe, 0.5);
-			double e = (150-a->decay)/150;
+			Vec_mul(&a->vel, 0.5);
+			real e = (150-a->decay)/150;
 			Entity_Se(a, 1, 2, 4*e,0.5,0.5);
 			Entity_Se(a, 3, 5, 4*e,0.5,0.5);
 			Entity_Se(a, 4, 7, 4*e,0.5,0.5);
@@ -449,8 +449,8 @@ void Entity_update(void) {
 						int i;
 						for (i=4;i<=5;i++) {
 							EntityNode* part = &r->parts[i];
-							double g = abs(part->pos.x - a->parts[b].pos.x);
-							double q = abs(part->pos.y - a->parts[b].pos.y);
+							real g = abs(part->pos.x - a->parts[b].pos.x);
+							real q = abs(part->pos.y - a->parts[b].pos.y);
 							if (g<=3 && q<=3) {
 								a->parts[b].pos.x += 1*(part->pos.x - part->oldPos.x);
 								a->parts[b].pos.y += 2*(part->pos.y - part->oldPos.y);
@@ -459,7 +459,7 @@ void Entity_update(void) {
 					}
 				}
 			}
-			double r = 4*(a->meta2+1);
+			real r = 4*(a->meta2+1);
 			Entity_Se(a,0,1,r,0.5,0.5);
 			Entity_Se(a,1,2,r,0.5,0.5);
 			Entity_Se(a,2,3,r,0.5,0.5);
@@ -487,7 +487,7 @@ void Entity_update(void) {
 			int b;
 			for (b=0;b<8;b++)
 				Entity_moveNode(&a->parts[b], 0.1, 0.999);
-			double r=(150-a->decay)/150*(a->meta2+1)*4;
+			real r=(150-a->decay)/150*(a->meta2+1)*4;
 			Entity_Se(a, 0, 1, r, 0.5, 0.5);
 			Entity_Se(a, 2, 3, r, 0.5, 0.5);
 			Entity_Se(a, 4, 5, r, 0.5, 0.5);

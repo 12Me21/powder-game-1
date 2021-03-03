@@ -7,12 +7,13 @@ typedef struct Ball {
 	Vector vel;
 	bool used;
 	int meta;
-	int held;
-	int type;
+	bool held;
+	Elem type;
 } Ball;
 
 #define Ball_MAX 50
 
-extern Ball balls[Ball_MAX+1];
+extern Ball balls[Ball_MAX];
+extern Ball* const Ball_END;
 
-void Ball_create(double x, double y, int type);
+void Ball_create(real x, real y, Elem type);
