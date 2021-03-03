@@ -331,7 +331,7 @@ void Menu_update(void) {
 					when(Menu_PLAYER):;
 						int b = Menu_BUTTONS[Menu_leftSelection].player ?: Menu_BUTTONS[Menu_rightSelection].player;
 						Entity_create(f, g, Elem_PLAYER, b);
-					when(Menu_CREATE):
+					when(Menu_CREATE):;
 						Entity_create(f, g, Elem_BOX, 10);
 					}
 				}

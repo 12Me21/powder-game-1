@@ -1,8 +1,4 @@
 #include <time.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/xpm.h>
-#include <X11/keysym.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "common.h"
@@ -10,6 +6,11 @@
 #include "save.h"
 #include "draw.h"
 #include "vector.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/xpm.h>
+#include <X11/keysym.h>
 
 extern int Platform_mouseX, Platform_mouseY;
 extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
@@ -130,7 +131,7 @@ int main(int argc, char** argv) {
 	ximage2 = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W, MENU_HEIGHT, 32, 0);
 	
 	// start
-	Load_test();
+	Save_Load_test();
 	while (1) {
 		Platform_frame();
 		Platform_redraw();

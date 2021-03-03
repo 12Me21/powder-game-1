@@ -10,6 +10,8 @@ comma:= ,
 printlist = [$1m$(subst $(empty) $(empty),[m$(comma) [$1m,$(2:$(junkdir)/%=[37m$(junkdir)/[$1m%))
 cc=@echo '$(call printlist,33,$@)	[37mfrom: $(call printlist,32,$^)[m' ; gcc
 
+
+
 # Link
 $(output): $(srcs:%=$(junkdir)/%.o)
 	$(cc) $(CFLAGS) $(addprefix -l,$(libs)) $^ -o $@

@@ -1611,7 +1611,7 @@ yd.prototype.move=function(){
 								Air.pres[a]-=y;
 							}else{
 								Air.vel2[a].sub(e);
-ppp								Air.vel2[a].sub(e);
+								Air.vel2[a].sub(e);
 							}
 							if(blocks[a+z+v]<=0){
 								Air.vel2[a].sub(f);
@@ -5550,7 +5550,7 @@ yd.prototype.Entities_update=function(){
 			if(y==0){
 				y=parts[floor(Entities_oldpos[c+5].y)*WIDTH+floor(Entities_oldpos[c+5].x)]>Parts_BGFAN?1:0;
 			}
-[			//high jumping
+			//high jumping
 			if(down&&Entities.meta2[d]==BIRD){
 				for(b=0;b<6;b++){
 					Entities_Re(c+b,0.01,0.997);
@@ -6384,7 +6384,9 @@ yd.prototype.Balls_update=function(){
 				f=new Vector;
 				f.copy(Balls.vel[i]);
 				$e=0;
-				var q=floor(Balls.vel[i].dist()/2)+1,n=1/q,r,w,y=0,z=new Vector;
+				var q=floor(Balls.vel[i].dist()/2)+1
+				var n=1/q
+				var r,w,y=0,z=new Vector
 				for(var v=g=0;v<q;v++){
 					r=Balls.pos[i].x+Balls.vel[i].x*n;
 					w=Balls.pos[i].y+Balls.vel[i].y*n;

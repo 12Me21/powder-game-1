@@ -71,7 +71,7 @@ void Part_swap(Part* part1, Part* part2) {
 }
 
 void Part_blow(Part* part, Point airvel) {
-	Vec_mul(&airvel, 3.8/(Vec_fastDist(airvel)+1));
+	airvel.c *= 3.8/(Vec_fastDist(airvel)+1);
 	if (*Part_pos(part->pos.x+airvel.x, part->pos.y)<=Part_BGFAN)
 		part->pos.x += airvel.x;
 	if (*Part_pos(part->pos.x, part->pos.y+airvel.y)<=Part_BGFAN)
@@ -110,9 +110,11 @@ void Part_update(void) {
 						p->held = true;
 				}
 			} else if (dragging) {
+				/*				Point d = {.z=(Point){Pen_x, Pen_y}.z - p->pos.z};
 				Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
 				Vec_mul(&d, 0.1);
-				Vec_add(&p->vel, d);
+				Vec_add(&p->vel, d);*/
+				p->vel.c += ((Point){Pen_x, Pen_y}.c - p->pos.c)*0.1;
 			} else {
 				p->held = false;
 			}
@@ -198,8 +200,7 @@ bool Part_checkPump(Part* part, Part* pump, int dir) {
 }
 
 void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc) {
-	p->vel.x += adv*c->vel.x;
-	p->vel.y += adv*c->vel.y;
+	p->vel.c += c->vel.c*adv;
 	if (Part_pos3(p->pos,0,1) != Part_EMPTY) {
 		if (Part_pos3(p->pos,-1,0) == Part_EMPTY)
 			p->vel.x -= Random_2(x1, x2);
@@ -208,10 +209,8 @@ void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, 
 	}
 	p->vel.x += Random_2(-xr1, xr1);
 	p->vel.y += Random_2(yr1, yr2);
-	Vec_mul(&p->vel, frc);
-	Point airvel = c->vel;
-	Vec_add(&airvel, p->vel);
-	Part_blow(p, airvel);
+	p->vel.c *= frc;
+	Part_blow(p, (Point){.c = c->vel.c+p->vel.c});
 }
 
 // flood fill

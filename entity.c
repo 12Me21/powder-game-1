@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 #include "common.h"
@@ -14,7 +15,8 @@
 Entity entitys[Entity_MAX];
 Entity* Entity_next = entitys;
 
-void Entity_create(real x, real y, int type, int meta2) {
+void Entity_create(real x, real y, int type, int meta) {
+	puts("cereate");
 	if (Entity_next >= entitys+Entity_MAX)
 		return;
 	Entity* oldPlayer = NULL;
@@ -27,52 +29,54 @@ void Entity_create(real x, real y, int type, int meta2) {
 				oldPlayer = e;
 			}
 		}
-		if (totalPlayers>=2 || (meta2 && !ELEMENTS[meta2].playerValid))
+		if (totalPlayers>=2 || (meta && !ELEMENTS[meta].playerValid))
 			return;
 	}
 	int i;
+	*Entity_next = (Entity){
+		.vel = {0,0},
+		.type = Entity_FIGHTER,
+		.decay = 0,
+		.held = false,
+		.meta = meta,
+		.isPlayer2 = false,
+	};
 	// idk why this one goes to 20...
 	forRange (i, =0, <20, ++)
 		Entity_next->parts[i].oldPos = Entity_next->parts[i].pos = (Point){x+Random_(4), y+Random_(4)};
 	forRange (i, =0, <Entity_PARTS, ++)
 		Entity_next->parts[i].touching = 0;
-	Entity_next->vel = (Point){0,0};
-	Entity_next->type = Entity_FIGHTER;
-	Entity_next->decay = 0;
-	Entity_next->held = 0;
-	Entity_next->meta2 = meta2;
-	Entity_next->meta1 = 0;
 	if (type==Elem_BOX) {
-		if (meta2 != 10) {
+		if (meta != 10) {
 			Entity_next->type = Entity_BOX;
 		} else {
 			Entity_next->type = Entity_CREATE;
-			Entity_next->meta2 = 0;
+			Entity_next->meta = 0;
 			Entity_next->parts[0].pos = (Point){x,y};
 			Entity_next->parts[0].oldPos = (Point){x,y};
 		}
 	} else if (type==Elem_PLAYER) {
 		Entity_next->type = Entity_PLAYER;
 		if (oldPlayer)
-			Entity_next->meta1 = 1-oldPlayer->meta1;
-		//Entity_next->meta1 = q;
+			Entity_next->isPlayer2 = !oldPlayer->isPlayer2;
+		//Entity_next->isPlayer2 = q;
 	} else if (type==Elem_PLAYER2) {
 		Entity_next->type = Entity_PLAYER;
 		if (!oldPlayer)
-			Entity_next->meta1 = 0;
+			Entity_next->isPlayer2 = false;
 		else {
 			Point pos = oldPlayer->parts[0].pos;
 			int b = (int)pos.x>>2<<2;
 			int c = (int)pos.y>>2<<2;
 			if (x<b)
-				Entity_next->meta1 = 1;
+				Entity_next->isPlayer2 = true;
 			else if (x>b)
-				Entity_next->meta1 = 0;
+				Entity_next->isPlayer2 = false;
 			else if (y<c)
-				Entity_next->meta1 = 1;
+				Entity_next->isPlayer2 = true;
 			else
-				Entity_next->meta1 = 0;
-			oldPlayer->meta1 = 1-Entity_next->meta1;
+				Entity_next->isPlayer2 = false;
+			oldPlayer->isPlayer2 = !Entity_next->isPlayer2;
 		}
 	}
 	Entity_next++;
@@ -86,52 +90,51 @@ void Entity_remove(Entity* entity) {
 
 // update node position
 void Entity_moveNode(EntityNode* node, real gravity, real slowdown) {
-	Point movement = Vec_sub2(node->pos, node->oldPos);
+	Point movement = {.c= node->pos.c - node->oldPos.c};
 	node->oldPos = node->pos;
 	movement.y += gravity;
-	Vec_mul(&movement, slowdown);
-	Vec_add(&node->pos, movement);
+	node->pos.c += (movement.c * slowdown);
 }
 
 // this appears to deal with some interaction between 2 nodes
 void Entity_Se(Entity* e, int n1, int n2, real b, real c, real d) {
 	EntityNode* node1 = &e->parts[n1];
 	EntityNode* node2 = &e->parts[n2];
-	Point f = Vec_sub2(node2->pos, node1->pos);
+	Point f = {.c= node2->pos.c - node1->pos.c};
 	real g = Vec_fastNormalize(&f);
 	if (g) {
 		b -= g;
-		Vec_sub(&node1->pos, Vec_mul2(f, b*c));
-		Vec_add(&node2->pos, Vec_mul2(f, b*d));
+		node1->pos.c -= f.c * (b*c);
+		node2->pos.c += f.c * (b*d);
 	}
 }
 
-void Entity_Ue(EntityNode* node, real d, real b, real c) {
+void Entity_Ue(EntityNode* node, real dd, real b, real c) {
 	Point e = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
-	if (d!=0) {
+	if (dd!=0) {
 		Block* cell = &Part_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
-		e.x += cell->vel.x*d;
-		e.y += cell->vel.y*d;
+		e.c += cell->vel.c*dd;
 	}
+	int d;
 	if (c==0) {
 		real f = Vec_fastDist(e)+1;
 		if (f>=8) {
-			Vec_mul(&e, 3.8/f);
+			e.c *= 3.8/f;
 			d = 2;
 		} else if (f>=4) {
-			Vec_mul(&e, 0.5);
+			e.c *= 0.5;
 			d = 2;
 		} else
 			d = 1;
 	} else {
-		d = floor(Vec_fastDist(e)/3)+1;
-		Vec_mul(&e, 1/d);
+		d = (int)(Vec_fastDist(e)/3)+1;
+		e.c *= 1/d;
 	}
 	node->touching = 0;
 	if (b==1) {
-		Vec_mul(&e, d);
-		Vec_add(&node->pos, e);
+		e.c *= d;
+		node->pos.c += e.c;
 		node->pos.x = clamp(node->pos.x, 4, WIDTH-5);
 		node->pos.y = clamp(node->pos.y, 4, H+11);
 	} else {
@@ -209,7 +212,7 @@ int Entity_checkTouching(EntityNode* start, EntityNode* end) {
 typedef struct Player {
 	int Xe; //walk animation cooldown
 	int Ye; //jump  "
-	int facing;
+	bool facing;
 } Player;
 
 Player players[2];
@@ -222,11 +225,11 @@ void Entity_update(void) {
 			a->parts[dest].oldPos = a->parts[src].oldPos;
 		}
 		if (a->type == Entity_PLAYER) {
-			bool left = a->meta1==0 ? Keys[37].pressed : Keys[65].pressed||Keys[97].pressed;
-			bool right = a->meta1==0 ? Keys[39].pressed : Keys[68].pressed||Keys[100].pressed;
-			bool up = a->meta1==0 ? Keys[38].pressed : Keys[87].pressed||Keys[119].pressed;
-			bool down = a->meta1==0 ? Keys[40].pressed : Keys[83].pressed||Keys[115].pressed;
-			Player* player = &players[a->meta1 != 0];
+			bool left = a->isPlayer2==0 ? Keys[37].pressed : Keys[65].pressed||Keys[97].pressed;
+			bool right = a->isPlayer2==0 ? Keys[39].pressed : Keys[68].pressed||Keys[100].pressed;
+			bool up = a->isPlayer2==0 ? Keys[38].pressed : Keys[87].pressed||Keys[119].pressed;
+			bool down = a->isPlayer2==0 ? Keys[40].pressed : Keys[83].pressed||Keys[115].pressed;
+			Player* player = &players[a->isPlayer2];
 			a->decay++;
 			bool w =
 				Part_pos2(a->parts[4].pos)[Part_ofs(0,1)]>Part_BGFAN ||
@@ -234,7 +237,7 @@ void Entity_update(void) {
 			bool rightFoot =
 				Part_pos2(a->parts[5].pos)[Part_ofs(0,1)]>Part_BGFAN ||
 				Part_pos2(a->parts[5].pos)[0]>Part_BGFAN;
-			if (down && a->meta2 == Elem_BIRD) {
+			if (down && a->meta == Elem_BIRD) {
 				int b;
 				for (b=0;b<6;b++)
 					Entity_moveNode(&a->parts[b], 0.01, 0.997);
@@ -246,8 +249,8 @@ void Entity_update(void) {
 				Entity_moveNode(&a->parts[4], 0.3, 0.995);
 				Entity_moveNode(&a->parts[5], 0.3, 0.995);
 			}
-			Vec_add(&a->parts[0].pos, a->vel);
-			Vec_mul(&a->vel, 0.5);
+			a->parts[0].pos.c *= a->vel.c;
+			a->vel.c *= 0.5;
 			if (a->vel.x!=0)
 				a->type = Entity_PLAYER+2;
 			if (player->Xe>0)
@@ -311,45 +314,44 @@ void Entity_update(void) {
 				for (x=-1;x<2;x++) {
 					Part* p = Part_pos2(a->parts[0].oldPos)[Part_ofs(x,y)];
 					if (p == Part_BGFAN)
-						a->meta2 = Elem_FAN;
+						a->meta = Elem_FAN;
 					else if (p >= Part_0 && ELEMENTS[p->type].playerValid==1)
-						a->meta2 = p->type;
+						a->meta = p->type;
 				}
 			}
-			if (!(up && (left||right)) && down && a->meta2) {
+			if (!(up && (left||right)) && down && a->meta) {
 				int w = a->parts[0].pos.x;
 				int b = a->parts[0].pos.y+1;
 				// nitro fly
-				if (a->meta2 == Elem_NITRO) {
+				if (a->meta == Elem_NITRO) {
 					w += player->facing ? -8 : 8;
 					b += 12;
 				}
 				w=clamp(w,8,W+8-1);
 				b=clamp(b,8,H+8-1);
 				// fan blow air
-				if (a->meta2 == Elem_FAN) {
+				if (a->meta == Elem_FAN) {
 					Block* cell = &Part_blocks[b>>2][w>>2];
 					if (cell->block == 0)
 						cell->vel.x += player->facing ? 1 : -1;
 					//spit
-				} else if (a->meta2 != Elem_BIRD && Part_at[b][w] == Part_EMPTY) {
-					Part* f = Part_create(w, b, a->meta2);
+				} else if (a->meta != Elem_BIRD && Part_at[b][w] == Part_EMPTY) {
+					Part* f = Part_create(w, b, a->meta);
 					if (f>=Part_0) {
 						if (player->facing==0)
 							f->vel.x -= 20;
 						if (player->facing==1)
 							f->vel.x += 20;
 						f->vel.y += Random_(3)+1;
-						switch (a->meta2) {
+						switch (a->meta) {
 						when(Elem_FIRE):
 							f->vel.x *= 3;
 							f->vel.y += 18;
 							f->meta = 2;
 						when(Elem_SUPERBALL):
 							f->vel.y = 20;
-						when(Elem_STONE):
-							f->vel.x *= 0.1;
-							f->vel.y *= 0.1;
+						when(Elem_STONE):;
+							f->vel.c *= 0.1;
 						when(Elem_LASER):
 							f->meta = player->facing ? 1 : 5;
 						}
@@ -415,9 +417,9 @@ void Entity_update(void) {
 			int b;
 			for (b=0;b<11;b++) {
 				Entity_moveNode(&a->parts[b], 0.1, 0.999);
-				Vec_add(&a->parts[b].pos, a->vel);
+				a->parts[b].pos.c += a->vel.c;
 			}
-			Vec_mul(&a->vel, 0.5);
+			a->vel.c *= 0.5;
 			real e = (150-a->decay)/150;
 			Entity_Se(a, 1, 2, 4*e,0.5,0.5);
 			Entity_Se(a, 3, 5, 4*e,0.5,0.5);
@@ -452,7 +454,7 @@ void Entity_update(void) {
 					}
 				}
 			}
-			real r = 4*(a->meta2+1);
+			real r = 4*(a->meta+1);
 			Entity_Se(a,0,1,r,0.5,0.5);
 			Entity_Se(a,1,2,r,0.5,0.5);
 			Entity_Se(a,2,3,r,0.5,0.5);
@@ -480,16 +482,16 @@ void Entity_update(void) {
 			int b;
 			for (b=0;b<8;b++)
 				Entity_moveNode(&a->parts[b], 0.1, 0.999);
-			real r=(150-a->decay)/150*(a->meta2+1)*4;
+			real r=(150-a->decay)/150*(a->meta+1)*4;
 			Entity_Se(a, 0, 1, r, 0.5, 0.5);
 			Entity_Se(a, 2, 3, r, 0.5, 0.5);
 			Entity_Se(a, 4, 5, r, 0.5, 0.5);
 			Entity_Se(a, 6, 7, r, 0.5, 0.5);
 			if (a->type==Entity_BOX+2/*&&Parts_limits[Menu_dotLimit]-Parts_used>=1000*/) {
 				for (b=0;b<5;b+=2) {
-					Point e = Vec_sub2(a->parts[b+1].oldPos, a->parts[b].oldPos);
-					Vec_mul(&e, Random_(1));
-					Vec_add(&e, a->parts[b].oldPos);
+					Point e = {.c=
+						(a->parts[b+1].oldPos.c - a->parts[b].oldPos.c) * Random_(1) + a->parts[b].oldPos.c
+					};
 					if (Part_pos2(e)[0]<=Part_BGFAN)
 						Part_create(e.x, e.y, Elem_FIRE);
 				}

@@ -1,8 +1,10 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include <complex.h>
 
 typedef float real;
+typedef _Complex float Complex;
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 
