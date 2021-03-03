@@ -13,6 +13,7 @@
 #include "cell.h"
 #include "wheel.h"
 #include "bubble.h"
+#include "reset.h"
 
 //todo: split this file into menu rendering + menu buttons/controls
 
@@ -55,13 +56,13 @@ static int wrap(int a, int b) {
 	return a;
 }
 
-static bool mouseinside(int x, int y, int width, int height) {
+static bool mouseinside(axis x, axis y, axis width, axis height) {
 	return !(Mouse_old.x<x||Mouse_old.x>=x+width||Mouse_old.y<y||Mouse_old.y>=y+height);
 }
 
 static void moveZoom(axis x, axis y) {
-	Menu_zoomX = clamp(x, 0, W-ceil((float)W/(1<<Menu_zoomLevel)));
-	Menu_zoomY = clamp(y, 0, H-ceil((float)H/(1<<Menu_zoomLevel)));
+	Menu_zoomX = clamp(x, 0, W-ceil((real)W/(1<<Menu_zoomLevel)));
+	Menu_zoomY = clamp(y, 0, H-ceil((real)H/(1<<Menu_zoomLevel)));
 }
 
 void Menu_input(void) {
@@ -74,11 +75,11 @@ void Menu_input(void) {
 		return;
 	}
 	// clicked a menu button
-	int c=12;
-	int e=H+11;
+	axis c=12;
+	axis e=H+11;
 	if (mouseinside(c-8,e-8,391,139)/*&& wa==0*/) {
-		int d = (Mouse_old.x-(c-8))/Menu_BUTTONWIDTH;
-		int b = (Mouse_old.y-(e-8))/Menu_BUTTONHEIGHT;
+		axis d = (Mouse_old.x-(c-8))/Menu_BUTTONWIDTH;
+		axis b = (Mouse_old.y-(e-8))/Menu_BUTTONHEIGHT;
 		int selection = clamp(Menu_BUTTONROWS*d+b,0,69);
 		Menu_hover = selection;
 		switch (selection) {
@@ -158,7 +159,7 @@ void Menu_input(void) {
 			Menu_dotLimit = wrap(Menu_dotLimit+Mouse_fallingDirection, 2);
 		when(Menu_RESET):;
 			if (Mouse_fallingDirection)
-				Part_reset(0);
+				Sim_reset(false);
 		otherwise:
 			if (selection < 38 || selection >= 40) {
 				if (Mouse_rising.left)
@@ -173,7 +174,7 @@ void Menu_input(void) {
 void Menu_update(void) {
 	static long last;
 	long ms = Platform_millisec();
-	double fps = (1000.0)/(ms-last);
+	real fps = (1000.0)/(ms-last);
 	last = ms;
 	Menu_fps = (Menu_fps*9+fps)/10;
 	
@@ -193,12 +194,12 @@ void Menu_update(void) {
 	Vector c = {Pen_x,Pen_y};
 	Pen_dir.x = Pen_oldx-5*Pen_dir.x;
 	Pen_dir.y = Pen_oldy-5*Pen_dir.y;
-	double q = 5;
+	real q = 5;
 	Vector ee;
 	Vec_sub2(&ee, &c, &Pen_dir);
 	q -= Vec_fastNormalize(&ee);
-	double d = q*0.5;
-	double a = q*0.5;
+	real d = q*0.5;
+	real a = q*0.5;
 	c.x += ee.x*a;
 	c.y += ee.y*a;
 	Pen_dir.x -= ee.x*d;
@@ -220,23 +221,23 @@ void Menu_update(void) {
 			if (Menu_penMode == Pen_LINE)
 				old = falling;
 			if (old) {
-				int vx = Pen_x - Pen_oldx;
-				int vy = Pen_y - Pen_oldy;
+				axis vx = Pen_x - Pen_oldx;
+				axis vy = Pen_y - Pen_oldy;
 				if (Menu_penSize>1 || !Menu_paused || Menu_zoomLevel>1 || vx || vy || Menu_penMode == Pen_PAINT) {
-					int w = abs(vx);
+					axis w = abs(vx);
 					if (w<abs(vy)) w=abs(vy);
 					if (w<1) w=1;
 					vx = (vx<<8)/w;
 					vy = (vy<<8)/w;
-					int x2 = (Pen_oldx<<8)+127;
-					int y2 = (Pen_oldy<<8)+127;
+					axis x2 = (Pen_oldx<<8)+127;
+					axis y2 = (Pen_oldy<<8)+127;
 					int c;
 					// for each point along line
 					for (c=0; c<=w; c++,x2+=vx,y2+=vy) {
-						int xStart = (x2>>8)-Menu_penSize;
-						int yStart = (y2>>8)-Menu_penSize;
-						int xEnd=xStart+2*Menu_penSize;
-						int yEnd=yStart+2*Menu_penSize;
+						axis xStart = (x2>>8)-Menu_penSize;
+						axis yStart = (y2>>8)-Menu_penSize;
+						axis xEnd=xStart+2*Menu_penSize;
+						axis yEnd=yStart+2*Menu_penSize;
 						if (xStart<8) xStart=8;
 						if (yStart<8) yStart=8;
 						if (xEnd>W+8-1) xEnd=W+8-1;
@@ -260,7 +261,7 @@ void Menu_update(void) {
 											meta = meta+1;
 										}
 										if (p>=Part_0 && p->type!=e)
-											;//paint(f, g, p->type, e, meta);
+											Part_paint(f, g, p->type, e, meta);
 									}
 								} else if (p == Part_EMPTY) {
 									int pa = Menu_BUTTONS[selection].element;
@@ -301,7 +302,7 @@ void Menu_update(void) {
 					}
 				}
 			when(Menu_AIR):;
-				void addPressure(int x, int y, double amount) {
+				void addPressure(axis x, axis y, real amount) {
 					Block* cell = &Part_blocks[Pen_y/4+y][Pen_x/4+x];
 					if (!cell->block) {
 						cell->pres += amount;
@@ -320,8 +321,8 @@ void Menu_update(void) {
 				Bubble_draw(Pen_x, Pen_y, rising, old);
 			when(Menu_PLAYER): case Menu_FIGHTER: case Menu_BOX: case Menu_CREATE:
 				if (!rising) break;
-				int f = Pen_x>>2<<2;
-				int g = Pen_y>>2<<2;
+				axis f = Pen_x>>2<<2;
+				axis g = Pen_y>>2<<2;
 				Block* cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
 				if (!cell->block) {
 					switch (selection) {
@@ -354,9 +355,9 @@ void Menu_update(void) {
 					old = (i==0 ? Mouse_falling.left : Mouse_falling.right);
 				if (old) {
 					// god, more line drawing shit
-					int n = Pen_x/4 - Pen_oldx/4;
-					int r = Pen_y/4 - Pen_oldy/4;
-					int w = abs(n);
+					axis n = Pen_x/4 - Pen_oldx/4;
+					axis r = Pen_y/4 - Pen_oldy/4;
+					axis w = abs(n);
 					if (abs(r)>w) w=abs(r);
 					if (1>w) w=1;
 					n = (n<<8)/w;
@@ -367,8 +368,8 @@ void Menu_update(void) {
 					for (b=0; b<=w; b++, y+=n, z+=r) {
 						int c = (y>>8) - Menu_penSize/2;
 						int v = (z>>8) - Menu_penSize/2;
-						int Y = c+(float)Menu_penSize/2+0.5;
-						int Ka = v+(float)Menu_penSize/2+0.5;
+						int Y = c+(real)Menu_penSize/2+0.5;
+						int Ka = v+(real)Menu_penSize/2+0.5;
 						for (g=v; g<=v+Menu_penSize; g++) {
 							for (f=c; f<=c+Menu_penSize; f++) {
 								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {

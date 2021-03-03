@@ -6,7 +6,7 @@ break; case Elem_STONE:
 	p->vel.y += Random_2(0.01,0.05);
 	Vec_mul(&p->vel, 0.95);
 	Vector airvel = p->vel;
-	double mag = Vec_fastDist(&airvel);
+	real mag = Vec_fastDist(&airvel);
 	if (mag>10 && Rnd_perchance(50))
 		p->type = Elem_POWDER;
 	Vec_mul(&airvel, 3.8/(mag+1));
@@ -19,7 +19,7 @@ break; case Elem_STONE:
 			// magma, and liquids other than mercury
 			if ((ELEMENTS[near->type].state == State_LIQUID && near->type!=Elem_MERCURY) || near->type==Elem_MAGMA) {
 				near->vel.x -= p->vel.x;
-				double temp = p->pos.x;
+				real temp = p->pos.x;
 				p->pos.x = near->pos.x;
 				near->pos.x = temp;
 				*Part_pos2(&p->pos) = near;
@@ -38,7 +38,7 @@ break; case Elem_STONE:
 			// magma, and liquids other than mercury
 			if ((ELEMENTS[near->type].state == State_LIQUID && near->type!=Elem_MERCURY) || near->type==Elem_MAGMA) {
 				near->vel.y -= p->vel.y;
-				double temp = p->pos.y;
+				real temp = p->pos.y;
 				p->pos.y = near->pos.y;
 				near->pos.y = temp;
 				*Part_pos2(&p->pos) = near;
@@ -51,7 +51,7 @@ break; case Elem_STONE:
 	*Part_pos2(&p->pos) = p;
 
 #elif defined UPDATE_BALL
-	double dist = Vec_dist(&vel);
+	real dist = Vec_dist(&vel);
 	if (dist>7 && (touched==-1 || touched==Elem_METAL || touched==Elem_BOMB))
 		ball->type = Elem_POWDER;
 	else if (touched==Elem_ACID)

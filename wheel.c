@@ -24,26 +24,26 @@ void Wheel_update(void) {
 		}
 	}
 	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
-		const char (*frame)[32] = Wheel_frames[(int)floor(w->angle)];
+		const char (*frame)[32] = Wheel_frames[(int)w->angle];
 		for (axis y=0; y<32; y++) {
 			for (axis x=0; x<32; x++) {
 				if (frame[y][x]=='.') {
 					Block* cell = &Part_blocks[(w->y+y-16)>>2][(w->x+x-16)];
-					double wind = cell->vel.x*(y-15.5) - cell->vel.y*(x-15.5);
+					real wind = cell->vel.x*(y-15.5) - cell->vel.y*(x-15.5);
 					w->vel += 0.0001*wind;
 				}
 				Part* p = Part_at[w->y+y-16][w->x+x-16];
 				if (p>=Part_0 && frame[y][x]==' ' && y!=31 && frame[y+1][x]=='.') {
-					double weight = 0*(y-15.5)-1*(x-15.5);
+					real weight = 0*(y-15.5)-1*(x-15.5);
 					w->vel += weight*ELEMENTS[p->type].wheelWeight*0.0001;
 				}
 			}
 		}
 		w->vel *= 0.99;
 		w->vel = clamp(w->vel, -2, 2);
-		double g = floor(w->angle+16);
+		real g = (int)(w->angle+16);
 		w->angle += w->vel;
-		g = floor(w->angle+16)-g;
+		g = (int)(w->angle+16)-g;
 		if (w->angle<0)
 			w->angle += 16;
 		if (w->angle>=16)
@@ -51,7 +51,7 @@ void Wheel_update(void) {
 		if (g) {
 			typedef struct WheelPart {
 				Part* part;
-				double x,y;
+				real x,y;
 			} WheelPart;
 
 			WheelPart parts[1024];

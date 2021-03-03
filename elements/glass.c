@@ -9,7 +9,7 @@ break; case Elem_GLASS:
 		//breakystate, and the spreading of such things
 	} else if (p->meta==1) {
 		Vector airvel = p->vel;
-		double v = Vec_fastNormalize(&airvel)*0.5;
+		real v = Vec_fastNormalize(&airvel)*0.5;
 		if (v<1) v=1;
 		int b;
 		// spread cracks
@@ -38,7 +38,7 @@ break; case Elem_GLASS:
 	}
 	*Part_pos2(&p->pos) = p;
 #elif defined UPDATE_BALL
-	double dist = Vec_dist(&vel);
+	real dist = Vec_dist(&vel);
 	if (dist>5 && (touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB))
 		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0.1*d);
 	else if (touched==Elem_THUNDER)

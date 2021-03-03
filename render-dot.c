@@ -28,7 +28,7 @@ void Dot_render(void) {
 			if (green>0xFF) green=0xFF;
 			blue = BLUE(color)/4+BLUE(*dest);
 			if (blue>0xFF) blue=0xFF;
-			*dest = red<<16|green<<8|blue;
+			*dest = RGB(red,green,blue);
 		} else if (Menu_bgMode == Bg_SILUET) {
 			red = RED(*dest)+RED(color)-(0xFF+10);
 			if (red<0) red=0;

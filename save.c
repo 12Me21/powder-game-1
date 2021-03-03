@@ -10,6 +10,7 @@
 #include "entity.h"
 #include "ball.h"
 #include "cell.h"
+#include "reset.h"
 
 
 static int number(char x) {
@@ -35,7 +36,7 @@ void loadSaveString(char* data) {
 		Menu_bgMode = bgmode-1;
 	Menu_dotLimit = number(data[3]);
 	Menu_gridSize = number(data[4]);
-	Menu_gameSpeed = number(data[5]);
+	Menu_gameSpeed = 1;//number(data[5]);
 	Menu_edgeMode = number(data[6]);
 	if (version==0) {
 		Menu_carefully = 100;
@@ -104,7 +105,7 @@ void loadSaveString(char* data) {
 
 void load1(void) {
 	int total=0;
-	Part_reset(1);
+	Sim_reset(true);
 	int x,y;
 	for (y=0; y<H; y++) {
 		for (x=0; x<W; x++) {
@@ -136,7 +137,7 @@ void load1(void) {
 				Part* a = Part_create(x+8, y+8, t);
 				int meta = saveMetaArray[xy];
 				if (t == Elem_FAN) {
-					a->vel = (Vector){0.1*cos(meta*PI/32), 0.1*-sin(meta*PI/32)};
+					a->vel = (Vector){0.1*(real)cos(meta*PI/32), 0.1*-(real)sin(meta*PI/32)};
 					Part_at[y+8][x+8] = Part_BGFAN;
 				} else if (t == Elem_FIREWORKS)
 					a->meta = meta;

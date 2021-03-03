@@ -5,8 +5,8 @@ enum Bg {Bg_NONE=0,Bg_AIR=1,Bg_LINE=2,Bg_BLUR=3,Bg_SHADE=4,Bg_AURA=5,Bg_LIGHT=6,
 
 typedef struct BgPixel {
 	int light;
-	double aura1;
-	double aura2;
+	real aura1;
+	real aura2;
 } BgPixel;
 
 void Bg_reset(void);

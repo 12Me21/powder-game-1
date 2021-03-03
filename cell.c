@@ -3,7 +3,7 @@
 #include "part.h"
 #include "cell.h"
 
-double pd = 0; //mystery
+real pd = 0; //mystery
 
 Block Part_blocks[HEIGHT/4][WIDTH/4];
 Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
@@ -29,12 +29,12 @@ void Cell_update(void) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block!=1) {
 				Vector c = a->vel;
-				double nn = Vec_fastNormalize(&c);
+				real nn = Vec_fastNormalize(&c);
 				if (nn!=0) {
-					double r = fabs(c.x);
-					double w = fabs(c.y);
-					double y = r/(r+w)*nn*0.5;
-					double n = w/(r+w)*nn*0.5;
+					real r = fabs(c.x);
+					real w = fabs(c.y);
+					real y = r/(r+w)*nn*0.5;
+					real n = w/(r+w)*nn*0.5;
 					Vector e, f;
 					Vec_mul2(&e, &c, y);
 					Vec_mul2(&f, &c, n);
@@ -86,16 +86,17 @@ void Cell_update(void) {
 			}
 		}
 	} //
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
+	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
 		c->pres2 = c->pres;
+	}
 	forRange (b, =2, <(H+8)/4, ++) {
 		forRange (d, =2, <(W+8)/4, ++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block == 1) continue;
-			void pcheck(int x, int y, double m) {
+			void pcheck(int x, int y, real m) {
 				Block* o = &Part_blocks[b+y][d+x];
 				if (o->block <= 0) {
-					double diff = (a->pres - o->pres);
+					real diff = (a->pres - o->pres);
 					a->vel2.x += diff*m*x;
 					a->vel2.y += diff*m*y;
 					a->pres2 -= diff*m;

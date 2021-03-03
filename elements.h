@@ -15,12 +15,12 @@ typedef struct ElementDef {
 	bool playerValid; // can be held by player
 	int temperature; // light generated in "TG" bg mode
 	int dissolveRate; // for ACID
-	double friction; // affects entity movement i think
+	real friction; // affects entity movement i think
 	bool ballLight; // if ball generates light in "DARK" bg mode
-	double ze, Ae; //these affect superball movement
+	real ze, Ae; //these affect superball movement
 	bool ballValid;
-	double ballWeight;
-	double ballAdvection;
+	real ballWeight;
+	real ballAdvection;
 	int wheelWeight;
 } ElementDef;
 
