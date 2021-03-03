@@ -1,13 +1,13 @@
 break; case Elem_GAS:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
+	Point airvel = c->vel;
 	airvel.y += Random_2(0, -0.02);
-	Vec_add(&airvel, &p->vel);
+	Vec_add(&airvel, p->vel);
 	Vec_mul(&p->vel, 0.9);
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	int g = Random_int(4);
-	Part* near = Part_pos2(&p->pos)[(Offset[]){1,Part_ofs(0,1),-1,Part_ofs(0,-1)}[g]];
+	Part* near = Part_pos2(p->pos)[(Offset[]){1,Part_ofs(0,1),-1,Part_ofs(0,-1)}[g]];
 	if (near>=Part_0) {
 		if (g<3 && (ELEMENTS[near->type].state == State_POWDER || ELEMENTS[near->type].state == State_LIQUID)) {
 			Part_swap(p, near);
@@ -24,7 +24,7 @@ break; case Elem_GAS:
 	if (p->meta==0) {
 		int x = Random_int(5)-2;
 		int y = Random_int(5)-2;
-		Part* near = Part_pos2(&p->pos)[Part_ofs(x,y)];
+		Part* near = Part_pos2(p->pos)[Part_ofs(x,y)];
 		if (near < Part_0 || ELEMENTS[near->type].state!=State_HOT)
 			break;
 	} else if (p->meta<2) {

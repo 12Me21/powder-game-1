@@ -7,7 +7,7 @@ CFLAGS+= -Wextra -Wall -Wno-unused-parameter -Wno-unused-but-set-variable -Werro
 
 # this is VERY IMPORTANT!
 # causes number literals to be treated as float instead of double
-#CFLAGS+= -fsingle-precision-constant
+CFLAGS+= -fsingle-precision-constant
 
 include .Nice.mk
 

@@ -1,13 +1,13 @@
 break; case Elem_SUPERBALL:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
+	Point airvel = c->vel;
 	Vec_mul(&airvel, 0.05);
-	Vec_add(&p->vel, &airvel);
+	Vec_add(&p->vel, airvel);
 	p->vel.y += 0.01;
 	Vec_mul(&p->vel, 0.999);
 	airvel = p->vel;
-	Vec_mul(&airvel, 3.8/(Vec_fastDist(&airvel)+1));
+	Vec_mul(&airvel, 3.8/(Vec_fastDist(airvel)+1));
 
 	Part* f = *Part_pos(p->pos.x+airvel.x, p->pos.y);
 	// empty
@@ -39,7 +39,7 @@ break; case Elem_SUPERBALL:
 			p->vel.y *= ELEMENTS[f->type].Ae;
 		}
 	}
-	*Part_pos2(&p->pos) = Part_EMPTY;
+	*Part_pos2(p->pos) = Part_EMPTY;
 	f = *Part_pos(p->pos.x, p->pos.y+airvel.y);
 	if (f <= Part_BGFAN)
 		p->pos.y += airvel.y;
@@ -75,6 +75,6 @@ break; case Elem_SUPERBALL:
 			p->vel.x *= ELEMENTS[f->type].Ae;
 		}
 	}
-	*Part_pos2(&p->pos) = p;
+	*Part_pos2(p->pos) = p;
 #endif
 }

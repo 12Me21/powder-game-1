@@ -3,8 +3,8 @@
 #include "vector.h"
 
 typedef struct Ball {
-	Vector pos;
-	Vector vel;
+	Point pos;
+	Point vel;
 	bool used;
 	int meta;
 	bool held;

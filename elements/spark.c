@@ -1,11 +1,10 @@
 break; case Elem_SPARK:
 {
 #ifdef UPDATE_PART
-	Vector airvel;
-	Vec_mul2(&airvel, &c->vel, 0.05);
-	Vec_add(&p->vel, &airvel);
+	Point airvel = Vec_mul2(c->vel, 0.05);
+	Vec_add(&p->vel, airvel);
 	p->vel.y += 0.01;
-	Part** at = Part_pos2(&p->pos);
+	Part** at = Part_pos2(p->pos);
 	if (at[1]>=Part_WHEEL)
 		p->vel.x -= Random_(0.5);
 	if (at[-1]>=Part_WHEEL)
@@ -18,10 +17,10 @@ break; case Elem_SPARK:
 		p->vel.y += Random_(0.5);
 	Vec_mul(&p->vel, 0.98);
 	airvel = p->vel;
-	Part_blow(p, &airvel);
+	Part_blow(p, airvel);
 	int x = Random_int(5)-2;
 	int y = Random_int(5)-2;
-	Part* near = Part_pos3(&p->pos, x, y);
+	Part* near = Part_pos3(p->pos, x, y);
 	if (near>=Part_0) {
 		switch (near->type) {
 		case Elem_POWDER: case Elem_ANT:

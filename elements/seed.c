@@ -1,16 +1,16 @@
 break; case Elem_SEED:
 {
 #ifdef UPDATE_PART
-	Vector airvel = c->vel;
+	Point airvel = c->vel;
 	if (p->meta==0) {
 		airvel.y += Random_2(0.01, 0.09);
-		Vec_add(&airvel, &p->vel);
+		Vec_add(&airvel, p->vel);
 		Vec_mul(&p->vel, 0.8);
 	} else
-		airvel = (Vector){0,0};
-	Part_blow(p, &airvel);
+		airvel = (Point){0,0};
+	Part_blow(p, airvel);
 	if (p->meta==0) {
-		Part* below = Part_at[(int)p->pos.y+1][(int)p->pos.x];
+		Part* below = Part_pos3(p->pos, 0, 1);
 		if (below<Part_0 || (below->type!=Elem_POWDER&&below->type!=Elem_WOOD&&below->type!=Elem_VINE)) //TODO: !IMPORTANT! check part limit here
 			break;
 	}
@@ -19,8 +19,8 @@ break; case Elem_SEED:
 	int y = p->pos.y - Random_int(1.5); //yes
 	if (Part_at[y][x] <= Part_BGFAN) {
 		if (Part_at[y+1][x] <= Part_BGFAN) {
-			Part_at[(int)p->pos.y][(int)p->pos.x] = Part_EMPTY;
-			p->pos = (Vector){x,y};
+			*Part_pos2(p->pos) = Part_EMPTY;
+			p->pos = (Point){x,y};
 			Part_at[y][x] = p;
 			Part_create(x, y+1, Elem_WOOD);
 		}

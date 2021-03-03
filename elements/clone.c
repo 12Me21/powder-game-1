@@ -1,12 +1,12 @@
 break; case Elem_CLONE:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, &(Vector){0,0});
+	Part_blow(p, (Point){0,0});
 	// if not cloning
 	if (!p->meta) {
 		// check random nearby part
 		axis x = Random_int(5)-1; // 5-1, really?
-		Part* near = Part_pos2(&p->pos)[Part_ofs(x, Random_int(5)-1)];
+		Part* near = Part_pos2(p->pos)[Part_ofs(x, Random_int(5)-1)];
 		if (near>=Part_0) {
 			if (near->type == Elem_CLONE)
 				p->meta = near->meta;

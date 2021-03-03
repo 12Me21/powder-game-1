@@ -18,8 +18,8 @@ void Wheel_update(void) {
 	if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
 		
 		for (Wheel* w=Wheel_wheels;w<Wheel_end;w++) {
-			Vector d = {Pen_x-w->x, Pen_y-w->y};
-			if (Vec_fastDist(&d)<16)
+			Point d = {Pen_x-w->x, Pen_y-w->y};
+			if (Vec_fastDist(d)<16)
 				w->vel -= d.x*(Pen_y-Pen_oldy)-d.y*(Pen_x-Pen_oldx);
 		}
 	}
@@ -69,14 +69,14 @@ void Wheel_update(void) {
 			}
 			for (WheelPart* wp=parts; wp<next; wp++) {
 				Part* part = wp->part;
-				*Part_pos2(&part->pos) = Part_EMPTY;
+				*Part_pos2(part->pos) = Part_EMPTY;
 				Part* p = *Part_pos(part->pos.x+wp->x, part->pos.y);
 				if (p<Part_BLOCK)
 					part->pos.x += wp->x;
 				p = *Part_pos(part->pos.x, part->pos.y+wp->y);
 				if (p<Part_BLOCK)
 					part->pos.y += wp->y;
-				*Part_pos2(&part->pos) = part;
+				*Part_pos2(part->pos) = part;
 				switch (part->type) {
 				when(Elem_WOOD):;
 					if (Rnd_perchance(20))

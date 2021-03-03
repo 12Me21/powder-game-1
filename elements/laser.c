@@ -4,8 +4,8 @@ break; case Elem_LASER:
 	const Offset nears[] = {1,-WIDTH+1,-WIDTH,-WIDTH-1,-1,WIDTH-1,WIDTH,WIDTH+1};
 	const Offset nearsX[] = {1,1,0,-1,-1,-1,0,1};
 	const Offset nearsY[] = {0,-1,-1,-1,0,1,1,1};
-	*Part_pos2(&p->pos) = p;
-	p->vel = (Vector){0,0};
+	*Part_pos2(p->pos) = p;
+	p->vel = (Point){0,0};
 	int v = p->meta & 0xF;
 	int yy = p->meta>>4 & 0xF;
 	int z = p->meta>>8 & 0xFF;
@@ -29,7 +29,7 @@ break; case Elem_LASER:
 		// laser was placed by clone or something
 		// or initially when a save is loaded.
 		// it tries to make the laser shoot away from adjacent walls.
-		Part** at = Part_pos2(&p->pos);
+		Part** at = Part_pos2(p->pos);
 		bool check(int n) {
 			Part* w = at[nears[n]];
 			return w>=Part_0 && w->type!=Elem_LASER;
@@ -59,12 +59,12 @@ break; case Elem_LASER:
 		}
 	}
 	v--;			
-	Part* near = Part_pos2(&p->pos)[nears[v]];
+	Part* near = Part_pos2(p->pos)[nears[v]];
 	if (near>=Part_0) {
 		switch (near->type) {
 		case Elem_LASER:
 			for (int b=2; b<=4; b++) {
-				near = Part_pos2(&p->pos)[nears[v]*b];
+				near = Part_pos2(p->pos)[nears[v]*b];
 				if (near>=Part_0) {
 					if (near->type != Elem_LASER)
 						break;
@@ -80,7 +80,7 @@ break; case Elem_LASER:
 			}
 			break;
 		case Elem_METAL: case Elem_MERCURY:;
-			Part** at = Part_pos2(&p->pos);
+			Part** at = Part_pos2(p->pos);
 			bool check(Offset n) {
 				Part* c = at[n];
 				return (c>=Part_0 && (c->type==Elem_METAL || c->type==Elem_MERCURY));

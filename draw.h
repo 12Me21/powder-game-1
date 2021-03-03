@@ -7,7 +7,7 @@ void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacin
 void Draw_rectangle(int x, int y, int width, int height, Color color);
 void Draw_mrectangle(int x, int y, int width, int height, Color color);
 void Draw_line(real x1, real y1, real x2, real y2, Color color);
-void Draw_vline(Vec v1, Vec v2, Color color);
+void Draw_vline(Point v1, Point v2, Color color);
 void Draw_init(void);
 void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format, ...);
 void Draw_ball(int x, int y, Color color);

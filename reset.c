@@ -30,7 +30,7 @@ void Sim_reset(bool a) {
 		}
 	}
 	Pen_oldx = Pen_oldy = Pen_x = Pen_y = 8;
-	Pen_dir = (Vector){0,0};
+	Pen_dir = (Point){0,0};
 	Part_next = Part_0;
 	for (y=0; y<HEIGHT; y++)
 		for (x=0; x<WIDTH; x++)

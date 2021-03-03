@@ -137,7 +137,7 @@ void load1(void) {
 				Part* a = Part_create(x+8, y+8, t);
 				int meta = saveMetaArray[xy];
 				if (t == Elem_FAN) {
-					a->vel = (Vector){0.1*(real)cos(meta*PI/32), 0.1*-(real)sin(meta*PI/32)};
+					a->vel = (Point){0.1*(real)cos(meta*PI/32), 0.1*-(real)sin(meta*PI/32)};
 					Part_at[y+8][x+8] = Part_BGFAN;
 				} else if (t == Elem_FIREWORKS)
 					a->meta = meta;
@@ -183,7 +183,7 @@ void save1(void) {
 			int xy=W*(y-8)+(x-8); //w must be 400 to be compatible with vanilla pg
 			saveDataArray[xy] = p->type;
 			if (p->type == Elem_FAN) {
-				saveMetaArray[xy] = wrap(64*Vec_angle(&p->vel)/TAU, 63);
+				saveMetaArray[xy] = wrap(64*Vec_angle(p->vel)/TAU, 63);
 			} else if (p->type == Elem_FIREWORKS) {
 				saveMetaArray[xy] = p->meta%100;
 				//fix thunder saving badly :(

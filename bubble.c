@@ -43,7 +43,7 @@ static void partLine(real a, real d, real b, real c, int type) {
 }
 
 static void pull(Bubble* a, Bubble* b) {
-	Vector diff = {b->x-a->x, b->y-a->y};
+	Point diff = {b->x-a->x, b->y-a->y};
 	real dist = Vec_fastNormalize(&diff);
 	if (dist!=0) {
 		dist = 5-dist;
@@ -57,15 +57,15 @@ static void pull(Bubble* a, Bubble* b) {
 void Bubble_update(void) {
 	for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++) {
 		Block* cell = &Part_blocks[(int)b->y/4][(int)b->x/4];
-		Vector vel = cell->vel;
-		Vec_mul(&vel, 3.8/(Vec_fastDist(&vel)+1));
+		Point vel = cell->vel;
+		Vec_mul(&vel, 3.8/(Vec_fastDist(vel)+1));
 		b->x += vel.x;
 		b->y += vel.y;
 	}
 	for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++) {
 		if (!b->held) {
 			if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
-				if (Vec_fastDist(&(Vector){Pen_x-b->x, Pen_y-b->y})<10)
+				if (Vec_fastDist((Point){Pen_x-b->x, Pen_y-b->y})<10)
 					b->held = true;
 			}
 		} else if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
@@ -80,7 +80,7 @@ void Bubble_update(void) {
 		int e=0;
 		for (d=b; d<Bubble_next && d->ke==b->ke; d++)
 			e++;
-		Vector v = {0,0};
+		Point v = {0,0};
 		for (d=b; d<b+e; d++) {
 			v.x += d->x;
 			v.y += d->y;
@@ -88,7 +88,7 @@ void Bubble_update(void) {
 		v.x /= e;
 		v.y /= e;
 		for (d=b; d<b+e; d++) {
-			Vector f = {v.x-d->x, v.y-d->y};
+			Point f = {v.x-d->x, v.y-d->y};
 			real c = Vec_fastNormalize(&f);
 			if (c!=0) {
 				c = e*(5/(PI+PI)*2)-c; //PI+PI is slightly less than TAU

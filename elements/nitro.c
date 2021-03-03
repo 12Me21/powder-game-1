@@ -29,10 +29,10 @@ break; case Elem_NITRO:
 			Part_remove(p--);
 		}
 	}
-	if (Vec_fastDist(&p->vel)<10) {
+	if (Vec_fastDist(p->vel)<10) {
 		int x = Random_int(5)-2;
 		int y = Random_int(5)-2;
-		Part* near = Part_pos2(&p->pos)[Part_ofs(x, y)];
+		Part* near = Part_pos2(p->pos)[Part_ofs(x, y)];
 		if (near<Part_0 || ELEMENTS[near->type].state != State_HOT)
 			break;
 	}

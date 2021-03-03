@@ -47,37 +47,36 @@ Part* Part_create(real x, real y, unsigned char element) {
 		0,
 		false,
 	};
-	*Part_pos2(&Part_next->pos) = Part_next;
+	*Part_pos2(Part_next->pos) = Part_next;
 	return Part_next++;
 }
 
 void Part_remove(Part* part) {
-	*Part_pos2(&part->pos) = Part_EMPTY;
+	*Part_pos2(part->pos) = Part_EMPTY;
 	Part_next--;
 	if (Part_next != part) {
 		*part = *Part_next;
-		*Part_pos2(&part->pos) = part->type==Elem_FAN ? Part_BGFAN : part;
+		*Part_pos2(part->pos) = part->type==Elem_FAN ? Part_BGFAN : part;
 	}
 }
 
 void Part_swap(Part* part1, Part* part2) {
-	Part* temp3 = *Part_pos2(&part1->pos);
-	*Part_pos2(&part1->pos) = *Part_pos2(&part2->pos);
-	*Part_pos2(&part2->pos) = temp3;
+	Part* temp3 = *Part_pos2(part1->pos);
+	*Part_pos2(part1->pos) = *Part_pos2(part2->pos);
+	*Part_pos2(part2->pos) = temp3;
 
-	Vector temp = part1->pos;
+	Point temp = part1->pos;
 	part1->pos = part2->pos;
 	part2->pos = temp;
 }
 
-Part* Part_blow(Part* part, Vector* airvel) {
-	Vec_mul(airvel, 3.8/(Vec_fastDist(airvel)+1));
-	if (*Part_pos(part->pos.x+airvel->x, part->pos.y)<=Part_BGFAN)
-		part->pos.x += airvel->x;
-	if (*Part_pos(part->pos.x, part->pos.y+airvel->y)<=Part_BGFAN)
-		part->pos.y += airvel->y;
-	*Part_pos2(&part->pos) = part;
-	return part;
+void Part_blow(Part* part, Point airvel) {
+	Vec_mul(&airvel, 3.8/(Vec_fastDist(airvel)+1));
+	if (*Part_pos(part->pos.x+airvel.x, part->pos.y)<=Part_BGFAN)
+		part->pos.x += airvel.x;
+	if (*Part_pos(part->pos.x, part->pos.y+airvel.y)<=Part_BGFAN)
+		part->pos.y += airvel.y;
+	*Part_pos2(part->pos) = part;
 }
 
 void Part_shuffle(void) {
@@ -88,8 +87,8 @@ void Part_shuffle(void) {
 		*p = *c;
 		*c = temp;
 
-		*Part_pos2(&p->pos) = p->type==Elem_FAN ? Part_BGFAN : p;
-		*Part_pos2(&c->pos) = c->type==Elem_FAN ? Part_BGFAN : c;
+		*Part_pos2(p->pos) = p->type==Elem_FAN ? Part_BGFAN : p;
+		*Part_pos2(c->pos) = c->type==Elem_FAN ? Part_BGFAN : c;
 	}
 }
 
@@ -106,23 +105,21 @@ void Part_update(void) {
 				if (dragStart) {
 					if (p->type == Elem_FAN)
 						continue;
-					Vector d = {Pen_x, Pen_y};
-					Vec_sub(&d, &p->pos);
-					if (Vec_fastDist(&d) < 4*Menu_penSize)
+					Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
+					if (Vec_fastDist(d) < 4*Menu_penSize)
 						p->held = true;
 				}
 			} else if (dragging) {
-				Vector d = {Pen_x, Pen_y};
-				Vec_sub(&d, &p->pos);
+				Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
 				Vec_mul(&d, 0.1);
-				Vec_add(&p->vel, &d);
+				Vec_add(&p->vel, d);
 			} else {
 				p->held = false;
 			}
 		}
 		Block* c = &Part_blocks[(axis)p->pos.y/4][(axis)p->pos.x/4];
 		if (p->type != Elem_FAN)
-			*Part_pos2(&p->pos) = Part_EMPTY;
+			*Part_pos2(p->pos) = Part_EMPTY;
 		switch (p->type) {
 			// todo: maybe put this in a real separately compiled file
 #define UPDATE_PART 1
@@ -138,33 +135,33 @@ void Part_update(void) {
 			}
 		} else { //loop edge
 			if (p->pos.x<8) {
-				Part** o = &Part_pos2(&p->pos)[Part_ofs(W,0)];
+				Part** o = &Part_pos2(p->pos)[Part_ofs(W,0)];
 				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
-					*Part_pos2(&p->pos) = Part_EMPTY;
+					*Part_pos2(p->pos) = Part_EMPTY;
 					p->pos.x += W;
 					*o = p;
 				} else
 					Part_remove(p--);
 			} else if (p->pos.x>=W+8) {
-				Part** o = &Part_pos2(&p->pos)[Part_ofs(-W,0)];
+				Part** o = &Part_pos2(p->pos)[Part_ofs(-W,0)];
 				if (*o<=Part_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
-					*Part_pos2(&p->pos) = Part_EMPTY;
+					*Part_pos2(p->pos) = Part_EMPTY;
 					p->pos.x -= W;
 					*o = p;
 				} else
 					Part_remove(p--);
 			} else if (p->pos.y<8) {
-				Part** o = &Part_pos2(&p->pos)[Part_ofs(0,H)];
+				Part** o = &Part_pos2(p->pos)[Part_ofs(0,H)];
 				if (*o<=Part_BGFAN) {
-					*Part_pos2(&p->pos) = Part_EMPTY;
+					*Part_pos2(p->pos) = Part_EMPTY;
 					p->pos.y += H;
 					*o = p;
 				} else
 					Part_remove(p--);
 			} else if (p->pos.y>=H+8) {
-				Part** o = &Part_pos2(&p->pos)[Part_ofs(0,-H)];
+				Part** o = &Part_pos2(p->pos)[Part_ofs(0,-H)];
 				if (*o<=Part_BGFAN) {
-					*Part_pos2(&p->pos) = Part_EMPTY;
+					*Part_pos2(p->pos) = Part_EMPTY;
 					p->pos.y -= H;
 					*o = p;
 				} else
@@ -203,18 +200,18 @@ bool Part_checkPump(Part* part, Part* pump, int dir) {
 void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc) {
 	p->vel.x += adv*c->vel.x;
 	p->vel.y += adv*c->vel.y;
-	if (Part_pos3(&p->pos,0,1) != Part_EMPTY) {
-		if (Part_pos3(&p->pos,-1,0) == Part_EMPTY)
+	if (Part_pos3(p->pos,0,1) != Part_EMPTY) {
+		if (Part_pos3(p->pos,-1,0) == Part_EMPTY)
 			p->vel.x -= Random_2(x1, x2);
-		if (Part_pos3(&p->pos,1,0) == Part_EMPTY)
+		if (Part_pos3(p->pos,1,0) == Part_EMPTY)
 			p->vel.x += Random_2(x1, x2);
 	}
 	p->vel.x += Random_2(-xr1, xr1);
 	p->vel.y += Random_2(yr1, yr2);
 	Vec_mul(&p->vel, frc);
-	Vector airvel = c->vel;
-	Vec_add(&airvel, &p->vel);
-	Part_blow(p, &airvel);
+	Point airvel = c->vel;
+	Vec_add(&airvel, p->vel);
+	Part_blow(p, airvel);
 }
 
 // flood fill

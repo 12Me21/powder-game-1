@@ -2,13 +2,13 @@ break; case Elem_GLASS:
 {
 #ifdef UPDATE_PART
 	if (p->meta==0) {
-		if (Vec_fastDist(&p->vel)>1)
+		if (Vec_fastDist(p->vel)>1)
 			p->meta = 1;
 		else
-			p->vel = (Vector){0,0};
+			p->vel = (Point){0,0};
 		//breakystate, and the spreading of such things
 	} else if (p->meta==1) {
-		Vector airvel = p->vel;
+		Point airvel = p->vel;
 		real v = Vec_fastNormalize(&airvel)*0.5;
 		if (v<1) v=1;
 		int b;
@@ -17,16 +17,16 @@ break; case Elem_GLASS:
 			Part* near = Part_pos(p->pos.x+0.5+airvel.x*b, p->pos.y+0.5+airvel.y*b)[0];
 			if (near>=Part_0 && near->type==Elem_GLASS) {
 				near->meta = 1;
-				Vec_mul2(&near->vel, &p->vel, 0.98);
+				near->vel = Vec_mul2(p->vel, 0.98);
 			} else
 				break;
 		}
 		void nb(int x, int y) {
-			Part* near = Part_pos2(&p->pos)[Part_ofs(x,y)];
+			Part* near = Part_pos2(p->pos)[Part_ofs(x,y)];
 			if (near>=Part_0 && near->type==Elem_GLASS && near->meta==0) {
 				near->meta = 1;
 				int y = Random_int(512);
-				Vec_mul2(&near->vel, Vec_unit(y), v);
+				near->vel = Vec_mul2(Vec_unit(y), v);
 			}
 		}
 		nb(1,0);
@@ -36,9 +36,9 @@ break; case Elem_GLASS:
 		p->type = Elem_STONE;
 		p->meta = 0;
 	}
-	*Part_pos2(&p->pos) = p;
+	*Part_pos2(p->pos) = p;
 #elif defined UPDATE_BALL
-	real dist = Vec_dist(&vel);
+	real dist = Vec_dist(vel);
 	if (dist>5 && (touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB))
 		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0.1*d);
 	else if (touched==Elem_THUNDER)

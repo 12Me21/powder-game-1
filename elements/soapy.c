@@ -46,7 +46,7 @@ break; case Elem_SOAPY:
 					Part_swap(p, g);
 		}
 	}
-	if (Vec_fastDist(&p->vel)>2) {
+	if (Vec_fastDist(p->vel)>2) {
 		int f = 0;
 		int range = 4;
 		int px = p->pos.x;

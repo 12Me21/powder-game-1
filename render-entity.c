@@ -6,7 +6,7 @@
 #include "menu.h"
 
 static void line(Entity* e, int a, int b, Color c) {
-	Draw_vline(&e->parts[a].pos, &e->parts[b].pos, c);
+	Draw_vline(e->parts[a].pos, e->parts[b].pos, c);
 }
 
 static void rectangle(Entity* e, int a, int w, int h, Color c) {

@@ -5,7 +5,7 @@ break; case Elem_WATER:
 	int dir = Random_int(8)-4; //-4 to 3
 	if (dir<0) dir=0; //0 to 3
 	
-	Part* g = Part_pos2(&p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,1)}[dir]];
+	Part* g = Part_pos2(p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,1)}[dir]];
 	if (g>=Part_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int type = g->type;

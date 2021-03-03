@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "input.h"
 #include "menu.h"
-#include "vector.h"
 #include "common.h"
 
 

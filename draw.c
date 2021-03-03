@@ -96,8 +96,8 @@ void Draw_line(real x1, real y1, real x2, real y2, Color color) {
 	}
 }
 
-void Draw_vline(Vec v1, Vec v2, Color color) {
-	Draw_line(v1->x, v1->y, v2->x, v2->y, color);
+void Draw_vline(Point v1, Point v2, Color color) {
+	Draw_line(v1.x, v1.y, v2.x, v2.y, color);
 }
 
 void Draw_box(int x, int y, int width, int height, Color color) {

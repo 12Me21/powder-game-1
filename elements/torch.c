@@ -1,10 +1,10 @@
 break; case Elem_TORCH:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, &(Vector){0,0});
+	Part_blow(p, (Point){0,0});
 	axis x = Random_int(5)-2;
 	axis y = Random_int(5)-2;
-	Part* near = Part_pos2(&p->pos)[Part_ofs(x,y)];
+	Part* near = Part_pos3(p->pos,x,y);
 	if (near>=Part_0) {
 		switch (near->type) {
 		case Elem_POWDER: case Elem_SEED: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:

@@ -31,52 +31,52 @@ void Ball_create(real x, real y, Elem type) {
 #define XYOFS(x,y) x,y,(x)+(y)*WIDTH
 
 static const struct neighbor {
-	Vector breakVel;
+	Point breakVel;
 	int breakX;
 	int breakY;
 	int offset;
 } neighbors[] = {
-	{(Vector){-0.7 ,-0.7 },XYOFS(-1,-1),},
-   {(Vector){ 0   ,-1   },XYOFS( 0,-1),},
-   {(Vector){ 0.7 ,-0.7 },XYOFS( 1,-1),},
-   {(Vector){-1   , 0   },XYOFS(-1, 0),},
-   {(Vector){ 0   , 0   },XYOFS( 0, 0),},
-   {(Vector){ 1   , 0   },XYOFS( 1, 0),},
-   {(Vector){-0.7 , 0.7 },XYOFS(-1, 1),},
-   {(Vector){ 0   , 1   },XYOFS( 0, 1),},
-   {(Vector){ 0.7 , 0.7 },XYOFS( 1, 1),},
-   {(Vector){-0.44,-0.89},XYOFS(-1,-2),},
-   {(Vector){ 0   ,-1   },XYOFS( 0,-2),},
-   {(Vector){ 0.44,-0.89},XYOFS( 1,-2),},
-   {(Vector){-0.44, 0.89},XYOFS(-1, 2),},
-   {(Vector){ 0   , 1   },XYOFS( 0, 2),},
-   {(Vector){ 0.44, 0.89},XYOFS( 1, 2),},
-   {(Vector){-0.89,-0.44},XYOFS(-2,-1),},
-   {(Vector){-1   , 0   },XYOFS(-2, 0),},
-   {(Vector){-0.89, 0.44},XYOFS(-2, 1),},
-   {(Vector){ 0.89,-0.44},XYOFS( 2,-1),},
-   {(Vector){ 1   , 0   },XYOFS( 2, 0),},
-   {(Vector){ 0.89, 0.44},XYOFS( 2, 1),},
-   {(Vector){-0.31,-0.94},XYOFS(-1,-3),},
-   {(Vector){ 0   ,-1   },XYOFS( 0,-3),},
-   {(Vector){ 0.31,-0.94},XYOFS( 1,-3),},
-   {(Vector){-0.31, 0.94},XYOFS(-1, 3),},
-   {(Vector){ 0   , 1   },XYOFS( 0, 3),},
-   {(Vector){ 0.31, 0.94},XYOFS( 1, 3),},
-   {(Vector){-0.94,-0.31},XYOFS(-3,-1),},
-   {(Vector){-1   , 0   },XYOFS(-3, 0),},
-   {(Vector){-0.94, 0.31},XYOFS(-3, 1),},
-   {(Vector){ 0.94,-0.31},XYOFS( 3,-1),},
-   {(Vector){ 1   , 0   },XYOFS( 3, 0),},
-   {(Vector){ 0.94, 0.31},XYOFS( 3, 1),},
-   {(Vector){-0.7 ,-0.7 },XYOFS(-2,-2),},
-   {(Vector){ 0.7 ,-0.7 },XYOFS( 2,-2),},
-   {(Vector){-0.7 , 0.7 },XYOFS(-2, 2),},
-   {(Vector){ 0.7 , 0.7 },XYOFS( 2, 2),},
+	{(Point){-0.7 ,-0.7 },XYOFS(-1,-1),},
+   {(Point){ 0   ,-1   },XYOFS( 0,-1),},
+   {(Point){ 0.7 ,-0.7 },XYOFS( 1,-1),},
+   {(Point){-1   , 0   },XYOFS(-1, 0),},
+   {(Point){ 0   , 0   },XYOFS( 0, 0),},
+   {(Point){ 1   , 0   },XYOFS( 1, 0),},
+   {(Point){-0.7 , 0.7 },XYOFS(-1, 1),},
+   {(Point){ 0   , 1   },XYOFS( 0, 1),},
+   {(Point){ 0.7 , 0.7 },XYOFS( 1, 1),},
+   {(Point){-0.44,-0.89},XYOFS(-1,-2),},
+   {(Point){ 0   ,-1   },XYOFS( 0,-2),},
+   {(Point){ 0.44,-0.89},XYOFS( 1,-2),},
+   {(Point){-0.44, 0.89},XYOFS(-1, 2),},
+   {(Point){ 0   , 1   },XYOFS( 0, 2),},
+   {(Point){ 0.44, 0.89},XYOFS( 1, 2),},
+   {(Point){-0.89,-0.44},XYOFS(-2,-1),},
+   {(Point){-1   , 0   },XYOFS(-2, 0),},
+   {(Point){-0.89, 0.44},XYOFS(-2, 1),},
+   {(Point){ 0.89,-0.44},XYOFS( 2,-1),},
+   {(Point){ 1   , 0   },XYOFS( 2, 0),},
+   {(Point){ 0.89, 0.44},XYOFS( 2, 1),},
+   {(Point){-0.31,-0.94},XYOFS(-1,-3),},
+   {(Point){ 0   ,-1   },XYOFS( 0,-3),},
+   {(Point){ 0.31,-0.94},XYOFS( 1,-3),},
+   {(Point){-0.31, 0.94},XYOFS(-1, 3),},
+   {(Point){ 0   , 1   },XYOFS( 0, 3),},
+   {(Point){ 0.31, 0.94},XYOFS( 1, 3),},
+   {(Point){-0.94,-0.31},XYOFS(-3,-1),},
+   {(Point){-1   , 0   },XYOFS(-3, 0),},
+   {(Point){-0.94, 0.31},XYOFS(-3, 1),},
+   {(Point){ 0.94,-0.31},XYOFS( 3,-1),},
+   {(Point){ 1   , 0   },XYOFS( 3, 0),},
+   {(Point){ 0.94, 0.31},XYOFS( 3, 1),},
+   {(Point){-0.7 ,-0.7 },XYOFS(-2,-2),},
+   {(Point){ 0.7 ,-0.7 },XYOFS( 2,-2),},
+   {(Point){-0.7 , 0.7 },XYOFS(-2, 2),},
+   {(Point){ 0.7 , 0.7 },XYOFS( 2, 2),},
 };
 
 static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
-	Part** pc = Part_pos2(&ball->pos);
+	Part** pc = Part_pos2(ball->pos);
 	int i;
 	if (mode==0) {
 		for (i=9;i<21;i++) {
@@ -135,7 +135,6 @@ static bool Ball_react(Ball* ball, Part* part, int* newType) {
 }
 
 void Ball_update(void) {
-	//	var d,b,c=new Vector;
 	Ball* i;
 	forRange (i, =balls, <Ball_END, ++) {
 		if (!i->used) continue;
@@ -144,7 +143,7 @@ void Ball_update(void) {
 			i->used = false;
 			continue;
 		}
-		Part** p = Part_pos2(&i->pos);
+		Part** p = Part_pos2(i->pos);
 		int d;
 		for (d=0;d<21;d++)
 			if (p[neighbors[d].offset] == Part_BALL)
@@ -157,13 +156,13 @@ void Ball_update(void) {
 			Block* cell = &Part_blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
 			i->vel.x += cell->vel.x*d;
 			i->vel.y += cell->vel.y*d;
-			if (Vec_fastDist(&cell->vel)>0.3)
+			if (Vec_fastDist(cell->vel)>0.3)
 				Vec_mul(&i->vel, 0.9+(1-d)/10);
 		}
 		// dragging
 		if (!i->held) {
 			if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
-				if (Vec_fastDist(&(Vector){Pen_x-i->pos.x, Pen_y-i->pos.y})<20)
+				if (Vec_fastDist((Point){Pen_x-i->pos.x, Pen_y-i->pos.y})<20)
 					i->held = true;
 			}
 		} else {
@@ -193,9 +192,9 @@ void Ball_update(void) {
 		}
 		int touched = 0;
 		int newType = 0;
-		Vector vel = i->vel;
+		Point vel = i->vel;
 		// chcek movement
-		int q = (int)(Vec_dist(&i->vel)/2)+1;
+		int q = (int)(Vec_dist(i->vel)/2)+1;
 		real n = 1.0/q;
 		int v,g;
 		for (v=g=0; v<q; v++) {
@@ -239,7 +238,7 @@ void Ball_update(void) {
 					nexty = i->pos.y+i->vel.y*n;
 				}
 			}
-			Vector z = {0,0};
+			Point z = {0,0};
 			Part** pc = Part_pos(nextx,nexty);
 			int d;
 			int y=0;
@@ -253,7 +252,7 @@ void Ball_update(void) {
 				} else {
 					touched = near-Part_0;
 				}
-				Vec_sub(&z, &neighbors[d].breakVel);
+				Vec_sub(&z, neighbors[d].breakVel);
 				y++;
 			}
 			if (y==0) {
@@ -262,20 +261,20 @@ void Ball_update(void) {
 			} else {
 				Vec_normalize(&z);
 				i->vel.y -= weight;
-				real d = 0.999*Vec_dist(&i->vel);
+				real d = 0.999*Vec_dist(i->vel);
 				Vec_mul(&z, -(z.x*i->vel.x + z.y*i->vel.y));
-				Vec_add(&i->vel, &z);
+				Vec_add(&i->vel, z);
 				Vec_mul(&i->vel, 0.999);
 				Vec_mul(&z, 0.1);
-				Vec_add(&i->vel, &z);
+				Vec_add(&i->vel, z);
 				Vec_normalize(&i->vel);
 				Vec_mul(&i->vel, d);
 				i->pos.x += i->vel.x*n;
 				i->pos.y += i->vel.y*n;
 				i->vel.y += weight;
 			}
-			pc = Part_pos2(&i->pos);
-			z = (Vector){0,0};
+			pc = Part_pos2(i->pos);
+			z = (Point){0,0};
 			y=0;
 			for (d=0;d<21;d++) {
 				Part* near = pc[neighbors[d].offset];
@@ -293,12 +292,12 @@ void Ball_update(void) {
 					)
 						continue;
 				}
-				Vec_sub(&z, &neighbors[d].breakVel);
+				Vec_sub(&z, neighbors[d].breakVel);
 				y++;
 			}
 			if (y) {
 				Vec_normalize(&z);
-				Vec_add(&i->pos, &z);
+				Vec_add(&i->pos, z);
 			}
 		}
 		if (i->pos.x<4 || i->pos.x>=WIDTH-4 || i->pos.y<4 || i->pos.y>=H+12) {
@@ -317,7 +316,7 @@ void Ball_update(void) {
 			newType = 0;
 		}
 		if (i->used) {
-			Part** pc = Part_pos2(&i->pos);
+			Part** pc = Part_pos2(i->pos);
 			int d;
 			for (d=0;d<21;d++) {
 				Part** p = &pc[neighbors[d].offset];

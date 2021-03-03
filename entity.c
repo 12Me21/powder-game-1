@@ -33,10 +33,10 @@ void Entity_create(real x, real y, int type, int meta2) {
 	int i;
 	// idk why this one goes to 20...
 	forRange (i, =0, <20, ++)
-		Entity_next->parts[i].oldPos = Entity_next->parts[i].pos = (Vector){x+Random_(4), y+Random_(4)};
+		Entity_next->parts[i].oldPos = Entity_next->parts[i].pos = (Point){x+Random_(4), y+Random_(4)};
 	forRange (i, =0, <Entity_PARTS, ++)
 		Entity_next->parts[i].touching = 0;
-	Entity_next->vel = (Vector){0,0};
+	Entity_next->vel = (Point){0,0};
 	Entity_next->type = Entity_FIGHTER;
 	Entity_next->decay = 0;
 	Entity_next->held = 0;
@@ -48,8 +48,8 @@ void Entity_create(real x, real y, int type, int meta2) {
 		} else {
 			Entity_next->type = Entity_CREATE;
 			Entity_next->meta2 = 0;
-			Entity_next->parts[0].pos = (Vector){x,y};
-			Entity_next->parts[0].oldPos = (Vector){x,y};
+			Entity_next->parts[0].pos = (Point){x,y};
+			Entity_next->parts[0].oldPos = (Point){x,y};
 		}
 	} else if (type==Elem_PLAYER) {
 		Entity_next->type = Entity_PLAYER;
@@ -61,9 +61,9 @@ void Entity_create(real x, real y, int type, int meta2) {
 		if (!oldPlayer)
 			Entity_next->meta1 = 0;
 		else {
-			Vec pos = &oldPlayer->parts[0].pos;
-			int b = (int)pos->x>>2<<2;
-			int c = (int)pos->y>>2<<2;
+			Point pos = oldPlayer->parts[0].pos;
+			int b = (int)pos.x>>2<<2;
+			int c = (int)pos.y>>2<<2;
 			if (x<b)
 				Entity_next->meta1 = 1;
 			else if (x>b)
@@ -86,34 +86,28 @@ void Entity_remove(Entity* entity) {
 
 // update node position
 void Entity_moveNode(EntityNode* node, real gravity, real slowdown) {
-	Vector movement;
-	Vec_sub2(&movement, &node->pos, &node->oldPos);
+	Point movement = Vec_sub2(node->pos, node->oldPos);
 	node->oldPos = node->pos;
 	movement.y += gravity;
 	Vec_mul(&movement, slowdown);
-	Vec_add(&node->pos, &movement);
+	Vec_add(&node->pos, movement);
 }
 
 // this appears to deal with some interaction between 2 nodes
 void Entity_Se(Entity* e, int n1, int n2, real b, real c, real d) {
 	EntityNode* node1 = &e->parts[n1];
 	EntityNode* node2 = &e->parts[n2];
-	Vector f;
-	Vec_sub2(&f, &node2->pos, &node1->pos);
+	Point f = Vec_sub2(node2->pos, node1->pos);
 	real g = Vec_fastNormalize(&f);
 	if (g) {
 		b -= g;
-		Vector move;
-		Vec_mul2(&move, &f, b*c);
-		Vec_sub(&node1->pos, &move);
-		Vec_mul2(&move, &f, b*d);
-		Vec_add(&node2->pos, &move);
+		Vec_sub(&node1->pos, Vec_mul2(f, b*c));
+		Vec_add(&node2->pos, Vec_mul2(f, b*d));
 	}
 }
 
 void Entity_Ue(EntityNode* node, real d, real b, real c) {
-	Vector e;
-	Vec_sub2(&e, &node->pos, &node->oldPos);
+	Point e = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
 	if (d!=0) {
 		Block* cell = &Part_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
@@ -121,7 +115,7 @@ void Entity_Ue(EntityNode* node, real d, real b, real c) {
 		e.y += cell->vel.y*d;
 	}
 	if (c==0) {
-		real f = Vec_fastDist(&e)+1;
+		real f = Vec_fastDist(e)+1;
 		if (f>=8) {
 			Vec_mul(&e, 3.8/f);
 			d = 2;
@@ -131,13 +125,13 @@ void Entity_Ue(EntityNode* node, real d, real b, real c) {
 		} else
 			d = 1;
 	} else {
-		d = floor(Vec_fastDist(&e)/3)+1;
+		d = floor(Vec_fastDist(e)/3)+1;
 		Vec_mul(&e, 1/d);
 	}
 	node->touching = 0;
 	if (b==1) {
 		Vec_mul(&e, d);
-		Vec_add(&node->pos, &e);
+		Vec_add(&node->pos, e);
 		node->pos.x = clamp(node->pos.x, 4, WIDTH-5);
 		node->pos.y = clamp(node->pos.y, 4, H+11);
 	} else {
@@ -235,11 +229,11 @@ void Entity_update(void) {
 			Player* player = &players[a->meta1 != 0];
 			a->decay++;
 			bool w =
-				Part_pos2(&a->parts[4].pos)[Part_ofs(0,1)]>Part_BGFAN ||
-				Part_pos2(&a->parts[4].pos)[0]>Part_BGFAN;
+				Part_pos2(a->parts[4].pos)[Part_ofs(0,1)]>Part_BGFAN ||
+				Part_pos2(a->parts[4].pos)[0]>Part_BGFAN;
 			bool rightFoot =
-				Part_pos2(&a->parts[5].pos)[Part_ofs(0,1)]>Part_BGFAN ||
-				Part_pos2(&a->parts[5].pos)[0]>Part_BGFAN;
+				Part_pos2(a->parts[5].pos)[Part_ofs(0,1)]>Part_BGFAN ||
+				Part_pos2(a->parts[5].pos)[0]>Part_BGFAN;
 			if (down && a->meta2 == Elem_BIRD) {
 				int b;
 				for (b=0;b<6;b++)
@@ -252,7 +246,7 @@ void Entity_update(void) {
 				Entity_moveNode(&a->parts[4], 0.3, 0.995);
 				Entity_moveNode(&a->parts[5], 0.3, 0.995);
 			}
-			Vec_add(&a->parts[0].pos, &a->vel);
+			Vec_add(&a->parts[0].pos, a->vel);
 			Vec_mul(&a->vel, 0.5);
 			if (a->vel.x!=0)
 				a->type = Entity_PLAYER+2;
@@ -315,7 +309,7 @@ void Entity_update(void) {
 			int x,y;
 			for (y=0;y<3;y++) {
 				for (x=-1;x<2;x++) {
-					Part* p = Part_pos2(&a->parts[0].oldPos)[Part_ofs(x,y)];
+					Part* p = Part_pos2(a->parts[0].oldPos)[Part_ofs(x,y)];
 					if (p == Part_BGFAN)
 						a->meta2 = Elem_FAN;
 					else if (p >= Part_0 && ELEMENTS[p->type].playerValid==1)
@@ -389,14 +383,13 @@ void Entity_update(void) {
 								continue;
 							}
 						}
-						Vector e;
-						Vec_sub2(&e, &a->parts[r].pos, &a->parts[r].oldPos);
+						Point e = Vec_sub2(a->parts[r].pos, a->parts[r].oldPos);
 						Vec_fastNormalize(&e);
 						int d;
 						for (d=0; d<=10;d++) {
 							a->parts[d].pos.x = w+e.x+Random_2(-0.1,0.1);
 							a->parts[d].pos.y = b+e.y+Random_2(-0.1,0.1);
-							a->parts[d].oldPos = (Vector){w,b};
+							a->parts[d].oldPos = (Point){w,b};
 						}
 						break;
 					}
@@ -422,7 +415,7 @@ void Entity_update(void) {
 			int b;
 			for (b=0;b<11;b++) {
 				Entity_moveNode(&a->parts[b], 0.1, 0.999);
-				Vec_add(&a->parts[b].pos, &a->vel);
+				Vec_add(&a->parts[b].pos, a->vel);
 			}
 			Vec_mul(&a->vel, 0.5);
 			real e = (150-a->decay)/150;
@@ -494,11 +487,10 @@ void Entity_update(void) {
 			Entity_Se(a, 6, 7, r, 0.5, 0.5);
 			if (a->type==Entity_BOX+2/*&&Parts_limits[Menu_dotLimit]-Parts_used>=1000*/) {
 				for (b=0;b<5;b+=2) {
-					Vector e;
-					Vec_sub2(&e, &a->parts[b+1].oldPos, &a->parts[b].oldPos);
+					Point e = Vec_sub2(a->parts[b+1].oldPos, a->parts[b].oldPos);
 					Vec_mul(&e, Random_(1));
-					Vec_add(&e, &a->parts[b].oldPos);
-					if (Part_pos2(&e)[0]<=Part_BGFAN)
+					Vec_add(&e, a->parts[b].oldPos);
+					if (Part_pos2(e)[0]<=Part_BGFAN)
 						Part_create(e.x, e.y, Elem_FIRE);
 				}
 			}
