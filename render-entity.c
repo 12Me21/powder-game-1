@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "common.h"
 #include "draw.h"
 #include "entity.h"
@@ -85,10 +86,10 @@ void Entity_render(void) {
 				q=-1;
 				n=1;
 			}
-			Color headcolor = ELEMENTS[e->meta2].color ?: tan;
+			Color headcolor = ELEMENTS[e->meta].color ?: tan;
 			if (Menu_bgMode==Bg_SILUET)
 				headcolor = 0x000000;
-			Draw_head(e->parts[0].pos.x, e->parts[0].pos.y, f, q, g, n, e->meta1==1, headcolor);
+			Draw_head(e->parts[0].pos.x, e->parts[0].pos.y, f, q, g, n, e->isPlayer2, headcolor);
 			// add light to region around player
 			if (Menu_bgMode==Bg_DARK) {
 				int y,x;

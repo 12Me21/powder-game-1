@@ -7,7 +7,7 @@ typedef union Point {
 		real x;
 		real y;
 	};
-	_Complex float z;
+	Complex c;
 } Point;
 
 void Vec_add(Point* a, Point b);

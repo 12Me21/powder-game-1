@@ -40,7 +40,7 @@ break; case Elem_GLASS:
 #elif defined UPDATE_BALL
 	real dist = Vec_dist(vel);
 	if (dist>5 && (touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB))
-		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0.1*d);
+		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0.1*adv);//mmm
 	else if (touched==Elem_THUNDER)
 		Ball_break(ball, 1, Elem_GLASS, 0, 0, 0, 0);
 	else if (touched==Elem_LASER)

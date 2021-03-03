@@ -241,23 +241,23 @@ void Menu_render(void) {
 			c=127-8;
 		int e=14;
 		Draw_mrectangle(c-3,e-3,W/4+6,H/4+6,0x808080);
-		save1();
+		Save_save1();
 		int a=0;
 		axis b,d;
 		for (b=0; b<H; b+=4) {
 			for (d=0; d<W; d+=4) {
 				e = b*W+d;
-				if (saveDataArray[e]==0) //try avoid empty?
+				if (Save_dataArray[e]==0) //try avoid empty?
 					e += W+1;
 				a = 0;
 				if (Menu_bgMode == Bg_DARK) {
-					if (ELEMENTS[saveDataArray[e]].state == State_HOT)
-						a = saveDataArray[e];
+					if (ELEMENTS[Save_dataArray[e]].state == State_HOT)
+						a = Save_dataArray[e];
 				} else if (Menu_bgMode==Bg_SILUET) {
-					if (saveDataArray[e]!=0)
+					if (Save_dataArray[e]!=0)
 						a = 1;
 				} else
-					a = saveDataArray[e];
+					a = Save_dataArray[e];
 				Color col;
 				if (Menu_bgMode==Bg_GRAY)
 					col = ELEMENTS[a].grayColor;

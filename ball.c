@@ -83,8 +83,8 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, 
 			Part* near = pc[neighbors[i].offset];
 			if (near<=Part_BGFAN) {
 				near = Part_create(
-					floor(ball->pos.x)+neighbors[i].breakX,
-					floor(ball->pos.y)+neighbors[i].breakY,
+					(int)(ball->pos.x)+neighbors[i].breakX,
+					(int)(ball->pos.y)+neighbors[i].breakY,
 					createType
 				);
 				if (near) {
@@ -100,8 +100,8 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, 
 			Part* near = pc[neighbors[i].offset];
 			if (near<=Part_BGFAN) {
 				near = Part_create(
-					floor(ball->pos.x)+neighbors[i].breakX,
-					floor(ball->pos.y)+neighbors[i].breakY,
+					(int)(ball->pos.x)+neighbors[i].breakX,
+					(int)(ball->pos.y)+neighbors[i].breakY,
 					createType
 				);
 				if (near) {
@@ -134,6 +134,145 @@ static bool Ball_react(Ball* ball, Part* part, int* newType) {
 		part->type==Elem_FIRE;
 }
 
+static void checkDragging(Ball* i) {
+	if (!i->held) {
+		if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
+			if (Vec_fastDist((Point){Pen_x-i->pos.x, Pen_y-i->pos.y})<20)
+				i->held = true;
+		}
+	} else {
+		if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
+			i->vel.x += 0.05*(Pen_x-i->pos.x);
+			i->vel.y += 0.05*(Pen_y-i->pos.y);
+			Vec_mul(&i->vel, 0.9);
+		} else {
+			Vec_mul(&i->vel, 0.3);
+			i->held = false;
+		}
+	}
+}
+
+static void checkEntities(Ball* i) {
+	Entity* en;
+	forRange (en, =entitys, <Entity_next, ++) {
+		if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
+			for (int f=4; f<=5; f++) {
+				real dx = abs(en->parts[f].pos.x - i->pos.x);
+				real dy = abs(en->parts[f].pos.y - i->pos.y);
+				if (dx<=9 && dy<=9) {
+					i->vel.x += 0.1*(en->parts[f].pos.x - en->parts[f].oldPos.x);
+					i->vel.y += 0.2*(en->parts[f].pos.y - en->parts[f].oldPos.y);
+				}
+			}
+		}
+	}
+}
+
+bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
+	real nextx = i->pos.x+i->vel.x*n;
+	real nexty = i->pos.y+i->vel.y*n;
+	// way offscreen
+	if (nextx<4 || nextx>=WIDTH-4 || nexty<4 || nexty>=H+12) {
+		i->used = false;
+		return true;
+	}
+	// edge loop
+	if (Menu_edgeMode==1) {
+		if (nextx<8) {
+			if (Part_pos(nextx+W,nexty)[0]<=Part_BGFAN) {
+				i->pos.x += W;
+				i->vel.x *= 0.8;
+			} else
+				i->vel.x *= -0.8;
+			nextx = i->pos.x+i->vel.x*n;
+		} else if (nextx>=W+8) {
+			if (Part_pos(nextx-W,nexty)[0]<=Part_BGFAN) {
+				i->pos.x -= W;
+				i->vel.x *= 0.8;
+			} else
+				i->vel.x *= -0.8;
+			nextx = i->pos.x+i->vel.x*n;
+		}
+		if (nexty<8) {
+			if (Part_pos(nextx,nexty+H)[0]<=Part_BGFAN) {
+				i->pos.y += H;
+				i->vel.y *= 0.8;
+			} else
+				i->vel.y *= -0.8;
+			nexty = i->pos.y+i->vel.y*n;
+		} else if (nexty>=H+8) {
+			if (Part_pos(nextx,nexty-H)[0]<=Part_BGFAN) {
+				i->pos.y -= H;
+				i->vel.y *= 0.5; // this is not 0.8 like the others
+			} else
+				i->vel.y *= -0.8;
+			nexty = i->pos.y+i->vel.y*n;
+		}
+	}
+	// collision with parts
+	Point z = {0,0};
+	Part** pc = Part_pos(nextx,nexty);
+	int y=0;
+	for (int d=0;d<37;d++) {
+		Part* near = pc[neighbors[d].offset];
+		if (near<=Part_BGFAN) continue;
+		if (near>=Part_0) {
+			*touched = near->type;
+			if (Ball_react(i, near, newType))
+				continue;
+		} else {
+			*touched = near-Part_0;
+		}
+		Vec_sub(&z, neighbors[d].breakVel);
+		y++;
+	}
+	if (y==0) {
+		i->pos.x = nextx;
+		i->pos.y = nexty;
+	} else {
+		Vec_normalize(&z);
+		i->vel.y -= weight;
+		real d = 0.999*Vec_dist(i->vel);
+		Vec_mul(&z, -(z.x*i->vel.x + z.y*i->vel.y));
+		Vec_add(&i->vel, z);
+		Vec_mul(&i->vel, 0.999);
+		Vec_mul(&z, 0.1);
+		Vec_add(&i->vel, z);
+		Vec_normalize(&i->vel);
+		Vec_mul(&i->vel, d);
+		i->pos.x += i->vel.x*n;
+		i->pos.y += i->vel.y*n;
+		i->vel.y += weight;
+	}
+	pc = Part_pos2(i->pos);
+	z = (Point){0,0};
+	y = 0;
+	for (int d=0;d<21;d++) {
+		Part* near = pc[neighbors[d].offset];
+		if (near<Part_BGFAN) continue;
+		if (near>=Part_0) {
+			int btype = i->type;
+			int ptype = near->type;
+			if (
+			    (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state==State_LIQUID && btype!=ptype) ||
+			    (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state!=State_LIQUID) ||
+			    (ELEMENTS[ptype].state==State_GAS && ELEMENTS[btype].state!=State_GAS) ||
+			    (ptype==Elem_LASER && ELEMENTS[btype].state==State_LIQUID) ||
+			    (ptype==Elem_FIRE) ||
+			    (ptype==Elem_FIRE && btype==Elem_THUNDER)
+			    )
+				continue;
+		}
+		Vec_sub(&z, neighbors[d].breakVel);
+		y++;
+	}
+	if (y) {
+		Vec_normalize(&z);
+		Vec_add(&i->pos, z);
+	}
+	return false;
+}
+
 void Ball_update(void) {
 	Ball* i;
 	forRange (i, =balls, <Ball_END, ++) {
@@ -144,8 +283,7 @@ void Ball_update(void) {
 			continue;
 		}
 		Part** p = Part_pos2(i->pos);
-		int d;
-		for (d=0;d<21;d++)
+		for (int d=0; d<21; d++)
 			if (p[neighbors[d].offset] == Part_BALL)
 				p[neighbors[d].offset] = Part_EMPTY;
 		real weight = ELEMENTS[i->type].ballWeight;
@@ -154,152 +292,27 @@ void Ball_update(void) {
 		real adv = ELEMENTS[i->type].ballAdvection;
 		if (adv) {
 			Block* cell = &Part_blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
-			i->vel.x += cell->vel.x*d;
-			i->vel.y += cell->vel.y*d;
+			i->vel.x += cell->vel.x*adv;
+			i->vel.y += cell->vel.y*adv;
 			if (Vec_fastDist(cell->vel)>0.3)
-				Vec_mul(&i->vel, 0.9+(1-d)/10);
+				Vec_mul(&i->vel, 0.9+(1-adv)/10);
 		}
-		// dragging
-		if (!i->held) {
-			if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
-				if (Vec_fastDist((Point){Pen_x-i->pos.x, Pen_y-i->pos.y})<20)
-					i->held = true;
-			}
-		} else {
-			if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
-				i->vel.x += 0.05*(Pen_x-i->pos.x);
-				i->vel.y += 0.05*(Pen_y-i->pos.y);
-				Vec_mul(&i->vel, 0.9);
-			} else {
-				Vec_mul(&i->vel, 0.3);
-				i->held = false;
-			}
-		}
-		// kicked by player/fighter
-		Entity* en;
-		forRange (en, =entitys, <Entity_next, ++) {
-			if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
-				int f;
-				for (f=4; f<=5; f++) {
-					real dx = abs(en->parts[f].pos.x - i->pos.x);
-					real dy = abs(en->parts[f].pos.y - i->pos.y);
-					if (dx<=9 && dy<=9) {
-						i->vel.x += 0.1*(en->parts[f].pos.x - en->parts[f].oldPos.x);
-						i->vel.y += 0.2*(en->parts[f].pos.y - en->parts[f].oldPos.y);
-					}
-				}
-			}
-		}
+
+		checkDragging(i);
+		checkEntities(i);
+
+		// chcek movement
 		int touched = 0;
 		int newType = 0;
 		Point vel = i->vel;
-		// chcek movement
 		int q = (int)(Vec_dist(i->vel)/2)+1;
 		real n = 1.0/q;
 		int v,g;
 		for (v=g=0; v<q; v++) {
-			real nextx = i->pos.x+i->vel.x*n;
-			real nexty = i->pos.y+i->vel.y*n;
-			// way offscreen
-			if (nextx<4 || nextx>=WIDTH-4 || nexty<4 || nexty>=H+12) {
-				i->used = false;
+			if (movementStep(i, n, &touched, &newType, weight))
 				break;
-			}
-			// edge loop
-			if (Menu_edgeMode==1) {
-				if (nextx<8) {
-					if (Part_pos(nextx+W,nexty)[0]<=Part_BGFAN) {
-						i->pos.x += W;
-						i->vel.x *= 0.8;
-					} else
-						i->vel.x *= -0.8;
-					nextx = i->pos.x+i->vel.x*n;
-				} else if (nextx>=W+8) {
-					if (Part_pos(nextx-W,nexty)[0]<=Part_BGFAN) {
-						i->pos.x -= W;
-						i->vel.x *= 0.8;
-					} else
-						i->vel.x *= -0.8;
-					nextx = i->pos.x+i->vel.x*n;
-				}
-				if (nexty<8) {
-					if (Part_pos(nextx,nexty+H)[0]<=Part_BGFAN) {
-						i->pos.y += H;
-						i->vel.y *= 0.8;
-					} else
-						i->vel.y *= -0.8;
-					nexty = i->pos.y+i->vel.y*n;
-				} else if (nexty>=H+8) {
-					if (Part_pos(nextx,nexty-H)[0]<=Part_BGFAN) {
-						i->pos.y -= H;
-						i->vel.y *= 0.8;
-					} else
-						i->vel.y *= -0.8;
-					nexty = i->pos.y+i->vel.y*n;
-				}
-			}
-			Point z = {0,0};
-			Part** pc = Part_pos(nextx,nexty);
-			int d;
-			int y=0;
-			for (d=0;d<37;d++) {
-				Part* near = pc[neighbors[d].offset];
-				if (near<=Part_BGFAN) continue;
-				if (near>=Part_0) {
-					touched = near->type;
-					if (Ball_react(i, near, &newType))
-						continue;
-				} else {
-					touched = near-Part_0;
-				}
-				Vec_sub(&z, neighbors[d].breakVel);
-				y++;
-			}
-			if (y==0) {
-				i->pos.x = nextx;
-				i->pos.y = nexty;
-			} else {
-				Vec_normalize(&z);
-				i->vel.y -= weight;
-				real d = 0.999*Vec_dist(i->vel);
-				Vec_mul(&z, -(z.x*i->vel.x + z.y*i->vel.y));
-				Vec_add(&i->vel, z);
-				Vec_mul(&i->vel, 0.999);
-				Vec_mul(&z, 0.1);
-				Vec_add(&i->vel, z);
-				Vec_normalize(&i->vel);
-				Vec_mul(&i->vel, d);
-				i->pos.x += i->vel.x*n;
-				i->pos.y += i->vel.y*n;
-				i->vel.y += weight;
-			}
-			pc = Part_pos2(i->pos);
-			z = (Point){0,0};
-			y=0;
-			for (d=0;d<21;d++) {
-				Part* near = pc[neighbors[d].offset];
-				if (near<Part_BGFAN) continue;
-				if (near>=Part_0) {
-					int btype = i->type;
-					int ptype = near->type;
-					if (
-						(ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state==State_LIQUID && btype!=ptype) ||
-						(ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state!=State_LIQUID) ||
-						(ELEMENTS[ptype].state==State_GAS && ELEMENTS[btype].state!=State_GAS) ||
-						(ptype==Elem_LASER && ELEMENTS[btype].state==State_LIQUID) ||
-						(ptype==Elem_FIRE) ||
-						(ptype==Elem_FIRE && btype==Elem_THUNDER)
-					)
-						continue;
-				}
-				Vec_sub(&z, neighbors[d].breakVel);
-				y++;
-			}
-			if (y) {
-				Vec_normalize(&z);
-				Vec_add(&i->pos, z);
-			}
-		}
+		} //end of movement loop
+		// 
 		if (i->pos.x<4 || i->pos.x>=WIDTH-4 || i->pos.y<4 || i->pos.y>=H+12) {
 			i->used = false;
 			break;

@@ -15,12 +15,9 @@ typedef struct Part {
 
 int* Part_updateCounts(void);
 void Part_shuffle(void);
-void Part_render(void);
-void Part_render(void);
 Part* Part_create(real x, real y, unsigned char element);
 void Part_blow(Part* part, Point airvel);
 void Part_swap(Part* part1, Part* part2);
-void Part_update(void);
 void Part_remove(Part* part);
 void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis));
 bool Part_checkPump(Part* part, Part* pump, int dir);

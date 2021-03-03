@@ -24,7 +24,7 @@ Point Vec_sub2(Point a, Point b) {
 }
 
 void Vec_mul(Point* a, real mul) {
-	a->z *= mul;
+	a->c *= mul;
 	//a->x *= mul;
 	//a->y *= mul;
 }

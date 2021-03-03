@@ -14,8 +14,13 @@ typedef struct EntityNode {
 
 typedef struct Entity {
 	int type;
-	int meta2;
-	int meta1;
+	int meta;
+	//used for:
+	// box size
+	// player element
+	// (make this a union?)
+	
+	bool isPlayer2;
 	bool held;
 	Point vel;
 	int decay;
@@ -28,5 +33,3 @@ extern Entity entitys[Entity_MAX];
 extern Entity* Entity_next;
 
 void Entity_create(real x, real y, int type, int meta2);
-void Entity_update(void);
-
