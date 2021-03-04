@@ -1,0 +1,12 @@
+Summary for /home/twelve/Downloads/dust.jar
+Decompiled with CFR 0.151
+
+
+dust
+----------------------------
+
+b()
+  Unable to fully structure code
+  Could not resolve type clashes
+b(int int int int int )
+  Unable to fully structure code

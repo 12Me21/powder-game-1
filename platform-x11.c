@@ -17,12 +17,12 @@ extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
 extern bool Platform_keys[256];
 
 void Platform_frame(void);
-
+void Platform_main(int argc, char** argv);
 
 Display* D;
 Window win;
-XImage* ximage;
-XImage* ximage2;
+XImage* simImage;
+XImage* menuImage;
 
 long Platform_millisec(void) {
 	struct timespec ts;
@@ -31,8 +31,8 @@ long Platform_millisec(void) {
 }
 
 void Platform_redraw(void) {
-	XPutImage(D, win, DefaultGC(D, 0), ximage, 8, 8, 0, 0, W, H);
-	XPutImage(D, win, DefaultGC(D, 0), ximage2, 0, 0, 0, H, W, MENU_HEIGHT);
+	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
+	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
 }
 
 static void processEvent(void) {
@@ -125,16 +125,20 @@ int main(int argc, char** argv) {
 	XSetWMHints(D, win, hints);
 	XFree(hints);
 
-	// create image
-	ximage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)grp, WIDTH, HEIGHT, 32, 0);
+	// this refers to center portion of grp (without the 8px edge regions)
+	simImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)&grp[8][8], W,H, 32, WIDTH*4);
 	// menu
-	ximage2 = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W, MENU_HEIGHT, 32, 0);
+	menuImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W,MENU_HEIGHT, 32, 0);
 	
 	// start
-	Save_Load_test();
+	Platform_main(argc, argv);
 	while (1) {
 		Platform_frame();
 		Platform_redraw();
 		processEvent();
 	}
+}
+
+FILE* Platform_fopen(const void* name) {
+	return fopen((const char*)name, "r");
 }

@@ -6,6 +6,7 @@
 #include "menu.h"
 #include "part.h"
 #include "elements.h"
+#include "platform.h"
 #include "vector.h"
 #include "entity.h"
 #include "ball.h"
@@ -159,9 +160,12 @@ void load1(void) {
 	Part_shuffle();
 }
 
-void Save_Load_test(void) {
-	loadSaveFile(stdin);
-	load1();
+void Save_Load_test(void* filename) {
+	FILE* f = Platform_fopen(filename);
+	if (f) {
+		loadSaveFile(f);
+		load1();
+	}
 }
 
 static bool onscreen(int x, int y){

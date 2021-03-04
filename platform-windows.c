@@ -8,6 +8,7 @@
 #include "save.h"
 #include "vector.h"
 #include "draw.h"
+#include "platform.h"
 
 extern int Platform_mouseX, Platform_mouseY;
 extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
@@ -23,42 +24,32 @@ long Platform_millisec(void) {
 	return GetTickCount();
 }
 
+// todo: make a wrapper function so this can be called from outside platform- files.
+// call one function to create bitmaps (for windows this can just do nothing)
+// and then another to render them
+void gcopy(HDC hdc, void* grp, int sw, int sh, int dx, int dy, int sx, int sy, int w, int h) {
+	StretchDIBits(
+		hdc,
+		dx,dy, w,h, //dest
+		sy,sx, w,h, //source
+		grp, &(BITMAPINFO){
+			{
+				sizeof(BITMAPINFOHEADER),
+				sw, -sh,
+				1, 32, BI_RGB, 0,
+				0, 0, 0, 0
+			},
+			{{0, 0, 0, 0}}
+		},
+		DIB_RGB_COLORS,
+		SRCCOPY
+	);
+}
+
 void DrawPixels(HDC hdc) {
-	static const BITMAPINFO bmi = {
-		{
-			sizeof(BITMAPINFOHEADER),
-			WIDTH, -HEIGHT,
-			1, 32, BI_RGB, 0,
-			0, 0, 0, 0
-		},
-		{{0, 0, 0, 0}}
-	};
-	StretchDIBits(
-		hdc,
-		0, 0, W, H,
-		8, 8, W, H,
-		grp, &bmi,
-		DIB_RGB_COLORS,
-		SRCCOPY
-	);
+	gcopy(hdc, grp,WIDTH,HEIGHT, 0,0, 8,8, W,H);
 	// draw menu
-	static const BITMAPINFO bmi2 = {
-		{
-			sizeof(BITMAPINFOHEADER),
-			W, -MENU_HEIGHT,
-			1, 32, BI_RGB, 0,
-			0, 0, 0, 0
-		},
-		{{0, 0, 0, 0}}
-	};
-	StretchDIBits(
-		hdc,
-		0, H, W, MENU_HEIGHT,
-		0, 0, W, MENU_HEIGHT,
-		Menu_grp, &bmi2,
-		DIB_RGB_COLORS,
-		SRCCOPY
-	);
+	gcopy(hdc, Menu_grp,W,MENU_HEIGHT, 0,H, 0,0, W,MENU_HEIGHT);
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -81,28 +72,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	return 0;
 }
 
+FILE* Platform_fopen(const void* name) {
+	return _wfopen((const wchar_t*)name, L"r");
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	MSG msg;
-	WNDCLASSW wc = {
+	WNDCLASS wc = {
 		.style = CS_HREDRAW | CS_VREDRAW,
-		.lpszClassName = L"Pixels",
+		.lpszClassName = "Powder Game",
 		.hInstance = hInstance,
 		.hbrBackground = GetSysColorBrush(COLOR_3DFACE),
 		.lpfnWndProc = WndProc,
 		.hCursor = LoadCursor(0, IDC_ARROW),
 	};
-	RegisterClassW(&wc);
+	RegisterClass(&wc);
 	RECT rect = {
-		.top=0,
-		.left=0,
-		.bottom=WINDOW_HEIGHT,
-		.right=WINDOW_WIDTH,
+		.top = 0,
+		.left = 0,
+		.bottom = WINDOW_HEIGHT,
+		.right = WINDOW_WIDTH,
 	};
 	DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 	AdjustWindowRect(&rect, style, false);
-	win = CreateWindowW(wc.lpszClassName, L"Pixels", style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
-	
-	Save_Load_test();
+	win = CreateWindow(wc.lpszClassName, "Powder Game", style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
+
+	int argc;
+	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	Platform_main(argc, (void**)argv);
 
 	HDC hdc = GetDC(win);
 	float delta = 0;
