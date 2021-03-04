@@ -21,7 +21,7 @@ break; case Elem_SUPERBALL:
 	} else if (f >= Part_0) {
 		// liquids other than mercury
 		if (ELEMENTS[f->type].state == State_LIQUID && f->type != Elem_MERCURY) {
-			f->pos.x -= p->vel.x;
+			f->vel.x -= p->vel.x;
 			p->vel.x *= 0.5;
 			real c = p->pos.x;
 			p->pos.x = f->pos.x;
@@ -49,7 +49,7 @@ break; case Elem_SUPERBALL:
 	} else if (f >= Part_0) {
 		// liquids other than mercury
 		if (ELEMENTS[f->type].state == State_LIQUID && f->type != Elem_MERCURY) {
-			f->pos.y -= p->vel.y;
+			f->vel.y -= p->vel.y;
 			p->vel.y *= 0.5;
 			real c = p->pos.y;
 			p->pos.y = f->pos.y;
@@ -76,5 +76,10 @@ break; case Elem_SUPERBALL:
 		}
 	}
 	*Part_pos2(p->pos) = p;
+	if (p->pos.y < 0 || p->pos.x<0 || p->pos.x>=WIDTH || p->pos.y>=HEIGHT) {
+		//printf("out of bounds part! %s pos: %f %f, airvel: %f,%f\n", ELEMENTS[p->type].name, p->pos.x, p->pos.y, c->vel.x, c->vel.y);
+		Part_print(p);
+		Part_remove(p--);
+	}
 #endif
 }

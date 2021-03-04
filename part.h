@@ -39,3 +39,4 @@ void Part_save(int saveData[W*H], int saveMeta[W*H]);
 #define Part_pos3(pos,x,y) (Part_pos2(pos)[Part_ofs(x,y)])
 
 void Part_paint(axis x, axis y, int replace, int type, int meta);
+void Part_print(Part* p);

@@ -248,3 +248,7 @@ void Part_paint(axis x, axis y, Elem replace, Elem type, int meta) {
 			Part_paint(x,y+1,replace,type,meta);
 	}
 }
+
+void Part_print(Part* p) {
+	printf("%s\npos: %f,%f\nvel: %f,%f\nmeta: %d\npumpType: %d\n", ELEMENTS[p->type].name, p->pos.x, p->pos.y, p->vel.x, p->vel.y, p->meta, p->pumpType);
+}

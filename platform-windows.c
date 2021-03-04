@@ -7,8 +7,7 @@
 #include "input.h"
 #include "save.h"
 #include "vector.h"
-
-extern Color grp[HEIGHT][WIDTH];
+#include "draw.h"
 
 extern int Platform_mouseX, Platform_mouseY;
 extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
@@ -36,9 +35,27 @@ void DrawPixels(HDC hdc) {
 	};
 	StretchDIBits(
 		hdc,
-		0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
-		8, 0, WINDOW_WIDTH, WINDOW_HEIGHT, //idk why this isn't 8,8
+		0, 0, W, H,
+		8, 8, W, H,
 		grp, &bmi,
+		DIB_RGB_COLORS,
+		SRCCOPY
+	);
+	// draw menu
+	static const BITMAPINFO bmi2 = {
+		{
+			sizeof(BITMAPINFOHEADER),
+			W, -MENU_HEIGHT,
+			1, 32, BI_RGB, 0,
+			0, 0, 0, 0
+		},
+		{{0, 0, 0, 0}}
+	};
+	StretchDIBits(
+		hdc,
+		0, H, W, MENU_HEIGHT,
+		0, 0, W, MENU_HEIGHT,
+		Menu_grp, &bmi2,
 		DIB_RGB_COLORS,
 		SRCCOPY
 	);
@@ -85,7 +102,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	AdjustWindowRect(&rect, style, false);
 	win = CreateWindowW(wc.lpszClassName, L"Pixels", style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
 	
-	Load_test();
+	Save_Load_test();
 
 	HDC hdc = GetDC(win);
 	float delta = 0;

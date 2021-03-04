@@ -24,8 +24,8 @@ void Cell_update(void) {
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
 		c->vel2 = c->vel;
 	int b, d;
-	forRange (b, =2, <(H+8)/4, ++) {
-		forRange (d, =2, <(W+8)/4, ++) {
+	forRange (b, =2, <(HEIGHT)/4-2, ++) {
+		forRange (d, =2, <(WIDTH)/4-2, ++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block!=1) {
 				Point c = a->vel;
@@ -88,8 +88,8 @@ void Cell_update(void) {
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
 		c->pres2 = c->pres;
 	}
-	forRange (b, =2, <(H+8)/4, ++) {
-		forRange (d, =2, <(W+8)/4, ++) {
+	forRange (b, =2, <(HEIGHT)/4-2, ++) {
+		forRange (d, =2, <(WIDTH)/4-2, ++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block == 1) continue;
 			void pcheck(int x, int y, real m) {

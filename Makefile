@@ -1,4 +1,4 @@
-srcs:= elements input main part vector draw menu save bg entity platform-x11 render-dot render-menu render-entity ball render-ball cell wheel wheel-frames font bubble reset
+srcs:= elements input main part vector draw menu save bg entity platform-x11 render-dot render-menu render-entity ball render-ball cell wheel wheel-frames font bubble reset scale
 output:= pg1
 
 libs:= X11 m Xpm
