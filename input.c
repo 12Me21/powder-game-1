@@ -4,6 +4,10 @@
 #include "menu.h"
 #include "common.h"
 
+// todo:
+// we need to buffer mouse clicks,
+// so that a click which starts and end within one frame
+// is still counted
 
 Key Keys[256] = {
 	{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, //0-12

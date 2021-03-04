@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include "menu.h"
+#include "save.h"
 #include "platform.h"
 
 #define DEFCALL(name) void name(void); name()
+
+void Platform_main(int argc, void** argv) {
+	if (argc>=2)
+		Save_Load_test(argv[1]);
+}
 
 void render() {
 	DEFCALL(Bg_render);
@@ -25,8 +31,6 @@ void Platform_frame(void) {
 	DEFCALL(Menu_input);
 	DEFCALL(Menu_update);
 	
-	
-
 	for (int i=0; i<1<<Menu_gameSpeed; i++) {
 		long n = Platform_millisec();
 		void status(void) {
@@ -48,6 +52,5 @@ void Platform_frame(void) {
 		status();
 		//puts("");
 	}
-
 	render();
 }
