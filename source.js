@@ -2801,6 +2801,9 @@ yd.prototype.Parts_update=function(){
 				Parts_held[i]=false;
 			}
 		}
+		var pp = Parts_pos[i];
+		if (pp.x<0 || pp.y<0 || pp.x>=WIDTH || pp.y>=316)
+			alert("offscreen!");
 		//UPDATE ELEMENTS!
 		i=i-this.C(i,d);
 	}

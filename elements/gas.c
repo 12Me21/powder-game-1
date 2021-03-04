@@ -7,7 +7,7 @@ break; case Elem_GAS:
 	Vec_mul(&p->vel, 0.9);
 	Part_blow(p, airvel);
 	int g = Random_int(4);
-	Part* near = Part_pos2(p->pos)[(Offset[]){1,Part_ofs(0,1),-1,Part_ofs(0,-1)}[g]];
+	Part* near = Part_pos2(p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,-1)}[g]];
 	if (near>=Part_0) {
 		if (g<3 && (ELEMENTS[near->type].state == State_POWDER || ELEMENTS[near->type].state == State_LIQUID)) {
 			Part_swap(p, near);
@@ -31,27 +31,14 @@ break; case Elem_GAS:
 		p->meta++;
 		break;
 	}
-	int range = 10;
-	int px = p->pos.x;
-	int py = p->pos.y;
-	int xs=px-range;
-	if (xs<4) xs=4;
-	int ys=py-range;
-	if (ys<4) ys=4;
-	int xe=px+range;
-	if (xe>WIDTH-4-1) xe=WIDTH-4-1;
-	int ye=py+range;
-	if (ye>H+12-1) ye=H+12-1;
-	for (int y=ys;y<=ye;y++) {
-		for (int x=xs;x<=xe;x++) {
-			if ((x-px)*(x-px)+(y-py)*(y-py)>range*range) continue;
-			Part* near = Part_pos(x, y)[0];
-			if (near>=Part_0 && near->type==Elem_GAS)
-				near->meta = 1;
-			if (near<=Part_BGFAN && Rnd_perchance(1))
-				Part_create(x, y, Elem_FIRE);
-		}
+	void func(axis x, axis y, axis sx, axis sy) {
+		Part* near = Part_pos(x, y)[0];
+		if (near>=Part_0 && near->type==Elem_GAS)
+			near->meta = 1;
+		if (near<=Part_BGFAN && Rnd_perchance(1))
+			Part_create(x, y, Elem_FIRE);
 	}
+	Part_doRadius(p->pos.x, p->pos.y, 10, func);
 	c->pres += 2;
 	pd -= 2;
 	p->type = Elem_FIRE;

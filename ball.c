@@ -28,7 +28,7 @@ void Ball_create(real x, real y, Elem type) {
 	}
 }
 
-#define XYOFS(x,y) x,y,(x)+(y)*WIDTH
+#define XYOFS(x,y) x,y,Part_ofs(x,y)
 
 static const struct neighbor {
 	Point breakVel;
@@ -121,17 +121,20 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, 
 
 static bool Ball_react(Ball* ball, Part* part, int* newType) {
 	//return 0;
+	Elem partType = part->type; //this is stored now, incase the particle is deleted!
 	switch (ball->type) {
 #define UPDATE_BALL_PART 1
 #include "elements/All.c"
 #undef UPDATE_BALL_PART
 	}
-	int pstate = ELEMENTS[part->type].state;
+	int pstate = ELEMENTS[partType].state;
 	int bstate = ELEMENTS[ball->type].state;
-	return (pstate==State_LIQUID && bstate==State_LIQUID && ball->type!=part->type) ||
+	//if (ball->type==Elem_ACID)
+		//printf("touching type %s\n",ELEMENTS[part->type].name);
+	return (pstate==State_LIQUID && bstate==State_LIQUID && ball->type!=partType) ||
 		(pstate==State_LIQUID && bstate!=State_LIQUID) ||
 		(pstate==State_GAS && bstate!=State_GAS) ||
-		part->type==Elem_FIRE;
+		partType==Elem_FIRE;
 }
 
 static void checkDragging(Ball* i) {
@@ -176,7 +179,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 		i->used = false;
 		return true;
 	}
-	// edge loop
+	// edge loop mode
 	if (Menu_edgeMode==1) {
 		if (nextx<8) {
 			if (Part_pos(nextx+W,nexty)[0]<=Part_BGFAN) {
@@ -212,7 +215,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	// collision with parts
 	Point z = {0,0};
 	Part** pc = Part_pos(nextx,nexty);
-	int y=0;
+	int touches=0;
 	for (int d=0;d<37;d++) {
 		Part* near = pc[neighbors[d].offset];
 		if (near<=Part_BGFAN) continue;
@@ -224,9 +227,9 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 			*touched = near-Part_0;
 		}
 		Vec_sub(&z, neighbors[d].breakVel);
-		y++;
+		touches++;
 	}
-	if (y==0) {
+	if (touches==0) {
 		i->pos.x = nextx;
 		i->pos.y = nexty;
 	} else {
@@ -246,31 +249,42 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	}
 	pc = Part_pos2(i->pos);
 	z = (Point){0,0};
-	y = 0;
+	touches = 0;
 	for (int d=0;d<21;d++) {
 		Part* near = pc[neighbors[d].offset];
 		if (near<Part_BGFAN) continue;
 		if (near>=Part_0) {
 			int btype = i->type;
 			int ptype = near->type;
-			if (
-			    (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state==State_LIQUID && btype!=ptype) ||
-			    (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state!=State_LIQUID) ||
-			    (ELEMENTS[ptype].state==State_GAS && ELEMENTS[btype].state!=State_GAS) ||
-			    (ptype==Elem_LASER && ELEMENTS[btype].state==State_LIQUID) ||
-			    (ptype==Elem_FIRE) ||
-			    (ptype==Elem_FIRE && btype==Elem_THUNDER)
-			    )
+			if (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state==State_LIQUID && btype!=ptype)
+				continue;
+			if (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state!=State_LIQUID)
+				continue;
+			if (ELEMENTS[ptype].state==State_GAS && ELEMENTS[btype].state!=State_GAS)
+				continue;
+			if (ptype==Elem_LASER && ELEMENTS[btype].state==State_LIQUID)
+				continue;
+			if (ptype==Elem_FIRE)
+				continue;
+			if (ptype==Elem_THUNDER && btype==Elem_THUNDER)
 				continue;
 		}
 		Vec_sub(&z, neighbors[d].breakVel);
-		y++;
+		touches++;
 	}
-	if (y) {
+	if (touches) {
 		Vec_normalize(&z);
 		Vec_add(&i->pos, z);
 	}
 	return false;
+}
+
+static void undraw(Ball* i) {
+	// erase fake parts from grid
+	Part** p = Part_pos2(i->pos);
+	for (int d=0; d<21; d++)
+		if (p[neighbors[d].offset] == Part_BALL)
+			p[neighbors[d].offset] = Part_EMPTY;
 }
 
 void Ball_update(void) {
@@ -282,10 +296,7 @@ void Ball_update(void) {
 			i->used = false;
 			continue;
 		}
-		Part** p = Part_pos2(i->pos);
-		for (int d=0; d<21; d++)
-			if (p[neighbors[d].offset] == Part_BALL)
-				p[neighbors[d].offset] = Part_EMPTY;
+		undraw(i);
 		real weight = ELEMENTS[i->type].ballWeight;
 		i->vel.y += weight;
 
@@ -304,34 +315,34 @@ void Ball_update(void) {
 		// chcek movement
 		int touched = 0;
 		int newType = 0;
-		Point vel = i->vel;
+		Point vel = i->vel; //this is used way later
 		int q = (int)(Vec_dist(i->vel)/2)+1;
-		real n = 1.0/q;
-		int v,g;
-		for (v=g=0; v<q; v++) {
-			if (movementStep(i, n, &touched, &newType, weight))
+		for (int v=0; v<q; v++) {
+			if (movementStep(i, 1.0/q, &touched, &newType, weight))
 				break;
 		} //end of movement loop
 		// 
+
 		if (i->pos.x<4 || i->pos.x>=WIDTH-4 || i->pos.y<4 || i->pos.y>=H+12) {
 			i->used = false;
 			break;
 		}
+		
 		Ball* ball = i;
 		switch (i->type) {
 #define UPDATE_BALL 1
 #include "elements/All.c"
 #undef UPDATE_BALL
 		}
-		if (newType != 0) {
+		if (newType) {
 			i->type = newType;
 			i->meta = 0;
-			newType = 0;
 		}
+		
 		if (i->used) {
+			// draw new fake parts to grid
 			Part** pc = Part_pos2(i->pos);
-			int d;
-			for (d=0;d<21;d++) {
+			for (int d=0; d<21; d++) {
 				Part** p = &pc[neighbors[d].offset];
 				if (*p<=Part_BGFAN)
 					*p = Part_BALL;

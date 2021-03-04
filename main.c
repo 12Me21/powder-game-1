@@ -15,7 +15,7 @@ void render() {
 	// todo: more bg stuff
 	
 	DEFCALL(Menu_render);
-	//DEFCALL(Scale_render);
+	DEFCALL(Scale_render);
 }
 
 void Platform_frame(void) {
