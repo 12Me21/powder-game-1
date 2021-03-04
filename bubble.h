@@ -2,18 +2,21 @@
 #include <stdbool.h>
 #include "common.h"
 
-extern int Qd;
+extern int Qd; // Qd
 
 typedef struct Bubble {
-	real x;
-	real y;
-	int ke;
-	bool held;
+	real x, y;// Ke[], Le[]
+	int ke;   // ke[]
+	bool held;// Me[]
 } Bubble;
 
-extern Bubble Bubble_bubbles[2000];
-extern Bubble* const Bubble_end;
-extern Bubble* Bubble_next;
+// Pd
+#define Bubble_MAX 2000
 
+extern Bubble Bubble_bubbles[Bubble_MAX];
+extern Bubble* const Bubble_end;
+extern Bubble* Bubble_next; // Od (roughly)
+
+void Bubble_create(axis x, axis y); // le()
+// for drawing bubble with mouse
 void Bubble_draw(axis x, axis y, bool rising, bool old);
-void Bubble_create(axis x, axis y);

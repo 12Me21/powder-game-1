@@ -8,8 +8,8 @@
 #include "bg.h"
 #include "wheel.h"
 
-Wheel Wheel_wheels[100];
-Wheel* const Wheel_end = &Wheel_wheels[100];
+Wheel Wheel_wheels[Wheel_MAX];
+Wheel* const Wheel_end = &Wheel_wheels[Wheel_MAX];
 Wheel* Wheel_next = Wheel_wheels;
 
 extern const char Wheel_frames[16][32][32];

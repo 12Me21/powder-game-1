@@ -3,13 +3,13 @@
 #include "common.h"
 
 typedef struct Block {
-	Point vel;
-	real pres;
-	Point vel2;
-	real pres2;
-	char block; //uh this is an int
+	Point vel; // I[]
+	real pres; // J[]
+	Point vel2; // md[] (these names might be reversed)
+	real pres2; // nd[]
+	char block; // K[]
 } Block;
 
-extern real pd;
+extern real pd; // pd
 extern Block Part_blocks[HEIGHT/4][WIDTH/4];
 extern Block* const Part_blocks_end;
