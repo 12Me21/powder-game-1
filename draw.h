@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include "common.h"
 #include "vector.h"
-void Draw_text(int x, int y, char* text, Color color, Color bg);
-void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacing);
+void Draw_text(int x, int y, char* text, Color color, Color bg); // k.a()
+void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacing); // m()
 void Draw_rectangle(int x, int y, int width, int height, Color color);
 void Draw_mrectangle(int x, int y, int width, int height, Color color);
-void Draw_line(real x1, real y1, real x2, real y2, Color color);
+void Draw_line(real x1, real y1, real x2, real y2, Color color); // B()
 void Draw_vline(Point v1, Point v2, Color color);
 void Draw_init(void);
 void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format, ...);

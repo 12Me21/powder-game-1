@@ -28,6 +28,7 @@ typedef char Elem;
 #define H 300
 
 // size of physics area and framebuffer
+// h
 #define WIDTH (8+W+8)
 #define HEIGHT (8+H+8)
 

@@ -74,7 +74,7 @@ static const struct neighbor {
    {(Point){ 0.7 , 0.7 },XYOFS( 2, 2),},
 };
 
-static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
+void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
 	Part** pc = Part_pos2(ball->pos);
 	if (mode==0) {
 		for (int i=9;i<21;i++) {
@@ -117,7 +117,7 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, 
 	}
 }
 
-static bool Ball_react(Ball* ball, Part* part, Elem* newType) {
+bool Ball_react(Ball* ball, Part* part, Elem* newType) {
 	//return 0;
 	Elem partType = part->type; //this is stored now, incase the particle is deleted!
 	switch (ball->type) {
@@ -315,8 +315,7 @@ void Ball_update(void) {
 		for (int v=0; v<q; v++) {
 			if (movementStep(i, 1.0/q, &touched, &newType, weight))
 				break;
-		} //end of movement loop
-		// 
+		}
 
 		if (i->pos.x<4 || i->pos.x>=WIDTH-4 || i->pos.y<4 || i->pos.y>=H+12) {
 			i->used = false;

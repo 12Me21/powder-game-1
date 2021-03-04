@@ -47,7 +47,7 @@ bool Menu_minimapEnabled = false;
 int buttonflash = 0;
 int Menu_fps = 0;
 
-int Part_LIMITS[3] = {10000, 20000, 40000}; //todo;
+const int Part_LIMITS[3] = {10000, 20000, 40000}; //todo;
 
 static int wrap(int a, int b) {
 	if (a<0)
