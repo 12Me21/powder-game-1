@@ -7,13 +7,13 @@
 #include "bg.h"
 
 extern Color grp[HEIGHT][WIDTH];
+Color* grp0 = &grp[0][0];
 
 BgPixel Bg_pixels[WIDTH][H+8+1]; //idk why this goes to 309
 BgPixel* const Bg_pixels_end = &Bg_pixels[WIDTH-1][H+8+1-1]+1;
 
 void Bg_reset(void) {
-	BgPixel* px;
-	for (px=Bg_pixels[0]; px<Bg_pixels_end; px++)
+	for (BgPixel* px=Bg_pixels[0]; px<Bg_pixels_end; px++)
 		*px = (BgPixel){0};
 }
 
@@ -49,8 +49,7 @@ void Bg_render(void) {
 			}
 		}
 		if (Menu_bgMode==Bg_LINE) {
-			Block* c;
-			forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
+			for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++) {
 				if (c->block==0) {
 					Point e = c->vel;
 					real r = Vec_fastNormalize(&e);
@@ -106,15 +105,14 @@ void Bg_render(void) {
 		}
 		break;
 	case Bg_LIGHT:;
-		Color* grpb = &grp[0][0];
 		for (Offset a=(H+8)*WIDTH;a>=WIDTH*8;a--) {
 			if ((&Part_at[0][0])[a]==Part_BLOCK)
-				grpb[a] = 0x606060;
+				grp0[a] = 0x606060;
 			else {
-				int r = (220*RED(grpb[a]))>>8;
-				int g = (220*GREEN(grpb[a]))>>8;
-				int b = (220*BLUE(grpb[a]))>>8;
-				grpb[a] = RGB(r,g,b);
+				int r = (220*RED(grp0[a]))>>8;
+				int g = (220*GREEN(grp0[a]))>>8;
+				int b = (220*BLUE(grp0[a]))>>8;
+				grp0[a] = RGB(r,g,b);
 			}
 		}
 		break;
@@ -122,13 +120,13 @@ void Bg_render(void) {
 		for (Offset a=(H+8)*WIDTH;a>=WIDTH*7;a--) {
 			Part* p = Part_at[0][a];
 			if (p==Part_BLOCK)
-				grp[0][a] = 0x606060;
+				grp0[a] = 0x606060;
 			else if (p==Part_BALL)
-				grp[0][a] = 0;
+				grp0[a] = 0;
 			else if (p==Part_BGFAN)
-				grp[0][a] = 0x8080FF;
+				grp0[a] = 0x8080FF;
 			else if (p==Part_EMPTY) {
-				grp[0][a] = Part_at[0][a+1]>=Part_0 ?
+				grp0[a] = Part_at[0][a+1]>=Part_0 ?
 					ELEMENTS[Part_at[0][a+1]->type].color :
 					Part_at[0][a-1]>=Part_0 ?
 					ELEMENTS[Part_at[0][a-1]->type].color :
@@ -144,21 +142,21 @@ void Bg_render(void) {
 					ELEMENTS[Part_at[-1][a+1]->type].color :
 					Part_at[-1][a-1]>=Part_0 ?
 					ELEMENTS[Part_at[-1][a-1]->type].color :
-					0;
+					0x000000;
 			} else if (p>=Part_0) {
-				grp[0][a] = ELEMENTS[p->type].color;
+				grp0[a] = ELEMENTS[p->type].color;
 			}
 		}
 		for (Offset a=(H+8)*WIDTH;a>=WIDTH*8;a--) {
-			if (grp[0][a] == 0) {
-				if (grp[0][a+1] && grp[0][a+1]!=0xEEEEEE)
-					grp[0][a] = 0xEEEEEE;
-				else if (grp[0][a-1] && grp[0][a-1]!=0xEEEEEE)
-					grp[0][a] = 0xEEEEEE;
+			if (grp0[a] == 0) {
+				if (grp0[a+1] && grp0[a+1]!=0xEEEEEE)
+					grp0[a] = 0xEEEEEE;
+				else if (grp0[a-1] && grp0[a-1]!=0xEEEEEE)
+					grp0[a] = 0xEEEEEE;
 				if (grp[1][a] && grp[1][a]!=0xEEEEEE)
-					grp[0][a] = 0xEEEEEE;
+					grp0[a] = 0xEEEEEE;
 				if (grp[-1][a] && grp[-1][a]!=0xEEEEEE)
-					grp[0][a] = 0xEEEEEE;
+					grp0[a] = 0xEEEEEE;
 			}
 		}
 	}

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "vector.h"
 
+extern bool Menu_dragStart, Menu_dragging;
 extern bool Menu_numberMenu;
 extern bool Menu_copyMode;
 extern int Menu_penMode;

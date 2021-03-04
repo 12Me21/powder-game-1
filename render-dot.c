@@ -9,9 +9,8 @@
 void Dot_render(void) {
 	if (Menu_bgMode==Bg_TOON)
 		return;
-	Part* i;
-	for (i=Part_0; i<Part_next; i++) {
-		int type = i->type;
+	for (Part* i=Part_0; i<Part_next; i++) {
+		Elem type = i->type;
 		if (type==Elem_PUMP && i->pumpType!=0)
 			type = i->pumpType;
 		Color color;

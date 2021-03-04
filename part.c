@@ -26,26 +26,24 @@ Part* Part_at[HEIGHT][WIDTH];
 
 static int Part_counts[Elem_MAX];
 int* Part_updateCounts(void) {
-	int i;
-	for (i=0; i<Elem_MAX; i++)
+	for (Elem i=0; i<Elem_MAX; i++)
 		Part_counts[i] = 0;
-	Part* p;
-	for (p=parts; p<Part_next; p++)
+	for (Part* p=parts; p<Part_next; p++)
 		if (p->type > 0)
 			Part_counts[p->type]++;
 	return Part_counts;
 }
 
-Part* Part_create(real x, real y, unsigned char element) {
+Part* Part_create(real x, real y, Elem element) {
 	if (Part_next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
 	*Part_next = (Part){
 		{x,y},
 		{0,0},
-		element,
-		0,
-		0,
-		false,
+		.type=element,
+		.meta=0,
+		.pumpType=0,
+		.held=false,
 	};
 	*Part_pos2(Part_next->pos) = Part_next;
 	return Part_next++;
@@ -80,8 +78,7 @@ void Part_blow(Part* part, Point airvel) {
 }
 
 void Part_shuffle(void) {
-	Part* p;
-	for (p=parts; p<Part_next; p++) {
+	for (Part* p=parts; p<Part_next; p++) {
 		Part* c = &parts[rand() % (Part_next-parts)];
 		Part temp = *p;
 		*p = *c;
@@ -96,20 +93,17 @@ extern int wa;
 
 void Part_update(void) {
 	// todo: wheels
-	bool dragStart = (Menu_leftSelection == Menu_DRAG && Mouse_rising.left) || (Menu_rightSelection == Menu_DRAG && Mouse_rising.right); //todo: function for this
-	bool dragging = (Menu_leftSelection == Menu_DRAG && Mouse_old.left) || (Menu_rightSelection == Menu_DRAG && Mouse_old.right);
-	Part* p;
-	forRange (p, =parts, <Part_next, ++) {
+	for (Part* p=parts; p<Part_next; p++) {
 		if (!Menu_cursorInMenu && wa==0) {
 			if (!p->held) {
-				if (dragStart) {
+				if (Menu_dragStart) {
 					if (p->type == Elem_FAN)
 						continue;
 					Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
 					if (Vec_fastDist(d) < 4*Menu_penSize)
 						p->held = true;
 				}
-			} else if (dragging) {
+			} else if (Menu_dragging) {
 				/*				Point d = {.z=(Point){Pen_x, Pen_y}.z - p->pos.z};
 				Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
 				Vec_mul(&d, 0.1);
@@ -130,7 +124,7 @@ void Part_update(void) {
 		}
 	}
 	// check parts that go off screen
-	forRange (p, =parts, <Part_next, ++) {
+	for (Part* p=parts; p<Part_next; p++) {
 		if (Menu_edgeMode==0) { // void edge
 			if (p->pos.x<8||p->pos.x>=W+8||p->pos.y<8||p->pos.y>=H+8) {
 				Part_remove(p--);
@@ -182,7 +176,8 @@ void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, a
 	axis v=x+radius;
 	if (v>WIDTH-4-1) v=WIDTH-4-1;
 	axis r=y+radius;
-	if (r>H+12-1) r = H+12-1;
+	if (r>H+12-1)
+		r = H+12-1;
 	for (axis b=z;b<=r;b++)
 		for (axis e=n;e<=v;e++)
 			if ((e-x)*(e-x)+(b-y)*(b-y)<=radius*radius)

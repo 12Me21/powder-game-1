@@ -21,9 +21,12 @@ typedef struct Entity {
 	// (make this a union?)
 	
 	bool isPlayer2;
-	bool held;
+	int held;
+	// when an entity is being DRAG'd, one of its parts is considered "held".
+	// if e.held is nonzero, e.parts[e.held-1] is being held
+	
 	Point vel;
-	int decay;
+	int age;
 	EntityNode parts[Entity_PARTS];
 } Entity;
 

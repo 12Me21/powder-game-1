@@ -12,8 +12,7 @@ Ball balls[Ball_MAX];
 Ball* const Ball_END = &balls[Ball_MAX];
 
 void Ball_create(real x, real y, Elem type) {
-	Ball* ball;
-	forRange (ball, =balls, <Ball_END, ++) {
+	for (Ball* ball=balls; ball<Ball_END; ball++) {
 		if (!ball->used) {
 			*ball = (Ball){
 				{x+0.5, y+0.5},
@@ -77,9 +76,8 @@ static const struct neighbor {
 
 static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
 	Part** pc = Part_pos2(ball->pos);
-	int i;
 	if (mode==0) {
-		for (i=9;i<21;i++) {
+		for (int i=9;i<21;i++) {
 			Part* near = pc[neighbors[i].offset];
 			if (near<=Part_BGFAN) {
 				near = Part_create(
@@ -96,7 +94,7 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, 
 		}
 		ball->used = false;
 	} else if (mode==1||mode==2) {
-		for (i=mode==1?9:0; i<21; i++) {
+		for (int i=mode==1?9:0; i<21; i++) {
 			Part* near = pc[neighbors[i].offset];
 			if (near<=Part_BGFAN) {
 				near = Part_create(
@@ -119,7 +117,7 @@ static void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, 
 	}
 }
 
-static bool Ball_react(Ball* ball, Part* part, int* newType) {
+static bool Ball_react(Ball* ball, Part* part, Elem* newType) {
 	//return 0;
 	Elem partType = part->type; //this is stored now, incase the particle is deleted!
 	switch (ball->type) {
@@ -139,25 +137,23 @@ static bool Ball_react(Ball* ball, Part* part, int* newType) {
 
 static void checkDragging(Ball* i) {
 	if (!i->held) {
-		if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
+		if (Menu_dragStart) {
 			if (Vec_fastDist((Point){Pen_x-i->pos.x, Pen_y-i->pos.y})<20)
 				i->held = true;
 		}
+	} else if (Menu_dragging) {
+		i->vel.x += 0.05*(Pen_x-i->pos.x);
+		i->vel.y += 0.05*(Pen_y-i->pos.y);
+		Vec_mul(&i->vel, 0.9);
 	} else {
-		if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
-			i->vel.x += 0.05*(Pen_x-i->pos.x);
-			i->vel.y += 0.05*(Pen_y-i->pos.y);
-			Vec_mul(&i->vel, 0.9);
-		} else {
-			Vec_mul(&i->vel, 0.3);
-			i->held = false;
-		}
+		Vec_mul(&i->vel, 0.3);
+		i->held = false;
 	}
+
 }
 
 static void checkEntities(Ball* i) {
-	Entity* en;
-	forRange (en, =entitys, <Entity_next, ++) {
+	for (Entity* en=entitys; en<Entity_next; en++) {
 		if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
 			for (int f=4; f<=5; f++) {
 				real dx = abs(en->parts[f].pos.x - i->pos.x);
@@ -288,8 +284,7 @@ static void undraw(Ball* i) {
 }
 
 void Ball_update(void) {
-	Ball* i;
-	forRange (i, =balls, <Ball_END, ++) {
+	for(Ball* i=balls; i<Ball_END; i++) {
 		if (!i->used) continue;
 		// remove invalid balls
 		if (!ELEMENTS[i->type].ballValid) {
@@ -313,8 +308,8 @@ void Ball_update(void) {
 		checkEntities(i);
 
 		// chcek movement
-		int touched = 0;
-		int newType = 0;
+		Elem touched = 0;
+		Elem newType = 0;
 		Point vel = i->vel; //this is used way later
 		int q = (int)(Vec_dist(i->vel)/2)+1;
 		for (int v=0; v<q; v++) {

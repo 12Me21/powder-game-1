@@ -9,8 +9,8 @@
 #include "elements.h"
 
 // we are assuming that colors are represented in a normal format etc.
-Color grp[HEIGHT][WIDTH] = {0};
-Color Menu_grp[MENU_HEIGHT][MENU_WIDTH] = {0};
+Color grp[HEIGHT][WIDTH];
+Color Menu_grp[MENU_HEIGHT][MENU_WIDTH];
 
 extern const char Draw_FONT[96][12][8];
 
@@ -163,10 +163,8 @@ void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format,
 void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacing) {
 	char Y = color != (Color)-1 ? '.' : 'x'; //todo
 	char Ka = bg != (Color)-1 ? '#' : 'x';
-	int textlength = strlen(text);
-	int i;
-	for (i=0; i<textlength; i++, x+= 8+spacing) {
-		unsigned char character = text[i]-32;
+	for (; *text; text++, x+= 8+spacing) {
+		unsigned char character = *text-32;
 		if (character!=0) {
 			if (character >= 96) character = '?';
 			if (j!=0)

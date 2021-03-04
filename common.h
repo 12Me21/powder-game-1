@@ -16,7 +16,7 @@ typedef uint32_t Color;
 
 typedef int axis;
 typedef int Offset;
-typedef int Elem;
+typedef char Elem;
 
 #define when(x) break;case x
 #define orwhen : case

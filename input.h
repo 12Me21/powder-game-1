@@ -1,25 +1,31 @@
 #pragma once
 #include <stdbool.h>
+#include "common.h"
+#include "vector.h"
 
-typedef struct Key {
-	char lower;
-	char upper;
-	bool pressed;
-	bool rising1;
-	bool rising;
-} Key;
+typedef struct ButtonState {
+	bool gotPress;
+	bool gotRelease;
+	bool held;
+	bool heldNow;
+	bool wasHeld;
+} ButtonState;
 
 typedef struct MouseState {
-	int x, y;
-	bool left, right, middle;
+	Point pos, oldPos, olderPos;
+	union {
+		ButtonState buttons[3];
+		struct {
+			ButtonState left;
+			ButtonState middle;
+			ButtonState right;
+		};
+	};
 } MouseState;
 
-extern MouseState Mouse_now;
-extern MouseState Mouse_old;
-extern MouseState Mouse_older;
-extern MouseState Mouse_rising;
-extern MouseState Mouse_falling;
+extern MouseState mouse;
+
 extern int Mouse_fallingDirection;
 extern bool Mouse_risingClick;
 
-extern Key Keys[256];
+extern ButtonState Keys[256];

@@ -20,10 +20,20 @@ static const axis col5 = 232;
 static const axis col6 = 288;
 static const axis col7 = 344;
 
+static const axis row1 = 3;
+static const axis row2 = 64;
+static const axis row3 = 120;
+static const axis row4 = 176;
+static const axis row5 = 232;
+static const axis row6 = 288;
+static const axis row7 = 344;
+
+static const axis rowLast = 143;
+
 AUTORUN {
 	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
-	Draw_spacedText(203,143,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
-	Draw_text(col1,3,"POWDER",0xF2BD6B,0);
+	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
+	Draw_text(col1,row1,"POWDER",0xF2BD6B,0);
 	Draw_text(col1,17,"WATER",0x4040FF,0);
 	Draw_text(col1,31,"FIRE",0xFF4040,0);
 	Draw_text(col1,45,"SEED",0x90C040,0);
@@ -37,7 +47,7 @@ AUTORUN {
 	Draw_text(col1,115,"SNOW",0xFFFFFF,0);
 	Draw_text(col1,129,"STEAM",0xE0E0E0,0);
 		
-	Draw_text(col2,3,"S-BALL",0xFF40A0,0);
+	Draw_text(col2,row1,"S-BALL",0xFF40A0,0);
 	Draw_text(col2,17,"CLONE",0x907010,0);
 	Draw_spacedText(col2,31,"F-WORKS",0xFF9966,0,-1);
 	Draw_text(col2,45,"OIL",0x803020,0);
@@ -48,7 +58,7 @@ AUTORUN {
 	Draw_text(col2,115,"NITRO",0x447700,0);
 	Draw_text(col2,129,"ANT",0xC080C0,0);
 		
-	Draw_text(col3,3,"TORCH",0xFFA020,0);
+	Draw_text(col3,row1,"TORCH",0xFFA020,0);
 	Draw_text(col3,17,"GAS",0xCC9999,0);
 	Draw_text(col3,31,"SOAPY",0xE0E0E0,0);
 	Draw_spacedText(col3,45,"THUNDER",0xFFFF20,0,-1);
@@ -59,7 +69,7 @@ AUTORUN {
 	Draw_text(col3,115,"VINE",0x00BB00,0);
 	Draw_text(col3,129,"SALT",0xFFFFFF,0);
 		
-	Draw_spacedText(col4,3,"S-WATER",0x3399FF,0,-1);
+	Draw_spacedText(col4,row1,"S-WATER",0x3399FF,0,-1);
 	Draw_text(col4,17,"GLASS",0x404040,0);
 	Draw_text(col4,31,"BIRD",0x807050,0);
 	Draw_spacedText(col4,45,"MERCURY",0xAAAAAA,0,-1);
@@ -68,7 +78,7 @@ AUTORUN {
 	Draw_text(col4,87,"CLOUD",0xCCCCCC,0);
 	Draw_text(col4,101,"PUMP",0x003333,0);
 		
-	Draw_text(col5,3,"WIND",0x8080FF,0);
+	Draw_text(col5,row1,"WIND",0x8080FF,0);
 	Draw_text(col5,17,"AIR",0x8080FF,0);
 	Draw_text(col5,31,"DRAG",0xFFFFFF,0);
 	Draw_text(col5,45,"B",0xFFE0E0,0);
@@ -84,13 +94,13 @@ AUTORUN {
 	Draw_text(col5,115,"BALL",0xF2BD6B,0);
 	Draw_text(col5,129,"CREATE",0x907010,0);
 	
-	Draw_text(col6,3,"BLOCK",0x808080,0);
+	Draw_text(col6,row1,"BLOCK",0x808080,0);
 	Draw_text(col6,17,"ERASE",0x808080,0); //rename?
 	Draw_text(col6,31,"CLEAR",0xFFFFFF,0);
 	Draw_spacedText(col6-1,45,"Copy",-1,0,-2);
 	Draw_spacedText(col6-1,45,"Copy",0xFFFFFF,-1,-2);
-	Draw_spacedText(311,45,"Paste",-1,0,-3);
-	Draw_spacedText(311,45,"Paste",0xFFFFFF,-1,-3);
+	Draw_spacedText(col6+23,45,"Paste",-1,0,-3);
+	Draw_spacedText(col6+23,45,"Paste",0xFFFFFF,-1,-3);
 	Draw_text(col6,59,"TEXT",0xFFFFFF,0);
 	Draw_spacedText(col6,73,"PEN",-1,0,-1);
 	Draw_spacedText(col6,73,"PEN",0xFFFFFF,-1,-1);
@@ -102,7 +112,7 @@ AUTORUN {
 	Draw_spacedText(col6+25,129,"Stop",-1,0,-2);
 	Draw_spacedText(col6+25,129,"Stop",0xFFFFFF,-1,-2);
 	
-	Draw_text(col7,3,"UPLOAD",0xFFA0A0,0);
+	Draw_text(col7,row1,"UPLOAD",0xFFA0A0,0);
 	Draw_text(col7,17,"SAVE",0xFFA0A0,0);
 	Draw_text(col7,31,"LOAD",0xFFA0A0,0);
 	Draw_spacedText(col7,45,"MiniMap",0xFFA0A0,0,-1);
@@ -116,8 +126,8 @@ AUTORUN {
 	Draw_text(col7,115,"DOT ",0xFFFFFF,0);
 	Draw_text(col7,129,"RESET",0xFFFFFF,0);
 	
-	Draw_spacedText(56,143,"x    y",-1,0,-1);
-	Draw_spacedText(133,143,"dot",-1,0,-1);
+	Draw_spacedText(56,rowLast,"x    y",-1,0,-1);
+	Draw_spacedText(133,rowLast,"dot",-1,0,-1);
 	memcpy(normalMenuImage, Menu_grp, sizeof(normalMenuImage));
 }
 
@@ -161,8 +171,8 @@ void Menu_render(void) {
 	if (Menu_numberMenu) {
 		int* counts = Part_updateCounts();
 		void Draw_count(int i, int elem) {
-			int x = i/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
-			int y = i%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
+			axis x = i/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
+			axis y = i%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
 			char buffer[29];
 			buffer[0] = ELEMENTS[elem].name[0];
 			buffer[1] = 0;
@@ -171,18 +181,16 @@ void Menu_render(void) {
 			sprintf(buffer, "  %d", counts[elem]);
 			Draw_spacedText(4+x,11-8+y,buffer,ELEMENTS[elem].color,0,-1);
 		}
-		int i;
-		for (i=0; i<38; i++) {
+		for (int i=0; i<38; i++) {
 			Draw_count(i, Menu_BUTTONS[i].element);
 		}
 		Draw_mrectangle(0,0,W,1,0x660000);
 	}
 	if (Menu_hover>=0) {
-		int bx = 4+Menu_hover/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
-		int by = 2+Menu_hover%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
-		int x,y;
-		for (y=0; y<Menu_BUTTONHEIGHT-1; y++)
-			for (x=0; x<Menu_BUTTONWIDTH; x++) {
+		axis bx = 4+Menu_hover/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
+		axis by = 2+Menu_hover%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
+		for (axis y=0; y<Menu_BUTTONHEIGHT-1; y++)
+			for (axis x=0; x<Menu_BUTTONWIDTH; x++) {
 				Color* px = &Menu_grp[by+y][bx+x];
 				if (*px == 0x404040)
 					*px = 0x400000;
@@ -190,9 +198,9 @@ void Menu_render(void) {
 	}
 	// ...
 	if (Menu_copyMode)
-		Draw_spacedText(8+280-1,45,"Copy",0xFF4040,-1,-2);
+		Draw_spacedText(col6-1,45,"Copy",0xFF4040,-1,-2);
 	else
-		Draw_spacedText(8+280+23,45,"Paste",0xFF4040,-1,-3);
+		Draw_spacedText(col6+23,45,"Paste",0xFF4040,-1,-3);
 	static char* a[] = {"free","line","lock","paint"};
 	Draw_spacedText(8+280+(4*(8-2)),73,a[Menu_penMode],-1,0,-2);
 	Draw_spacedText(8+280+(4*(8-2)),73,a[Menu_penMode],0xFFFFFF,-1,-2);
@@ -200,18 +208,18 @@ void Menu_render(void) {
 	Draw_printf(8+280,101,0xFFFFFF,0,-2,"      %s",(char*[]){"x1","x2","x4","x8","16"}[Menu_zoomLevel]);
 	Draw_printf(8+280,115,0xFFFFFF,0,-2, "       %d", 1<<Menu_gameSpeed);
 	if (!Menu_paused)
-		Draw_spacedText(8+280-1,129,"Start",0xFF4040,-1,-3);
+		Draw_spacedText(col6-1,129,"Start",0xFF4040,-1,-3);
 	else
-		Draw_spacedText(8+280+25,129,"Stop",0xFF4040,-1,-2);
+		Draw_spacedText(col6+25,129,"Stop",0xFF4040,-1,-2);
 	if (buttonflash>0) {
 		buttonflash--;
 		if (buttonflash>1)
-			Draw_text(8+336,3+14,"SAVE",0xFFFFFF,0xFF0000);
+			Draw_text(col7,3+14,"SAVE",0xFFFFFF,0xFF0000);
 	}
 	if (buttonflash<0) {
 		buttonflash++;
 		if (buttonflash<-1)
-			Draw_text(8+336,3+28,"LOAD",0xFFFFFF,0xFF0000);
+			Draw_text(col7,3+28,"LOAD",0xFFFFFF,0xFF0000);
 	}
 	if (Menu_minimapEnabled)
 		Draw_spacedText(8+336,3+42,"MiniMap",0xFFFFFF,0xFF0000,-1);
@@ -226,40 +234,36 @@ void Menu_render(void) {
 	Draw_spacedText(8+336+6*3,101,str,-1,0,-2);
 	Draw_spacedText(8+336+6*3,101,str,0xFFFFFF,-1,-2);
 	Draw_text(8+336+8*4,3+112,(char*[]){"S","M","L"}[Menu_dotLimit],0xFFFFFF,0);
-	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_leftSelection/Menu_BUTTONROWS),11+Menu_leftSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,3,0xFF0000);
+	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_leftSelection/Menu_BUTTONROWS),11-8+Menu_leftSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0xFF0000);
 	///rectangle(4+0+56*floor(Menu_middleSelection/10),3+4+Menu_middleSelection%10*14,3,3,0x00FF00);
-	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_rightSelection/Menu_BUTTONROWS),11+Menu_rightSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,3,0x0000FF);
-	Draw_printf(64-8,143,-1,0,-1," %d",Pen_x-8);
-	Draw_printf(64-8,143,-1,0,-1,"      %d",Pen_y-8);
+	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_rightSelection/Menu_BUTTONROWS),11+Menu_rightSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0x0000FF);
+	Draw_printf(64-8,rowLast,-1,0,-1," %d",Pen_x-8);
+	Draw_printf(64-8,rowLast,-1,0,-1,"      %d",Pen_y-8);
 	//Draw_printf(141,451,-1,0,-1,"   %d",Parts_limits[Menu_dotLimit]-Parts_used);
-	Draw_printf(0,143,-1,0,0,"%3dfps",Menu_fps);
+	Draw_printf(0,rowLast,-1,0,0,"%3dfps",Menu_fps);
 	//if(sldebug==1){
 	//	k.drawtext(64,451,Sc+"sl",0xFFFFFF,0);
 	//}
 	//draw Menu_minimapEnabled
 	if (Menu_minimapEnabled) {
-		int c=15-8;
-		if (Mouse_old.x<116 && Menu_cursorInMenu)
-			c=127-8;
-		int e=14;
-		Draw_mrectangle(c-3,e-3,W/4+6,H/4+6,0x808080);
+		axis sx=15-8;
+		if (mouse.oldPos.x<116 && Menu_cursorInMenu)
+			sx=127-8;
+		axis sy=14;
+		Draw_mrectangle(sx-3,sy-3,W/4+6,H/4+6,0x808080);
 		Save_save1();
-		int a=0;
-		axis b,d;
-		for (b=0; b<H; b+=4) {
-			for (d=0; d<W; d+=4) {
-				e = b*W+d;
-				if (Save_dataArray[e]==0) //try avoid empty?
-					e += W+1;
-				a = 0;
+		for (axis y=0; y<H; y+=4) {
+			for (axis d=0; d<W; d+=4) {
+				Elem type = Save_data[y][d].type ?: Save_data[y+1][d+1].type;
+				Elem a = 0;
 				if (Menu_bgMode == Bg_DARK) {
-					if (ELEMENTS[Save_dataArray[e]].state == State_HOT)
-						a = Save_dataArray[e];
+					if (ELEMENTS[type].state == State_HOT)
+						a = type;
 				} else if (Menu_bgMode==Bg_SILUET) {
-					if (Save_dataArray[e]!=0)
+					if (type)
 						a = 1;
 				} else
-					a = Save_dataArray[e];
+					a = type;
 				Color col;
 				if (Menu_bgMode==Bg_GRAY)
 					col = ELEMENTS[a].grayColor;
@@ -267,7 +271,7 @@ void Menu_render(void) {
 					col = a==0 ? 0xFFFFFF : 0;
 				else
 					col = ELEMENTS[a].color;
-				Menu_grp[14+b/4][c+d/4] = col;
+				Menu_grp[sy+y/4][sx+d/4] = col;
 			}
 		}
 	}
