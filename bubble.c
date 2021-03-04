@@ -64,11 +64,11 @@ void Bubble_update(void) {
 	}
 	for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++) {
 		if (!b->held) {
-			if ((Menu_leftSelection==Menu_DRAG&&Mouse_rising.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_rising.right)) {
+			if (Menu_dragStart) {
 				if (Vec_fastDist((Point){Pen_x-b->x, Pen_y-b->y})<10)
 					b->held = true;
 			}
-		} else if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
+		} else if (Menu_dragging) {
 			b->x += 0.9*(Pen_x-b->x);
 			b->y += 0.9*(Pen_y-b->y);
 		} else {

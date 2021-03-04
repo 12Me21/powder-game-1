@@ -15,8 +15,7 @@ Wheel* Wheel_next = Wheel_wheels;
 extern const char Wheel_frames[16][32][32];
 
 void Wheel_update(void) {
-	if ((Menu_leftSelection==Menu_DRAG&&Mouse_old.left)||(Menu_rightSelection==Menu_DRAG&&Mouse_old.right)) {
-		
+	if (Menu_dragging) {
 		for (Wheel* w=Wheel_wheels;w<Wheel_end;w++) {
 			Point d = {Pen_x-w->x, Pen_y-w->y};
 			if (Vec_fastDist(d)<16)

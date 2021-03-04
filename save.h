@@ -1,7 +1,11 @@
 #pragma once
 #include "common.h"
-void Save_Load_test(char*);
+void Save_Load_test(void*);
 void Save_save1(void);
 
-extern int Save_dataArray[W*H];
-extern int Save_metaArray[W*H];
+typedef struct SavePixel {
+	Elem type;
+	int meta;
+} SavePixel;
+
+extern SavePixel Save_data[H][W];

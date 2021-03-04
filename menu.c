@@ -26,6 +26,7 @@ Point Pen_dir = {0,0};
 
 int Menu_hover = -1;
 bool Menu_numberMenu = false;
+bool Menu_dragStart = false, Menu_dragging = false;
 bool Menu_copyMode = false;
 bool Menu_paused = false;
 bool Menu_cursorInMenu = false;
@@ -57,39 +58,42 @@ static int wrap(int a, int b) {
 }
 
 static bool mouseinside(axis x, axis y, axis width, axis height) {
-	return !(Mouse_old.x<x||Mouse_old.x>=x+width||Mouse_old.y<y||Mouse_old.y>=y+height);
+	return !(mouse.oldPos.x<x||mouse.oldPos.x>=x+width||mouse.oldPos.y<y||mouse.oldPos.y>=y+height);
 }
 
-static void moveZoom(axis x, axis y) {
-	Menu_zoomX = clamp(x, 0, W-ceil((real)W/(1<<Menu_zoomLevel)));
-	Menu_zoomY = clamp(y, 0, H-ceil((real)H/(1<<Menu_zoomLevel)));
+static void clampZoom(void) {
+	Menu_zoomX = clamp(Menu_zoomX, 0, W-ceil((real)W/(1<<Menu_zoomLevel)));
+	Menu_zoomY = clamp(Menu_zoomY, 0, H-ceil((real)H/(1<<Menu_zoomLevel)));
 }
 
 void Menu_input(void) {
-	if (Mouse_old.y>=H && Mouse_risingClick)
+	Menu_dragStart = (Menu_leftSelection == Menu_DRAG && mouse.left.gotPress) || (Menu_rightSelection == Menu_DRAG && mouse.right.gotPress); //todo: function for this
+	Menu_dragging = (Menu_leftSelection == Menu_DRAG && mouse.left.wasHeld) || (Menu_rightSelection == Menu_DRAG && mouse.right.wasHeld);
+	
+	if (mouse.oldPos.y>=H && Mouse_risingClick)
 		Menu_cursorInMenu=true;
-	else if (Mouse_old.y<H)
+	else if (mouse.oldPos.y<H)
 		Menu_cursorInMenu=false;
 	if (!Menu_cursorInMenu) {
 		Menu_hover = -1;
 		return;
 	}
 	// clicked a menu button
-	axis c=12;
-	axis e=H+11;
-	if (mouseinside(c-8,e-8,391,139)/*&& wa==0*/) {
-		axis d = (Mouse_old.x-(c-8))/Menu_BUTTONWIDTH;
-		axis b = (Mouse_old.y-(e-8))/Menu_BUTTONHEIGHT;
+	axis c=4;
+	axis e=H+3;
+	if (mouseinside(c,e,391,139)/*&& wa==0*/) {
+		axis d = (mouse.oldPos.x-c)/Menu_BUTTONWIDTH;
+		axis b = (mouse.oldPos.y-e)/Menu_BUTTONHEIGHT;
 		int selection = clamp(Menu_BUTTONROWS*d+b,0,69);
 		Menu_hover = selection;
 		switch (selection) {
 		when(Menu_COPYPASTE):;
-			if (Mouse_rising.left) {
+			if (mouse.left.gotPress) {
 				if (Menu_leftSelection == Menu_COPYPASTE)
 					Menu_copyMode = !Menu_copyMode;
 				Menu_leftSelection = selection;
 			}
-			if (Mouse_rising.right) {
+			if (mouse.right.gotPress) {
 				if (Menu_rightSelection == Menu_COPYPASTE)
 					Menu_copyMode = !Menu_copyMode;
 				Menu_rightSelection = selection;
@@ -99,8 +103,8 @@ void Menu_input(void) {
 		when(Menu_PENSIZE):;
 			Menu_penSize = wrap(Menu_penSize+Mouse_fallingDirection, 9);
 		when(Menu_SCALE):;
-			if (Mouse_rising.left) {
-				if (Menu_leftSelection==Menu_SCALE) {
+			if (mouse.left.gotPress) {
+				if (selection==Menu_SCALE) {
 					if (Menu_zoomLevel<4) {
 						Menu_zoomLevel++;
 						Menu_zoomX += W>>Menu_zoomLevel>>1;
@@ -109,8 +113,8 @@ void Menu_input(void) {
 						Menu_zoomLevel = 0;
 				}
 				Menu_leftSelection = selection;
-			} else if (Mouse_rising.right) {
-				if (Menu_rightSelection==Menu_SCALE) {
+			} else if (mouse.right.gotPress) {
+				if (selection==Menu_SCALE) {
 					if (Menu_zoomLevel>0) {
 						Menu_zoomX -= W>>Menu_zoomLevel>>1;
 						Menu_zoomY -= H>>Menu_zoomLevel>>1;
@@ -123,7 +127,7 @@ void Menu_input(void) {
 				}
 				Menu_rightSelection = selection;
 			}
-			moveZoom(Menu_zoomX, Menu_zoomY);
+			clampZoom();
 		when(Menu_SPEED):;
 			Menu_gameSpeed = wrap(Menu_gameSpeed+Mouse_fallingDirection, 3);
 		when(Menu_START):;
@@ -132,7 +136,7 @@ void Menu_input(void) {
 			if (Mouse_fallingDirection)
 				wa=1;
 		when(Menu_SAVE):;
-			if (Mouse_rising.left || Mouse_rising.right) {
+			if (mouse.right.gotPress || mouse.left.gotPress) {
 				//save1();
 				//makesavestring();
 				buttonflash=10;
@@ -162,9 +166,9 @@ void Menu_input(void) {
 				Sim_reset(false);
 		otherwise:
 			if (selection < 38 || selection >= 40) {
-				if (Mouse_rising.left)
+				if (mouse.left.gotPress)
 					Menu_leftSelection = selection;
-				else if (Mouse_rising.right)
+				else if (mouse.right.gotPress)
 					Menu_rightSelection = selection;
 			}
 		}
@@ -182,14 +186,14 @@ void Menu_update(void) {
 		return;
 	Pen_oldx = Pen_x;
 	Pen_oldy = Pen_y;
-	Pen_x = Mouse_old.x;
-	Pen_y = Mouse_old.y;
+	Pen_x = mouse.oldPos.x;
+	Pen_y = mouse.oldPos.y;
 	if (Menu_zoomLevel>0) {
 		Pen_x = Menu_zoomX+(Pen_x>>Menu_zoomLevel);
 		Pen_y = Menu_zoomY+(Pen_y>>Menu_zoomLevel);
 	}
-	Pen_x = clamp(Pen_x+8,8,W-1);
-	Pen_y = clamp(Pen_y+8,8,H-1);
+	Pen_x = clamp(Pen_x+8,8,WIDTH-8-1);
+	Pen_y = clamp(Pen_y+8,8,HEIGHT-8-1);
 	// todo: line mode etc.
 	Point c = {Pen_x,Pen_y};
 	Pen_dir.x = Pen_oldx-5*Pen_dir.x;
@@ -205,20 +209,22 @@ void Menu_update(void) {
 	Pen_dir.y -= ee.y*d;
 	Pen_dir = Vec_sub2(c, Pen_dir);
 	Vec_fastNormalize(&Pen_dir);
-	if (Menu_zoomLevel!=0 && Mouse_now.middle) {
-		Menu_zoomX -= (Mouse_old.x-Mouse_older.x)/(1<<Menu_zoomLevel);
-		Menu_zoomY -= (Mouse_old.y-Mouse_older.y)/(1<<Menu_zoomLevel);
-		moveZoom(Menu_zoomX, Menu_zoomY);
+	if (Menu_zoomLevel!=0 && mouse.middle.held) {
+		Menu_zoomX -= (mouse.oldPos.x-mouse.olderPos.x)/(1<<Menu_zoomLevel);
+		Menu_zoomY -= (mouse.oldPos.y-mouse.olderPos.y)/(1<<Menu_zoomLevel);
+		clampZoom();
 	}
-	int i;
-	for (i=0;i<=1;i++) {
+	for (int i=0;i<=1;i++) {
+		ButtonState* btn = i ? &mouse.right : &mouse.left;
+		ButtonState* otherBtn = !i ? &mouse.right : &mouse.left;
 		int selection = i ? Menu_rightSelection : Menu_leftSelection;
-		bool rising = i ? Mouse_rising.right : Mouse_rising.left;
-		bool falling = i ? Mouse_falling.right : Mouse_falling.left;
-		bool old = i ? Mouse_old.right : Mouse_old.left;
+		int otherSel = i ? Menu_leftSelection : Menu_rightSelection;
+		bool gotPress = btn->gotPress;
+		bool gotRelease = btn->gotRelease;
+		bool old = btn->wasHeld;
 		if (selection < 38) {
 			if (Menu_penMode == Pen_LINE)
-				old = falling;
+				old = gotRelease;
 			if (old) {
 				axis vx = Pen_x - Pen_oldx;
 				axis vy = Pen_y - Pen_oldy;
@@ -230,9 +236,8 @@ void Menu_update(void) {
 					vy = (vy<<8)/w;
 					axis x2 = (Pen_oldx<<8)+127;
 					axis y2 = (Pen_oldy<<8)+127;
-					int c;
 					// for each point along line
-					for (c=0; c<=w; c++,x2+=vx,y2+=vy) {
+					for (int c=0; c<=w; c++,x2+=vx,y2+=vy) {
 						axis xStart = (x2>>8)-Menu_penSize;
 						axis yStart = (y2>>8)-Menu_penSize;
 						axis xEnd=xStart+2*Menu_penSize;
@@ -241,14 +246,15 @@ void Menu_update(void) {
 						if (yStart<8) yStart=8;
 						if (xEnd>W+8-1) xEnd=W+8-1;
 						if (yEnd>H+8-1) yEnd=H+8-1;
-						axis f,g;
-						for (g=yStart; g<=yEnd; g++) {
-							for (f=xStart; f<=xEnd; f++) {
+						for (axis g=yStart; g<=yEnd; g++) {
+							for (axis f=xStart; f<=xEnd; f++) {
 								// circle
-								if (Menu_penSize*Menu_penSize+1<(f-(x2>>8))*(f-(x2>>8))+(g-(y2>>8))*(g-(y2>>8))) continue;
+								axis dx = f-(x2>>8);
+								axis dy = g-(y2>>8);
+								if (Menu_penSize*Menu_penSize+1 < dx*dx+dy*dy) continue;
 								Part* p = Part_at[g][f];
 								if (Menu_penMode == Pen_PAINT) {
-									int e = Menu_BUTTONS[selection].element ?: Elem_POWDER;
+									Elem e = Menu_BUTTONS[selection].element ?: Elem_POWDER;
 									int meta = 0;
 									if (e!=Elem_FAN) {
 										if (e==Elem_FIREWORKS) {
@@ -263,17 +269,16 @@ void Menu_update(void) {
 											Part_paint(f, g, p->type, e, meta);
 									}
 								} else if (p == Part_EMPTY) {
-									int pa = Menu_BUTTONS[selection].element;
-									if(((i==0 && Mouse_old.right && Menu_rightSelection<38) || (i==1 && Mouse_old.left && Menu_leftSelection<38)) && Random_(100)<50) {
-										pa = Menu_BUTTONS[i==0?Menu_rightSelection:Menu_leftSelection].element;
-									}
-									//printf("create %d %d %d\n", f, g, pa);
+									Elem pa = Menu_BUTTONS[selection].element;
+									if (otherBtn->wasHeld && selection<38)
+										pa = Menu_BUTTONS[otherSel].element;
+									
 									Part* e = Part_create(f, g, pa);
 									if (e>=Part_0) {
 										if (pa==Elem_FAN) {
 											e->vel = Vec_mul2(Pen_dir, 0.1);
 										} else if (pa==Elem_FIREWORKS) {
-											e->meta = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
+											e->meta = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
 										} else if (pa==Elem_LASER) {
 											int meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
 											if (meta>=8)
@@ -316,9 +321,9 @@ void Menu_update(void) {
 					addPressure(-1,-1,v);
 				}
 			when(Menu_BUBBLE):;
-				Bubble_draw(Pen_x, Pen_y, rising, old);
+				Bubble_draw(Pen_x, Pen_y, gotPress, old);
 			when(Menu_PLAYER): case Menu_FIGHTER: case Menu_BOX: case Menu_CREATE:
-				if (!rising) break;
+				if (!gotPress) break;
 				axis f = Pen_x>>2<<2;
 				axis g = Pen_y>>2<<2;
 				Block* cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
@@ -329,28 +334,28 @@ void Menu_update(void) {
 					when(Menu_BOX):;
 						Entity_create(f, g, Elem_BOX, Menu_penSize);
 					when(Menu_PLAYER):;
-						int b = Menu_BUTTONS[Menu_leftSelection].player ?: Menu_BUTTONS[Menu_rightSelection].player;
-						Entity_create(f, g, Elem_PLAYER, b);
+						Elem type = Menu_BUTTONS[otherSel].player;
+						Entity_create(f, g, Elem_PLAYER, type);
 					when(Menu_CREATE):;
 						Entity_create(f, g, Elem_BOX, 10);
 					}
 				}
 			when(Menu_BALL):;
 				cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
-				if (cell->block==0 && rising) {
-					int b = Menu_BUTTONS[Menu_leftSelection].ball ?: Menu_BUTTONS[Menu_rightSelection].ball;
-					if (b)
-						Ball_create(Pen_x, Pen_y, b);
+				if (cell->block==0 && gotPress) {
+					Elem type = Menu_BUTTONS[otherSel].ball;
+					if (type)
+						Ball_create(Pen_x, Pen_y, type);
 				}
 			when(Menu_WHEEL):;
-				if (rising) {
+				if (gotPress) {
 					axis x = clamp(Pen_x, 24, W-9);
 					axis y = clamp(Pen_y, 24, H-9);
 					Wheel_create(x, y);
 				}
 			when(Menu_BLOCK): case Menu_ERASE: case Menu_CLEAR:
 				if (Menu_penMode==Pen_LINE)
-					old = (i==0 ? Mouse_falling.left : Mouse_falling.right);
+					old = btn->gotRelease;
 				if (old) {
 					// god, more line drawing shit
 					axis n = Pen_x/4 - Pen_oldx/4;
@@ -362,14 +367,13 @@ void Menu_update(void) {
 					r = (r<<8)/w;
 					int y = (Pen_oldx/4<<8)-127;
 					int z = (Pen_oldy/4<<8)-127;
-					int b;
-					for (b=0; b<=w; b++, y+=n, z+=r) {
+					for (int b=0; b<=w; b++, y+=n, z+=r) {
 						int c = (y>>8) - Menu_penSize/2;
 						int v = (z>>8) - Menu_penSize/2;
 						int Y = c+(real)Menu_penSize/2+0.5;
 						int Ka = v+(real)Menu_penSize/2+0.5;
-						for (g=v; g<=v+Menu_penSize; g++) {
-							for (f=c; f<=c+Menu_penSize; f++) {
+						for (axis g=v; g<=v+Menu_penSize; g++) {
+							for (axis f=c; f<=c+Menu_penSize; f++) {
 								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
 									Block* cell = &Part_blocks[(int)clamp(g,2,(H+16)/4-3)][(int)clamp(f,2,(W+16)/4-3)];
 									switch(selection) {
@@ -402,31 +406,27 @@ void Menu_update(void) {
 						if (1>w) w = 1;
 						n = (n<<8)/w;
 						r = (r<<8)/w;
-						int y,z,b;
-						for (y=(Pen_oldx<<8)+127,z=(Pen_oldy<<8)+127,b=0;b<=w;b++,y+=n,z+=r) {
-							Part* e;
-							for (e=Part_0; e<Part_next; e++)
+						for (int y=(Pen_oldx<<8)+127,z=(Pen_oldy<<8)+127,b=0;b<=w;b++,y+=n,z+=r) {
+							for (Part* e=Part_0; e<Part_next; e++)
 								if (y>>8==(int)e->pos.x && z>>8==(int)e->pos.y)
 									Part_remove(e--);
 						}
 					}
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
-						Part* p;//todo: make macros for this!
-						for (p=Part_0; p<Part_next; p++)
+						//todo: make macros for this!
+						for (Part* p=Part_0; p<Part_next; p++)
 							if (Part_blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
 								Part_remove(p--);
 
 					}
 					if (selection==Menu_ERASE || selection==Menu_CLEAR) {
-						Block* cell;
-						forRange (cell, =Part_blocks[0], <Part_blocks_end, ++) {
+						for (Block* cell=Part_blocks[0]; cell<Part_blocks_end; cell++) {
 							if (cell->block==-2)
 								cell->block = 0;
 						}
 					}
-					int x;
-					for (y=8;y<H+8;y++) {
-						for (x=8;x<W+8;x++) {
+					for (int y=8;y<H+8;y++) {
+						for (int x=8;x<W+8;x++) {
 							Block* cell = &Part_blocks[y>>2][x>>2];
 							Part** part = &Part_at[y][x];
 							if (cell->block==0 && *part == Part_BLOCK)

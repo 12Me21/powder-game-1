@@ -14,8 +14,8 @@ break; case Elem_LASER:
 		p->meta = z<<8|yy<<4|v;
 		break;
 	} else if (yy>12) {
-		if (z==Elem_GLASS) {
-			p->type = Elem_GLASS;
+		if (z/*==Elem_GLASS*/) {
+			p->type = z;//Elem_GLASS;
 			p->meta = 0;
 			p--; //bug?
 		} else
@@ -213,8 +213,10 @@ break; case Elem_LASER:
 			near->meta = 0;
 			break;
 		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SALTWATER: case Elem_CLOUD:
+			near->meta = near->type<<8|v+1;
 			near->type = Elem_LASER;
-			near->meta = v+1;
+
+			//near->meta = v+1;
 			break;
 		case Elem_GLASS:
 			near->type = Elem_LASER;

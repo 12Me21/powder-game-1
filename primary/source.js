@@ -1440,7 +1440,7 @@ yd.prototype.reset=function(a){
 	Sd=Rd/(pi+pi)*2;
 	
 	Entities.used=0;
-	Entities_Ud.fill(0);
+	Entities_touching.fill(0);
 	Entities.type.fill(0);
 	Entities_decay.fill(0);
 	Entities.held.fill(0);
@@ -5312,9 +5312,9 @@ Entities={
 				Entities_oldpos[f+e].copy(Entities.pos[f+e]);
 			}
 			for(e=0;e<Entities.PARTS;e++){
-				Entities_Ud[f+e]=0;
+				Entities_touching[f+e]=0;
 			}
-			Entities_Pe[Entities.used].set(0,0);
+			Entities_vel[Entities.used].set(0,0);
 			Entities.type[Entities.used]=Entities_FIGHTER;
 			Entities_decay[Entities.used]=0;
 			Entities.held[Entities.used]=0;
@@ -5359,8 +5359,8 @@ Entities={
 	}
 }
 
-var Entities_oldpos=Array(Entities.MAX*Entities.PARTS),Entities_Ud=Array(Entities.MAX*Entities.PARTS);
-var Entities_Pe=Array(Entities.MAX),Entities_decay=Array(Entities.MAX);
+var Entities_oldpos=Array(Entities.MAX*Entities.PARTS),Entities_touching=Array(Entities.MAX*Entities.PARTS);
+var Entities_vel=Array(Entities.MAX),Entities_decay=Array(Entities.MAX);
 for(Entities.used=0;Entities.used<Entities.MAX*Entities.PARTS;Entities.used++){
 	Entities.pos[Entities.used]=new Vector;
 }
@@ -5368,7 +5368,7 @@ for(Entities.used=0;Entities.used<Entities.MAX*Entities.PARTS;Entities.used++){
 	Entities_oldpos[Entities.used]=new Vector;
 }
 for(Entities.used=0;Entities.used<Entities.MAX;Entities.used++){
-	Entities_Pe[Entities.used]=new Vector;
+	Entities_vel[Entities.used]=new Vector;
 }
 
 //kill?
@@ -5381,9 +5381,9 @@ function Entities_remove(entity){
 		for(i=0;i<Entities.PARTS;i++,b++,c++){
 			Entities.pos[b].copy(Entities.pos[c]);
 			Entities_oldpos[b].copy(Entities_oldpos[c]);
-			Entities_Ud[b]=Entities_Ud[c];
+			Entities_touching[b]=Entities_touching[c];
 		}
-		Entities_Pe[entity].copy(Entities_Pe[Entities.used-1]);
+		Entities_vel[entity].copy(Entities_vel[Entities.used-1]);
 		Entities.type[entity]=Entities.type[Entities.used-1];
 		Entities_decay[entity]=Entities_decay[Entities.used-1];
 		Entities.held[entity]=Entities.held[Entities.used-1];
@@ -5400,7 +5400,7 @@ function Entities_Re(entity,gravity,slowdown){
 	movement.mul(slowdown);
 	Entities.pos[entity].add(movement);
 }
-function Entities_Se(a,d,b,c,e){
+function Entities_pull(a,d,b,c,e){
 	var f=new Vector;
 	f.sub2(Entities.pos[d],Entities.pos[a]);
 	var g=f.fastnormalize();
@@ -5438,7 +5438,7 @@ function Entities_Ue(entity,d,b,c){
 		d=floor(e.fastdist()/3)+1;
 		e.mul(1/d);
 	}
-	Entities_Ud[entity]=0;
+	Entities_touching[entity]=0;
 	if(b==1){
 		e.mul(d);
 		Entities.pos[entity].add(e);
@@ -5448,7 +5448,7 @@ function Entities_Ue(entity,d,b,c){
 		for(c=0;c<d;c++){
 			b=Entities.pos[entity].y+e.y;
 			if(b<4||b>=312){
-				Entities_Ud[entity]=-5;
+				Entities_touching[entity]=-5;
 				break;
 			}
 			f=floor(b)*WIDTH+floor(Entities.pos[entity].x);
@@ -5457,10 +5457,10 @@ function Entities_Ue(entity,d,b,c){
 			}else if(parts[f]<=-1){
 				e.x*=0.5;
 				e.y=-e.y;
-				Entities_Ud[entity]=parts[f];
+				Entities_touching[entity]=parts[f];
 			}else{
 				e.x*=Te[Parts_type[parts[f]]]
-				Entities_Ud[entity]=Parts_type[parts[f]]
+				Entities_touching[entity]=Parts_type[parts[f]]
 				if(e.y<0){
 					Entities.pos[entity].y=b;
 				}else if(states[Parts_type[parts[f]]]==State_LIQUID&&Parts_type[parts[f]]!=MERCURY){
@@ -5471,7 +5471,7 @@ function Entities_Ue(entity,d,b,c){
 			}
 			b=Entities.pos[entity].x+e.x;
 			if(b<4||b>=WIDTH-4){
-				Entities_Ud[entity]=-5;
+				Entities_touching[entity]=-5;
 				break;
 			}
 			f=floor(Entities.pos[entity].y)*WIDTH+floor(b);
@@ -5480,11 +5480,11 @@ function Entities_Ue(entity,d,b,c){
 			}else if(parts[f]<=-1){
 				e.y*=0.5;
 				e.x=-e.x;
-				Entities_Ud[entity]=parts[f];
+				Entities_touching[entity]=parts[f];
 			}else{
 				e.y*=Te[Parts_type[parts[f]]];
 				e.x=-e.x;
-				Entities_Ud[entity]=Parts_type[parts[f]];
+				Entities_touching[entity]=Parts_type[parts[f]];
 				if(states[Parts_type[parts[f]]]==State_LIQUID||Parts_type[parts[f]]==WOOD){
 					Entities.pos[entity].x=b;
 				}
@@ -5495,15 +5495,15 @@ function Entities_Ue(entity,d,b,c){
 function Entities_hurt(start,end){
 	var b=0;
 	for(var i=start;i<end;i++){
-		if(Entities_Ud[i]==-5){
+		if(Entities_touching[i]==-5){
 			return -5;
-		}else if(Entities_Ud[i]<0){
+		}else if(Entities_touching[i]<0){
 			b=1;
-		}else if(states[Entities_Ud[i]]==State_HOT){
+		}else if(states[Entities_touching[i]]==State_HOT){
 			return 3;
-		}else if(Entities_Ud[i]==ACID){
+		}else if(Entities_touching[i]==ACID){
 			return -5;
-		}else if(Entities_Ud[i]!=0){
+		}else if(Entities_touching[i]!=0){
 			b=1;
 		}
 	}
@@ -5567,9 +5567,9 @@ yd.prototype.Entities_update=function(){
 				Entities_Re(c+4,0.3,0.995);
 				Entities_Re(c+5,0.3,0.995);
 			}
-			Entities.pos[c].add(Entities_Pe[d]);
-			Entities_Pe[d].mul(0.5);
-			if(Entities_Pe[d].x!=0){
+			Entities.pos[c].add(Entities_vel[d]);
+			Entities_vel[d].mul(0.5);
+			if(Entities_vel[d].x!=0){
 				Entities.type[d]=Entities_PLAYER+2;
 			}
 			if(Xe[isplayer2]>0){
@@ -5623,12 +5623,12 @@ yd.prototype.Entities_update=function(){
 				Entities.pos[c+5].y-=6;
 			}
 			b=0.5;
-			Entities_Se(c+0,c+1,4,b,b);
-			Entities_Se(c+1,c+2,4,b,b);
-			Entities_Se(c+1,c+3,4,b,b);
-			Entities_Se(c+2,c+4,5,b,b);
-			Entities_Se(c+3,c+5,5,b,b);
-			Entities_Se(c+2,c+3,5,0.1,0.1);
+			Entities_pull(c+0,c+1,4,b,b);
+			Entities_pull(c+1,c+2,4,b,b);
+			Entities_pull(c+1,c+3,4,b,b);
+			Entities_pull(c+2,c+4,5,b,b);
+			Entities_pull(c+3,c+5,5,b,b);
+			Entities_pull(c+2,c+3,5,0.1,0.1);
 			w=0.1;
 			for(b=0;b<4;b++){
 				Entities_Ue(c+b,w,1,Entities.held[d]>0?1:0);
@@ -5748,7 +5748,7 @@ yd.prototype.Entities_update=function(){
 			Entities_oldpos[c+1].copy(Entities_oldpos[c+0]);
 			Entities.pos[c+0].copy(Entities.pos[c+0]);
 			Entities_oldpos[c+0].copy(Entities_oldpos[c+0]);
-			Entities_Pe[d].y-=1;
+			Entities_vel[d].y-=1;
 			Entities_decay[d]=0;
 			Entities.type[d]=Entities_PLAYER+3;
 		//even deader
@@ -5756,16 +5756,16 @@ yd.prototype.Entities_update=function(){
 			Entities_decay[d]++;
 			for(b=0;b<11;b++){
 				Entities_Re(c+b,0.1,0.999);
-				Entities.pos[c+b].add(Entities_Pe[d]);
+				Entities.pos[c+b].add(Entities_vel[d]);
 			}
-			Entities_Pe[d].mul(0.5);
+			Entities_vel[d].mul(0.5);
 			b=0.5;
 			e=(150-Entities_decay[d])/150;
-			Entities_Se(c+1,c+2,4*e,b,b);
-			Entities_Se(c+3,c+5,4*e,b,b);
-			Entities_Se(c+4,c+7,4*e,b,b);
-			Entities_Se(c+6,c+9,5*e,b,b);
-			Entities_Se(c+8,c+10,5*e,b,b);
+			Entities_pull(c+1,c+2,4*e,b,b);
+			Entities_pull(c+3,c+5,4*e,b,b);
+			Entities_pull(c+4,c+7,4*e,b,b);
+			Entities_pull(c+6,c+9,5*e,b,b);
+			Entities_pull(c+8,c+10,5*e,b,b);
 			w=0.1;
 			for(b=0;b<11;b++){
 				Entities_Ue(c+b,w,0,0);
@@ -5791,10 +5791,10 @@ yd.prototype.Entities_update=function(){
 				Entities_Re(c+5,0.1,0.995);
 			}
 			Entities_drag(d,c,c+6);
-			Entities.pos[c].add(Entities_Pe[d]);
-			Entities_Pe[d].mul(0.5);
+			Entities.pos[c].add(Entities_vel[d]);
+			Entities_vel[d].mul(0.5);
 			if(Entities.type[d]==Entities_FIGHTER){
-				if(Entities_Ud[c+4]!=0&&Entities_Ud[c+5]!=0){
+				if(Entities_touching[c+4]!=0&&Entities_touching[c+5]!=0){
 					r=floor(random(100));
 					if(r<5){
 						if(Entities.pos[c+4].x<Entities.pos[c+5].x){
@@ -5814,12 +5814,12 @@ yd.prototype.Entities_update=function(){
 						}
 					}
 				}else{
-					if(Entities_Ud[c+4]!=0){
+					if(Entities_touching[c+4]!=0){
 						if(random(100)<2){
 							Entities.pos[c+4].x+=random2(-4,4);
 							Entities.pos[c+4].y-=4;
 						}
-					}else if(Entities_Ud[c+5]!=0&&random(100)<2){
+					}else if(Entities_touching[c+5]!=0&&random(100)<2){
 						Entities.pos[c+5].x+=random2(-4,4);
 						Entities.pos[c+5].y-=4;
 					}
@@ -5830,8 +5830,8 @@ yd.prototype.Entities_update=function(){
 						g=abs(Entities.pos[c+4].x-Entities.pos[f].x);
 						q=Entities.pos[c+4].y-Entities.pos[f].y;
 						if(g<=2&&q>=0&&q<=6){
-							Entities_Pe[r].x+=1*(Entities.pos[c+4].x-Entities_oldpos[c+4].x);
-							Entities_Pe[r].y+=2*(Entities.pos[c+4].y-Entities_oldpos[c+4].y);
+							Entities_vel[r].x+=1*(Entities.pos[c+4].x-Entities_oldpos[c+4].x);
+							Entities_vel[r].y+=2*(Entities.pos[c+4].y-Entities_oldpos[c+4].y);
 							if(Entities.type[r]==Entities_FIGHTER){
 								Entities.type[r]=Entities_FIGHTER+1;
 							}
@@ -5840,8 +5840,8 @@ yd.prototype.Entities_update=function(){
 						g=abs(Entities.pos[c+5].x-Entities.pos[f].x);
 						q=Entities.pos[c+5].y-Entities.pos[f].y;
 						if(g<=2&&q<=0&&q<=6){
-							Entities_Pe[r].x+=1*(Entities.pos[c+5].x-Entities_oldpos[c+5].x);
-							Entities_Pe[r].y+=2*(Entities.pos[c+5].y-Entities_oldpos[c+5].y);
+							Entities_vel[r].x+=1*(Entities.pos[c+5].x-Entities_oldpos[c+5].x);
+							Entities_vel[r].y+=2*(Entities.pos[c+5].y-Entities_oldpos[c+5].y);
 							if(Entities.type[r]==Entities_FIGHTER){
 								Entities.type[r]=Entities_FIGHTER+1;
 							}
@@ -5849,17 +5849,17 @@ yd.prototype.Entities_update=function(){
 						}
 					}
 				}
-			}else if(Entities_decay[d]>10&&(Entities_Ud[c+4]!=0||Entities_Ud[c+5]!=0)&&random(100)<10){
+			}else if(Entities_decay[d]>10&&(Entities_touching[c+4]!=0||Entities_touching[c+5]!=0)&&random(100)<10){
 				Entities.type[d]=Entities_FIGHTER;
 				Entities_decay[d]=0;
 			}
 			b=0.5;
-			Entities_Se(c+0,c+1,4,b,b);
-			Entities_Se(c+1,c+2,4,b,b);
-			Entities_Se(c+1,c+3,4,b,b);
-			Entities_Se(c+2,c+4,5,b,b);
-			Entities_Se(c+3,c+5,5,b,b);
-			Entities_Se(c+2,c+3,5,0.1,0.1);
+			Entities_pull(c+0,c+1,4,b,b);
+			Entities_pull(c+1,c+2,4,b,b);
+			Entities_pull(c+1,c+3,4,b,b);
+			Entities_pull(c+2,c+4,5,b,b);
+			Entities_pull(c+3,c+5,5,b,b);
+			Entities_pull(c+2,c+3,5,0.1,0.1);
 			w=0.1;
 			for(b=0;b<4;b++){
 				Entities_Ue(c+b,w,1,Entities.held[d]>0?1:0);
@@ -5932,23 +5932,23 @@ yd.prototype.Entities_update=function(){
 			Entities_oldpos[c+1].copy(Entities_oldpos[c+0]);
 			Entities.pos[c+0].copy(Entities.pos[c+0]);
 			Entities_oldpos[c+0].copy(Entities_oldpos[c+0]);
-			Entities_Pe[d].y-=1;
+			Entities_vel[d].y-=1;
 			Entities_decay[d]=0;
 			Entities.type[d]=Entities_FIGHTER+3;
 		}else if(Entities.type[d]==Entities_FIGHTER+3){
 			Entities_decay[d]++;
 			for(b=0;b<11;b++){
 				Entities_Re(c+b,0.1,0.999);
-				Entities.pos[c+b].add(Entities_Pe[d]);
+				Entities.pos[c+b].add(Entities_vel[d]);
 			}
-			Entities_Pe[d].mul(0.5);
+			Entities_vel[d].mul(0.5);
 			b=0.5;
 			e=(150-Entities_decay[d])/150;
-			Entities_Se(c+1,c+2,4*e,b,b);
-			Entities_Se(c+3,c+5,4*e,b,b);
-			Entities_Se(c+4,c+7,4*e,b,b);
-			Entities_Se(c+6,c+9,5*e,b,b);
-			Entities_Se(c+8,c+10,5*e,b,b);
+			Entities_pull(c+1,c+2,4*e,b,b);
+			Entities_pull(c+3,c+5,4*e,b,b);
+			Entities_pull(c+4,c+7,4*e,b,b);
+			Entities_pull(c+6,c+9,5*e,b,b);
+			Entities_pull(c+8,c+10,5*e,b,b);
 			w=0.1;
 			for(b=0;b<11;b++){
 				Entities_Ue(c+b,w,0,0);
@@ -5983,12 +5983,12 @@ yd.prototype.Entities_update=function(){
 			}
 			b=0.5;
 			r=4*(Entities.meta2[d]+1);
-			Entities_Se(c+0,c+1,r,b,b);
-			Entities_Se(c+1,c+2,r,b,b);
-			Entities_Se(c+2,c+3,r,b,b);
-			Entities_Se(c+3,c+0,r,b,b);
-			Entities_Se(c+0,c+2,1.4142135*r,b,b);
-			Entities_Se(c+1,c+3,1.4142135*r,b,b);
+			Entities_pull(c+0,c+1,r,b,b);
+			Entities_pull(c+1,c+2,r,b,b);
+			Entities_pull(c+2,c+3,r,b,b);
+			Entities_pull(c+3,c+0,r,b,b);
+			Entities_pull(c+0,c+2,1.4142135*r,b,b);
+			Entities_pull(c+1,c+3,1.4142135*r,b,b);
 			w=0.5;
 			for(b=0;b<4;b++){
 				Entities_Ue(c+b,w,0,1);
@@ -6024,10 +6024,10 @@ yd.prototype.Entities_update=function(){
 			}
 			b=0.5;
 			r=(150-Entities_decay[d])/150*(Entities.meta2[d]+1)*4;
-			Entities_Se(c+0,c+1,r,b,b);
-			Entities_Se(c+2,c+3,r,b,b);
-			Entities_Se(c+4,c+5,r,b,b);
-			Entities_Se(c+6,c+7,r,b,b);
+			Entities_pull(c+0,c+1,r,b,b);
+			Entities_pull(c+2,c+3,r,b,b);
+			Entities_pull(c+4,c+5,r,b,b);
+			Entities_pull(c+6,c+7,r,b,b);
 			if(Entities.type[d]==Entities_BOX+2&&Parts_limits[Menu_dotLimit]-Parts_used>=1000){
 				for(b=0;b<5;b+=2){
 					e.sub2(Entities_oldpos[c+b+1],Entities_oldpos[c+b]);
@@ -6047,26 +6047,26 @@ yd.prototype.Entities_update=function(){
 				Entities_remove(d--);
 			}
 		}else if(Entities.type[d]==Entities_CREATE){
-			if(Entities_Ud[c]==0){
+			if(Entities_touching[c]==0){
 				for(r=0;r<Entities.used;r++){
 					if(Entities.pos[c].x+8>=Entities.pos[r*Entities.PARTS].x && Entities.pos[r*Entities.PARTS].x>=Entities.pos[c].x-4 && Entities.pos[c].y+8>=Entities.pos[r*Entities.PARTS].y && Entities.pos[r*Entities.PARTS].y>=Entities.pos[c].y-4){
 						if(Entities.type[r]==Entities_FIGHTER||Entities.type[r]==Entities_BOX){
-							Entities_Ud[c]=Entities.type[r];
+							Entities_touching[c]=Entities.type[r];
 							Entities.meta2[d]=Entities.meta2[r];
 						}else if(Entities.type[r]==Entities_PLAYER){
 							for(e=0;e<Entities.used;e++){
-								if(Entities.type[e]==Entities_CREATE&&Entities_Ud[e*Entities.PARTS]==Entities_PLAYER){
-									Entities_Ud[e*Entities.PARTS]=0;
+								if(Entities.type[e]==Entities_CREATE&&Entities_touching[e*Entities.PARTS]==Entities_PLAYER){
+									Entities_touching[e*Entities.PARTS]=0;
 								}
 							}
-							Entities_Ud[c]=Entities.type[r];
+							Entities_touching[c]=Entities.type[r];
 							Entities.meta2[d]=Entities.meta2[r];
 						}
 					}
 				}
 				for(r=0;r<Balls.MAX;r++){
 					if(Balls.used[r] && Entities.pos[c].x+8>=Balls.pos[r].x && Balls.pos[r].x>=Entities.pos[c].x-4 && Entities.pos[c].y+8>=Balls.pos[r].y && Balls.pos[r].y>=Entities.pos[c].y-4){
-						Entities_Ud[c]=-2;
+						Entities_touching[c]=-2;
 						Entities.meta2[d]=Balls.type[r];
 					}
 				}
@@ -6074,17 +6074,17 @@ yd.prototype.Entities_update=function(){
 			}else{
 				w=floor(Entities.pos[c+0].x);
 				b=floor(Entities.pos[c+0].y);
-				if(Entities_Ud[c]==Entities_PLAYER){
+				if(Entities_touching[c]==Entities_PLAYER){
 					if(random(100)<10){
 						Entities.create(w,b,30,Entities.meta2[d])
 					}
 				}else{
 					if(random(100)<1){
-						if(Entities_Ud[c]==Entities_FIGHTER){
+						if(Entities_touching[c]==Entities_FIGHTER){
 							Entities.create(w,b,0,0);
-						}else if(Entities_Ud[c]==Entities_BOX){
+						}else if(Entities_touching[c]==Entities_BOX){
 							Entities.create(w,b,22,Entities.meta2[d]);
-						}else if(Entities_Ud[c]==-2){
+						}else if(Entities_touching[c]==-2){
 							Balls.create(w+2,b+2,Entities.meta2[d]);
 						}
 					}
@@ -6228,21 +6228,21 @@ yd.prototype.Entities_display=function(){
 					createcolor=0x000000;
 				}
 				//fighter
-				if(Entities_Ud[b]==Entities_FIGHTER){
+				if(Entities_touching[b]==Entities_FIGHTER){
 					line(Entities.pos[b].x,Entities.pos[b].y,Entities.pos[b].x,Entities.pos[b].y+3,createcolor);
 					line(Entities.pos[b].x,Entities.pos[b].y,Entities.pos[b].x+3,Entities.pos[b].y,createcolor);
 					line(Entities.pos[b].x,Entities.pos[b].y+2,Entities.pos[b].x+2,Entities.pos[b].y+2,createcolor);
 				//box
-				}else if(Entities_Ud[b]==Entities_BOX){
+				}else if(Entities_touching[b]==Entities_BOX){
 					box(floor(Entities.pos[b].x),floor(Entities.pos[b].y),3,3,createcolor);
 				//player
-				}else if(Entities_Ud[b]==Entities_PLAYER){
+				}else if(Entities_touching[b]==Entities_PLAYER){
 					line(Entities.pos[b].x,Entities.pos[b].y,Entities.pos[b].x,Entities.pos[b].y+3,createcolor);
 					line(Entities.pos[b].x,Entities.pos[b].y,Entities.pos[b].x+2,Entities.pos[b].y,createcolor);
 					line(Entities.pos[b].x,Entities.pos[b].y+2,Entities.pos[b].x+2,Entities.pos[b].y+2,createcolor);
 					line(Entities.pos[b].x+3,Entities.pos[b].y,Entities.pos[b].x+3,Entities.pos[b].y+2,createcolor);
 				//ball
-				}else if(Entities_Ud[b]==-2){
+				}else if(Entities_touching[b]==-2){
 					line(Entities.pos[b].x+1,Entities.pos[b].y,Entities.pos[b].x+2,Entities.pos[b].y,createcolor);
 					line(Entities.pos[b].x,Entities.pos[b].y+1,Entities.pos[b].x,Entities.pos[b].y+2,createcolor);
 					line(Entities.pos[b].x+3,Entities.pos[b].y+1,Entities.pos[b].x+3,Entities.pos[b].y+2,createcolor);

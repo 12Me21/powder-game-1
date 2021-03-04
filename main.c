@@ -2,12 +2,16 @@
 #include "menu.h"
 #include "save.h"
 #include "platform.h"
+#include "reset.h"
+
 
 #define DEFCALL(name) void name(void); name()
 
 void Platform_main(int argc, void** argv) {
 	if (argc>=2)
 		Save_Load_test(argv[1]);
+	else
+		Sim_reset(false);
 }
 
 void render() {
@@ -53,4 +57,5 @@ void Platform_frame(void) {
 		//puts("");
 	}
 	render();
+	DEFCALL(Input_update2);
 }

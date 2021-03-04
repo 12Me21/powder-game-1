@@ -12,10 +12,6 @@
 #include <X11/xpm.h>
 #include <X11/keysym.h>
 
-extern int Platform_mouseX, Platform_mouseY;
-extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
-extern bool Platform_keys[256];
-
 void Platform_frame(void);
 void Platform_main(int argc, char** argv);
 
@@ -30,43 +26,55 @@ long Platform_millisec(void) {
 	return (long)ts.tv_sec * 1000L + ts.tv_nsec/1000000;
 }
 
-void Platform_redraw(void) {
+void redraw(void) {
 	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
 	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
 }
 
-static void processEvent(void) {
+Atom wmDeleteMessage;
+
+static bool processEvent(void) {
 	while (1) {
 		static union {
 			XEvent event;
 			XMotionEvent motion;
 			XKeyEvent key;
 			XButtonEvent button;
+			XClientMessageEvent clientMessage;
 		} ev;
-		Bool t = XCheckWindowEvent(D, win, (long)-1, &ev.event);
+		Bool t = XCheckWindowEvent(D, win, ~0L, &ev.event);
 		if (!t)
-			return;
+			return true;
 		switch (ev.event.type) {
+			//case ClientMessage:
+			//			if ((Atom)ev.clientMessage.data.l[0] == wmDeleteMessage)
+			//				return false;
+			//			break;
 		case Expose:
-			Platform_redraw();
+			redraw();
 			break;
 		case ButtonPress:;
 		case ButtonRelease:;
+			ButtonState* btn = NULL;
 			if (ev.button.button == Button1)
-				Platform_mouseLeft = ev.event.type == ButtonPress;
-			if (ev.button.button == Button3)
-				Platform_mouseRight = ev.event.type == ButtonPress;;
+				btn = &mouse.left;
 			if (ev.button.button == Button2)
-				Platform_mouseMiddle = ev.event.type == ButtonPress;;
+				btn = &mouse.middle;
+			if (ev.button.button == Button3)
+				btn = &mouse.right;
+			if (btn) {
+				btn->heldNow = ev.event.type==ButtonPress;
+				if (ev.event.type==ButtonPress)
+					btn->gotPress = true;
+				else
+					btn->gotRelease = true;
+			}
 			break;
 		case MotionNotify:;
-			Platform_mouseX = ev.motion.x;
-			Platform_mouseY = ev.motion.y;
+			mouse.pos = (Point){ev.motion.x, ev.motion.y};
 			break;
 		case KeyPress:;
 		case KeyRelease:;
-			//int i;
-			//for (i=0; ; i++) {
 			KeySym key = XLookupKeysym(&ev.key, 0);
 			if (!key) break;
 			int code = -1;
@@ -85,9 +93,13 @@ static void processEvent(void) {
 				char* sym_name = XKeysymToString(key);
 				printf("Got keysym: (%s)\n", sym_name);
 			}
-			if (code >= 0)
-				Platform_keys[code] = ev.event.type == KeyPress;
-			//}
+			if (code >= 0) {
+				Keys[code].heldNow = ev.event.type == KeyPress;
+				if (ev.event.type == KeyPress)
+					Keys[code].gotPress = true;
+				else
+					Keys[code].gotRelease = true;
+			}
 		}
 	}
 }
@@ -98,6 +110,7 @@ int main(int argc, char** argv) {
 	Visual* visual = DefaultVisual(D, 0);
 	if (visual->class!=TrueColor) {
 		fprintf(stderr, "Cannot handle non true color visual ...\n");
+		XCloseDisplay(D);
 		exit(1);
 	}
 
@@ -105,7 +118,7 @@ int main(int argc, char** argv) {
 	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0);
 	XSelectInput(D, win, ButtonPressMask|ButtonReleaseMask|ExposureMask|KeyPressMask|KeyReleaseMask|PointerMotionMask);
 	XMapWindow(D, win);
-
+	
 	// Lock window size
 	XSizeHints* shints = XAllocSizeHints();
 	shints->flags = PMinSize|PMaxSize;
@@ -129,13 +142,15 @@ int main(int argc, char** argv) {
 	simImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)&grp[8][8], W,H, 32, WIDTH*4);
 	// menu
 	menuImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W,MENU_HEIGHT, 32, 0);
+
+	//wmDeleteMessage = XInternAtom(D, "WM_DELETE_WINDOW", False);
+	//XSetWMProtocols(D, win, &wmDeleteMessage, 1);
 	
 	// start
 	Platform_main(argc, argv);
-	while (1) {
+	while (processEvent()) {
 		Platform_frame();
-		Platform_redraw();
-		processEvent();
+		redraw();
 	}
 }
 
