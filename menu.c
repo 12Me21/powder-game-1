@@ -106,7 +106,7 @@ void Menu_input(void) {
 		when(Menu_SCALE):;
 			if (mouse.left.gotPress) {
 				if (selection==Menu_SCALE) {
-					if (Menu_zoomLevel<89) {
+					if (Menu_zoomLevel<4) {
 						Menu_zoomLevel++;
 						Menu_zoomX += W>>Menu_zoomLevel>>1;
 						Menu_zoomY += H>>Menu_zoomLevel>>1;
@@ -178,10 +178,14 @@ void Menu_input(void) {
 
 void Menu_update(void) {
 	static long last;
-	long ms = Platform_millisec();
-	real fps = (1000.0)/(ms-last);
-	last = ms;
-	Menu_fps = (Menu_fps*9+fps)/10;
+	long ms = Platform_nanosec();
+	if (ms>last) {
+		real fps = (10000000000.0)/(ms-last);
+		last = ms;
+		Menu_fps = (Menu_fps*9+fps)/10;
+	} else {
+		Menu_fps = 99999999;
+	}
 	
 	if (Menu_cursorInMenu)
 		return;
