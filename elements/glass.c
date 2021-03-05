@@ -25,8 +25,7 @@ break; case Elem_GLASS:
 			Part* near = Part_pos2(p->pos)[Part_ofs(x,y)];
 			if (near>=Part_0 && near->type==Elem_GLASS && near->meta==0) {
 				near->meta = 1;
-				int y = Random_int(512);
-				near->vel = Vec_mul2(Vec_unit(y), v);
+				near->vel = Vec_mul2(Vec_unit[Random_int(512)], v);
 			}
 		}
 		nb(1,0);

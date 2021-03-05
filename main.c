@@ -42,6 +42,9 @@ void Platform_frame(void) {
 			//printf("%3ld, ", m-n);
 			//n=m;
 		}
+		DEFCALL(Cell_update1);
+		if (Menu_paused)
+			continue;
 		DEFCALL(Cell_update);
 		status();
 		DEFCALL(Part_update);

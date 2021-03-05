@@ -10,6 +10,10 @@ typedef struct Block {
 	char block; // K[]
 } Block;
 
-extern real pd; // pd
+typedef struct Block Cell;
+
+void Cell_clearPressure(Cell* c);
+void Cell_addPressure(Cell* c, real p);
+
 extern Block Part_blocks[HEIGHT/4][WIDTH/4];
 extern Block* const Part_blocks_end;

@@ -111,33 +111,34 @@ void load1(void) {
 	for (int y=0; y<H; y++) {
 		for (int x=0; x<W; x++) {
 			int t = Save_data[y][x].type;
+			int sx=x+8, sy=y+8;
 			switch (t) {
 			when(0):;
-				Part_at[y+8][x+8] = Part_EMPTY;
+				Part_at[sy][sx] = Part_EMPTY;
 			when(Elem_BLOCK):;
 				Part_blocks[y/4+2][x/4+2].block = 1;
-				Part_at[y+8][x+8] = Part_BLOCK;
+				Part_at[sy][sx] = Part_BLOCK;
+			when(Elem_FIGHTER):;
+				//Wheels.create(sx,sy);
 			when(Elem_WHEEL):;
-				//Wheels.create(x+8,y+8);
-			when(Elem_WHEEL2):;
-				//Wheels.create(x+8,y+8);
+				//Wheels.create(sx,sy);
 			when(Elem_BOX):;
-				Entity_create(x+8,y+8,Elem_BOX, Save_data[y][x].meta);
+				Entity_create(sx,sy,Elem_BOX, Save_data[y][x].meta);
 			when(Elem_PLAYER):;
-				Entity_create(x+8,y+8,Elem_PLAYER2, Save_data[y][x].meta);
+				Entity_create(sx,sy,Elem_PLAYER2, Save_data[y][x].meta);
 			when(Elem_SAVE_BALL):;
-				Ball_create(x+8, y+8, Save_data[y][x].meta);
+				Ball_create(sx, sy, Save_data[y][x].meta);
 			otherwise:
 				total++;
 				if (Menu_dotLimit<=0 && Part_LIMITS[0]<total)
 					Menu_dotLimit=1;
 				if(Menu_dotLimit<=1 && Part_LIMITS[1]<total)
 					Menu_dotLimit=2;
-				Part* a = Part_create(x+8, y+8, t);
+				Part* a = Part_create(sx, sy, t);
 				int meta = Save_data[y][x].meta;
 				if (t == Elem_FAN) {
 					a->vel = (Point){0.1*(real)cos(meta*PI/32), 0.1*-(real)sin(meta*PI/32)};
-					Part_at[y+8][x+8] = Part_BGFAN;
+					Part_at[sy][sx] = Part_BGFAN;
 				} else if (t == Elem_FIREWORKS)
 					a->meta = meta;
 			}

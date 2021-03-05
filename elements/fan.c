@@ -8,8 +8,7 @@ break; case Elem_FAN:
 #elif defined UPDATE_BALL
 	if (touched>0) {
 		Block* cell = &Part_blocks[(int)ball->pos.y/4][(int)ball->pos.x/4];
-		cell->pres += 10;
-		pd -= 10;
+		Cell_addPressure(cell, 10);
 	}
 #elif defined UPDATE_BALL_PART
 	//nothing

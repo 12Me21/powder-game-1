@@ -26,7 +26,7 @@
 #include "bomb.c"
 #include "laser.c"
 #include "acid.c"
-//#include "vine.c"
+#include "vine.c"
 #include "salt.c"
 #include "saltwater.c"
 #include "glass.c"

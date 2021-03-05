@@ -205,7 +205,7 @@ void Menu_render(void) {
 	Draw_spacedText(8+280+(4*(8-2)),73,a[Menu_penMode],-1,0,-2);
 	Draw_spacedText(8+280+(4*(8-2)),73,a[Menu_penMode],0xFFFFFF,-1,-2);
 	Draw_printf(8+280-1,87,0xFFFFFF,0,-1, "      %d", Menu_penSize);
-	Draw_printf(8+280,101,0xFFFFFF,0,-2,"      %s",(char*[]){"x1","x2","x4","x8","16"}[Menu_zoomLevel]);
+	Draw_printf(8+280,101,0xFFFFFF,0,-2,"      %s",(char*[]){"x1","x2","x4","x8","16","32","64","aa","ff","help","please","stop","AAAAA"}[Menu_zoomLevel]);
 	Draw_printf(8+280,115,0xFFFFFF,0,-2, "       %d", 1<<Menu_gameSpeed);
 	if (!Menu_paused)
 		Draw_spacedText(col6-1,129,"Start",0xFF4040,-1,-3);

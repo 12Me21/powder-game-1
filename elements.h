@@ -14,6 +14,7 @@ typedef struct ElementDef {
 	int temperature;   // xd[]  light generated in "TG" bg mode
 	int dissolveRate;  // Be[]  for ACID
 	real friction;     // Te[]  affects entity movement i think
+	bool ballLight;
 	real ze, Ae;       // ze[], Ae[]  these affect superball movement
 	bool ballValid;    // gf[]
 	real ballWeight;   // ef[]

@@ -11,16 +11,16 @@
 Ball balls[Ball_MAX];
 Ball* const Ball_END = &balls[Ball_MAX];
 
-void Ball_create(real x, real y, Elem type) {
+void Ball_create(int x, int y, Elem type) {
 	for (Ball* ball=balls; ball<Ball_END; ball++) {
 		if (!ball->used) {
 			*ball = (Ball){
-				{x+0.5, y+0.5},
-				{0,0},
-				true,
-				0,
-				0,
-				type,
+				.pos={x+0.5, y+0.5},
+				.vel={0,0},
+				.used=true,
+				.meta=0,
+				.held=false,
+				.type=type,
 			};
 			break;
 		}
@@ -86,8 +86,9 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 					createType
 				);
 				if (near) {
-					near->vel.x += vx+neighbors[i].breakVel.x*speed;
-					near->vel.y += vy+neighbors[i].breakVel.y*speed;
+					near->vel.xy += CMPLXF(vx,vy) + neighbors[i].breakVel.xy * speed;
+					//near->vel.x += vx+neighbors[i].breakVel.x*speed;
+					//near->vel.y += vy+neighbors[i].breakVel.y*speed;
 					near->meta = meta;
 				}
 			}
@@ -103,8 +104,7 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 					createType
 				);
 				if (near) {
-					near->vel.x += vx+neighbors[i].breakVel.x*speed;
-					near->vel.y += vx+neighbors[i].breakVel.y*speed;
+					near->vel.xy += CMPLXF(vx,vy) + neighbors[i].breakVel.xy * speed;
 					near->meta = meta;
 				}
 			} else if (near>=Part_0) {

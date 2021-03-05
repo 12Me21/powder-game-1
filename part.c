@@ -195,7 +195,8 @@ bool Part_checkPump(Part* part, Part* pump, int dir) {
 }
 
 void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc) {
-	p->vel.c += c->vel.c*adv;
+	p->vel.x += adv*c->vel.x;
+	p->vel.y += adv*c->vel.y;
 	if (Part_pos3(p->pos,0,1) != Part_EMPTY) {
 		if (Part_pos3(p->pos,-1,0) == Part_EMPTY)
 			p->vel.x -= Random_2(x1, x2);
@@ -204,8 +205,11 @@ void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, 
 	}
 	p->vel.x += Random_2(-xr1, xr1);
 	p->vel.y += Random_2(yr1, yr2);
-	p->vel.c *= frc;
-	Part_blow(p, (Point){.c = c->vel.c+p->vel.c});
+	p->vel.x *= frc;
+	p->vel.y *= frc;
+	Point airvel = c->vel;
+	Vec_add(&airvel, p->vel);
+	Part_blow(p, airvel);
 }
 
 // flood fill

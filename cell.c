@@ -2,25 +2,32 @@
 #include "common.h"
 #include "part.h"
 #include "cell.h"
+#include "menu.h"
 
-real pd = 0; //mystery
+real pd = 0;
 
 Block Part_blocks[HEIGHT/4][WIDTH/4];
 Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
 
-void Cell_update(void) {
-	int open = 0;
-	Block* c;
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
-		if (!c->block)
-			open++;
-	if (open>0) {
-		pd /= open;
+void Cell_update1(void) {
+	if (pd!=0) {
+		int open = 0;
+		Block* c;
 		forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
 			if (!c->block)
-				c->pres += pd;
-		pd = 0;
+				open++;
+		if (open>0) {
+			pd /= open;
+			forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
+				if (!c->block)
+					c->pres += pd;
+			pd = 0;
+		}
 	}
+}
+
+void Cell_update(void) {
+	Block* c;
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
 		c->vel2 = c->vel;
 	for (int b=2; b<(HEIGHT)/4-2; b++) {
@@ -119,4 +126,14 @@ void Cell_update(void) {
 			c->vel = (Point){0,0};
 		}
 	}
+}
+
+void Cell_addPressure(Cell* c, real p) {
+	c->pres += p;
+	pd -= p;
+}
+
+void Cell_clearPressure(Cell* c) {
+	pd += c->pres;
+	c->pres = 0;
 }

@@ -30,7 +30,7 @@ break; case Elem_FIREWORKS:
 	} else {
 		int i;
 		for (i=0; i<512; i+=32) {
-			Point angle = Vec_unit(i);
+			Point angle = Vec_unit[i];
 			int x = p->pos.x+2*angle.x;
 			int y = p->pos.y+2*angle.y;
 			x = clamp(x,8,W+8);
