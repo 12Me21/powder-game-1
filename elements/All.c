@@ -34,5 +34,5 @@
 #include "mercury.c"
 #include "spark.c"
 #include "fuse.c"
-//#include "cloud.c"
+#include "cloud.c"
 //#include "pump.c"
