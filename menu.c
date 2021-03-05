@@ -180,7 +180,7 @@ void Menu_update(void) {
 	static long last;
 	long ms = Platform_nanosec();
 	if (ms>last) {
-		real fps = (10000000000.0)/(ms-last);
+		real fps = (1000000000.0)/(ms-last);
 		last = ms;
 		Menu_fps = (Menu_fps*9+fps)/10;
 	} else {
