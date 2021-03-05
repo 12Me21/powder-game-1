@@ -20,10 +20,10 @@ Window win;
 XImage* simImage;
 XImage* menuImage;
 
-long Platform_millisec(void) {
+long Platform_nanosec(void) {
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
-	return (long)ts.tv_sec * 1000L + ts.tv_nsec/1000000;
+	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec; // ONE MILLION
 }
 
 void redraw(void) {

@@ -36,7 +36,7 @@ void Platform_frame(void) {
 	DEFCALL(Menu_update);
 	
 	for (int i=0; i<1<<Menu_gameSpeed; i++) {
-		long n = Platform_millisec();
+		//long n = Platform_millisec();
 		void status(void) {
 			//long m = Platform_millisec();
 			//printf("%3ld, ", m-n);
