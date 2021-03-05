@@ -7,16 +7,14 @@
 // many of the algorithms here are not the most efficient or accurate,
 // but cannot be changed without breaking old saves
 
-static Point sinCos[513]; //yes, 513
+Point Vec_unit[513]; //yes, 513
 
 void Vec_add(Point* a, Point b) {
-	a->x += b.x;
-	a->y += b.y;
+	a->xy += b.xy;
 }
 
 void Vec_sub(Point* a, Point b) {
-	a->x -= b.x;
-	a->y -= b.y;
+	a->xy -= b.xy;
 }
 
 Point Vec_sub2(Point a, Point b) {
@@ -24,13 +22,11 @@ Point Vec_sub2(Point a, Point b) {
 }
 
 void Vec_mul(Point* a, real mul) {
-	a->c *= mul;
-	//a->x *= mul;
-	//a->y *= mul;
+	a->xy *= mul;
 }
 
 Point Vec_mul2(Point a, real mul) {
-	return (Point){a.x*mul, a.y*mul};
+	return (Point){.xy = a.xy*mul};
 }
 
 static real fastDist(real x, real y) {
@@ -46,8 +42,10 @@ real Vec_fastDist(Point a) {
 	return fastDist(a.x, a.y);
 }
 
+// can't use cabs() here because of compatibility
+// I have tested, sqrtf() produces the same results as sqrt() here
 real Vec_dist(Point this) {
-	return (real)sqrt(this.x*this.x + this.y*this.y);
+	return sqrtf(this.x*this.x + this.y*this.y);
 }
 
 real Vec_fastNormalize(Point* v) {
@@ -75,13 +73,7 @@ real Vec_angle(Point v) {
 	return angle;
 }
 
-Point Vec_unit(int angle) {
-	return sinCos[angle];
-}
-
 // this random number system is very strange but again, I can't change it
-
-// this can probably be real (more memory but less time spent converting
 static real randomFloats[1024];
 static int randomIndex = 0, randomStep = 0;
 static real randomFloat(void) {
@@ -122,13 +114,13 @@ AUTORUN {
 		randomFloats[i] = randomFloats[s];
 		randomFloats[s] = temp;
 	}
+	Random_update();
 	// init sine table
 	for (i=0;i<512;i++) {
 		real d = 350*i/512*PI/180;
-		sinCos[i] = (Point){(real)sin(d),(real)cos(d)};
+		Vec_unit[i] = (Point){(real)sin(d),(real)cos(d)};
 	}
-	sinCos[i] = sinCos[0];
-	Random_update();
+	Vec_unit[i] = Vec_unit[0];
 }
 
 real clamp(real value, real min, real max){

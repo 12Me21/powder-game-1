@@ -34,7 +34,6 @@ void Input_update2(void) {
 		mouse.buttons[i].gotRelease = false;
 		mouse.buttons[i].wasHeld = mouse.buttons[i].held;
 	}
-	mouse.olderPos = mouse.oldPos;
 	mouse.oldPos = mouse.pos;
 	for (int i=0;i<256;i++) {
 		Keys[i].gotPress = false;

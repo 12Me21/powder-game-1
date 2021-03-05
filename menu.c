@@ -22,6 +22,8 @@ int wa; //this is the state when navigating the upload menu
 
 axis Pen_x=0, Pen_y=0;
 axis Pen_oldx=0, Pen_oldy=0;
+Point Menu_pen = {0,0};
+Point Menu_penOld = {0,0};
 Point Pen_dir = {0,0};
 
 int Menu_hover = -1;
@@ -35,8 +37,7 @@ int Menu_leftSelection = 10;
 int Menu_rightSelection = 0;
 int Menu_penSize = 0;
 int Menu_zoomLevel = 0;
-axis Menu_zoomX = 0;
-axis Menu_zoomY = 0;
+axis Menu_zoomX = 0, Menu_zoomY = 0;
 int Menu_dotLimit = 0;
 int Menu_gridSize = 0;
 int Menu_carefully = 0;
@@ -58,7 +59,7 @@ static int wrap(int a, int b) {
 }
 
 static bool mouseinside(axis x, axis y, axis width, axis height) {
-	return !(mouse.oldPos.x<x||mouse.oldPos.x>=x+width||mouse.oldPos.y<y||mouse.oldPos.y>=y+height);
+	return !(mouse.pos.x<x||mouse.pos.x>=x+width||mouse.pos.y<y||mouse.pos.y>=y+height);
 }
 
 static void clampZoom(void) {
@@ -70,9 +71,9 @@ void Menu_input(void) {
 	Menu_dragStart = (Menu_leftSelection == Menu_DRAG && mouse.left.gotPress) || (Menu_rightSelection == Menu_DRAG && mouse.right.gotPress); //todo: function for this
 	Menu_dragging = (Menu_leftSelection == Menu_DRAG && mouse.left.wasHeld) || (Menu_rightSelection == Menu_DRAG && mouse.right.wasHeld);
 	
-	if (mouse.oldPos.y>=H && Mouse_risingClick)
+	if (mouse.pos.y>=H && Mouse_risingClick)
 		Menu_cursorInMenu=true;
-	else if (mouse.oldPos.y<H)
+	else if (mouse.pos.y<H)
 		Menu_cursorInMenu=false;
 	if (!Menu_cursorInMenu) {
 		Menu_hover = -1;
@@ -82,8 +83,8 @@ void Menu_input(void) {
 	axis c=4;
 	axis e=H+3;
 	if (mouseinside(c,e,391,139)/*&& wa==0*/) {
-		axis d = (mouse.oldPos.x-c)/Menu_BUTTONWIDTH;
-		axis b = (mouse.oldPos.y-e)/Menu_BUTTONHEIGHT;
+		axis d = (mouse.pos.x-c)/Menu_BUTTONWIDTH;
+		axis b = (mouse.pos.y-e)/Menu_BUTTONHEIGHT;
 		int selection = clamp(Menu_BUTTONROWS*d+b,0,69);
 		Menu_hover = selection;
 		switch (selection) {
@@ -105,7 +106,7 @@ void Menu_input(void) {
 		when(Menu_SCALE):;
 			if (mouse.left.gotPress) {
 				if (selection==Menu_SCALE) {
-					if (Menu_zoomLevel<4) {
+					if (Menu_zoomLevel<89) {
 						Menu_zoomLevel++;
 						Menu_zoomX += W>>Menu_zoomLevel>>1;
 						Menu_zoomY += H>>Menu_zoomLevel>>1;
@@ -184,16 +185,23 @@ void Menu_update(void) {
 	
 	if (Menu_cursorInMenu)
 		return;
+	Menu_penOld = Menu_pen;
+	Menu_pen = mouse.pos;
+
 	Pen_oldx = Pen_x;
 	Pen_oldy = Pen_y;
-	Pen_x = mouse.oldPos.x;
-	Pen_y = mouse.oldPos.y;
+	Pen_x = mouse.pos.x;
+	Pen_y = mouse.pos.y;
 	if (Menu_zoomLevel>0) {
 		Pen_x = Menu_zoomX+(Pen_x>>Menu_zoomLevel);
 		Pen_y = Menu_zoomY+(Pen_y>>Menu_zoomLevel);
+		Menu_pen.x = Menu_zoomX+((int)Menu_pen.x>>Menu_zoomLevel);
+		Menu_pen.y = Menu_zoomY+((int)Menu_pen.y>>Menu_zoomLevel);
 	}
 	Pen_x = clamp(Pen_x+8,8,WIDTH-8-1);
 	Pen_y = clamp(Pen_y+8,8,HEIGHT-8-1);
+	Menu_pen.x = clamp(Menu_pen.x+8,8,WIDTH-8-1);
+	Menu_pen.y = clamp(Menu_pen.y+8,8,HEIGHT-8-1);
 	// todo: line mode etc.
 	Point c = {Pen_x,Pen_y};
 	Pen_dir.x = Pen_oldx-5*Pen_dir.x;
@@ -210,8 +218,8 @@ void Menu_update(void) {
 	Pen_dir = Vec_sub2(c, Pen_dir);
 	Vec_fastNormalize(&Pen_dir);
 	if (Menu_zoomLevel!=0 && mouse.middle.held) {
-		Menu_zoomX -= (mouse.oldPos.x-mouse.olderPos.x)/(1<<Menu_zoomLevel);
-		Menu_zoomY -= (mouse.oldPos.y-mouse.olderPos.y)/(1<<Menu_zoomLevel);
+		Menu_zoomX -= (mouse.pos.x-mouse.oldPos.x)/(1<<Menu_zoomLevel);
+		Menu_zoomY -= (mouse.pos.y-mouse.oldPos.y)/(1<<Menu_zoomLevel);
 		clampZoom();
 	}
 	for (int i=0;i<=1;i++) {
@@ -307,10 +315,8 @@ void Menu_update(void) {
 			when(Menu_AIR):;
 				void addPressure(axis x, axis y, real amount) {
 					Block* cell = &Part_blocks[Pen_y/4+y][Pen_x/4+x];
-					if (!cell->block) {
-						cell->pres += amount;
-						pd -= amount;
-					}
+					if (!cell->block)
+						Cell_addPressure(cell, amount);
 				}
 				if (old) {
 					int v=(Menu_penSize+1)*(Menu_penSize+1)*0.25;
@@ -380,16 +386,14 @@ void Menu_update(void) {
 									when(Menu_BLOCK):;
 										cell->block = 1;
 										cell->vel = (Point){0,0};
-										pd += cell->pres;
-										cell->pres = 0;
+										Cell_clearPressure(cell);
 									when(Menu_ERASE):;
 										cell->block = -2;
 									when(Menu_CLEAR):;
 										if (cell->block == 0) {
 											cell->block = -2;
 											cell->vel = (Point){0,0};
-											pd += cell->pres;
-											cell->pres=0;
+											Cell_clearPressure(cell);
 										}
 									}
 								}

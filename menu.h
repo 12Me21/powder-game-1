@@ -28,6 +28,8 @@ extern axis Menu_zoomY; // na
 extern Point Pen_dir; // jd
 
 extern const int Part_LIMITS[3]; // ia
+extern Point Menu_pen;
+extern Point Menu_penOld;
 extern axis Pen_x, Pen_y; // Oc, Pc
 extern axis Pen_oldx, Pen_oldy; // sd, td
 

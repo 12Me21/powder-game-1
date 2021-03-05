@@ -1,6 +1,7 @@
 #pragma once
 #include "common.h"
 #include "vector.h"
+#include "part.h"
 
 typedef struct Ball {
 	Point pos; // O[]
@@ -17,6 +18,6 @@ typedef struct Ball {
 extern Ball balls[Ball_MAX];
 extern Ball* const Ball_END;
 
-void Ball_create(real x, real y, Elem type); // Hd()
+void Ball_create(int x, int y, Elem type); // Hd()
 void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed); // lf()
 bool Ball_react(Ball* ball, Part* part, Elem* newType); // jf()

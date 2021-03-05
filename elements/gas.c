@@ -39,8 +39,7 @@ break; case Elem_GAS:
 			Part_create(x, y, Elem_FIRE);
 	}
 	Part_doRadius(p->pos.x, p->pos.y, 10, func);
-	c->pres += 2;
-	pd -= 2;
+	Cell_addPressure(c,2);
 	p->type = Elem_FIRE;
 	p->meta = 0;
 

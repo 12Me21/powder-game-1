@@ -12,7 +12,7 @@ typedef struct ButtonState {
 } ButtonState;
 
 typedef struct MouseState {
-	Point pos, oldPos, olderPos;
+	Point pos, oldPos;
 	union {
 		ButtonState buttons[3];
 		struct {

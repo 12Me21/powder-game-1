@@ -11,12 +11,10 @@ break; case Elem_FIRE:
 		real q = Random_2(-0.01, -0.05);
 		c->vel.x += Random_2(-0.02, 0.02);
 		c->vel.y += q;
-		c->pres += -q;
-		pd -= -q;
+		Cell_addPressure(c,-q);
 	} else if (p->meta==1) {
 		real q = Random_2(-0.01, -0.05);
-		c->pres += -q;
-		pd -= -q;
+		Cell_addPressure(c,-q);
 	}
 	Part_blow(p, airvel);
 	int x = p->pos.x+Random_int(5)-2;
