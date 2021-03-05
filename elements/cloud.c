@@ -3,8 +3,8 @@ break; case Elem_CLOUD:
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
 	airvel.y += Random_2(-0.01, -0.02);
-	airvel.xy += p->vel.xy;
-	airvel.xy *= 0.9;
+	Vec_add(&airvel, p->vel);
+	Vec_mul(&p->vel, 0.9);
 	Part_blow(p, airvel);
 	int dir = Random_int(4);
 	Part* f = Part_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];

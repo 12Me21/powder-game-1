@@ -10,6 +10,7 @@
 #include "input.h"
 #include "cell.h"
 
+
 #define PARTS_MAX 400000
 
 static Part parts_2[PARTS_MAX+6];
@@ -34,6 +35,11 @@ int* Part_updateCounts(void) {
 	return Part_counts;
 }
 
+bool Part_limit1000(void) {
+	return Part_next+1000 < parts+PARTS_MAX;
+}
+
+// todo: make a create that takes a vector
 Part* Part_create(real x, real y, Elem element) {
 	if (Part_next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;

@@ -7,7 +7,36 @@
 typedef struct Part {
 	Point pos;    // L[]
 	Point vel;    // E[]
-	int meta;     // M[]
+
+	union {
+		// this field is used differently by different elements,
+		// so I created a union that allows differently named/sized fields
+		// to use the same memory
+		// the total size is always 32 (with usually only 16 used) bits
+		int meta;  // M[]
+		struct {
+			uint8_t dir: 2;
+			uint32_t amount: 32-2;
+		} Cpump;
+		struct {
+			uint8_t dir: 4;
+			uint8_t age: 4;
+			uint32_t inside: 32-4-4;
+		} Claser;
+		
+		struct {
+			uint16_t prng: 10;
+			uint32_t dir: 32-10;
+			// dir is only 2 bits, but I like to make the last item extend to the top because
+			// originally this would have been written as:
+			// charge = prng | dir<<10, so nothing limited dir to 2 bits.
+		} Cthunder1;
+		struct {
+			uint8_t dir: 2;
+			uint32_t type: 32-2;
+		} Cthunder2;
+	};
+	
 	Elem type;    // t[]
 	Elem pumpType;// Jd[]
 	bool held;    // Md[]
@@ -45,3 +74,5 @@ void Part_liquidUpdate(Part* part, Block* cell, real adv, real x1, real x2, real
 void Part_reset(int a);
 
 void Part_print(Part* p); //for debug
+
+bool Part_limit1000(void); // returns true if there are >= 1000 unused parts

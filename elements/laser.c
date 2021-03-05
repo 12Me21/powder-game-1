@@ -6,23 +6,22 @@ break; case Elem_LASER:
 	const Offset nearsY[] = {0,-1,-1,-1,0,1,1,1};
 	*Part_pos2(p->pos) = p;
 	p->vel = (Point){0,0};
-	int v = p->meta & 0xF;
-	int yy = p->meta>>4 & 0xF;
-	int z = p->meta>>8 & 0xFF;
-	yy++;
-	if (yy==1) {
-		p->meta = z<<8|yy<<4|v;
+	int v = p->Claser.dir;
+	int age = p->Claser.age;
+	age++;
+	if (age==1) {
+		p->Claser.age = age;
 		break;
-	} else if (yy>12) {
-		if (z/*==Elem_GLASS*/) {
-			p->type = z;//Elem_GLASS;
+	} else if (age>12) {
+		if (p->Claser.inside==Elem_GLASS) {
+			p->type = Elem_GLASS;
 			p->meta = 0;
 			p--; //bug?
 		} else
 			Part_remove(p--);
 		break;
-	} else if (yy>8) {
-		p->meta = z<<8|yy<<4|v;
+	} else if (age>8) {
+		p->Claser.age = age;
 		break;
 	} else if (v==0) {
 		// this happens if
@@ -36,7 +35,7 @@ break; case Elem_LASER:
 		}
 		// b f c
 		// g * w
-		// q n r
+		// q pn r
 		bool w = check(0);
 		bool c = check(1);
 		bool f = check(2);
@@ -54,7 +53,9 @@ break; case Elem_LASER:
 		else if (c) v=6;
 		else if (b) v=8;
 		else {
-			p->meta = 0xA0|v;
+			p->Claser.inside = 0;
+			p->Claser.age = 10;
+			p->Claser.dir = 0;
 			break;
 		}
 	}
@@ -73,7 +74,7 @@ break; case Elem_LASER:
 						// todo: break if 1000 part limit
 						Part* f = Part_create((int)p->pos.x+nearsX[v]*b, (int)p->pos.y+nearsY[v]*b, Elem_LASER);
 						if (f)
-							f->meta = v+1;
+							f->Claser.dir = v+1;
 					}
 					break;
 				}
@@ -193,18 +194,6 @@ break; case Elem_LASER:
 				                                  //       
 				else if (fl&& !fr)          v-=2; //   ➘↙[]
 				                                  //   !![]
-
-				/*if      (br&&r&& !fl&&!l)       v+=1;
-				else if (fl&&bl&& !fr&&!b)      v-=1;
-				else if (r&&fr&&fl&& !l&&!br)   v+=3;
-				else if (fr&&ffl&& !r&&!l&&!fl) v+=3;
-				else if (r&&fl&& !l&&!ll)       v+=3;
-				else if (l&&fl&&fr&& !r&&!bl)   v-=3;
-				else if (fl&&ffr&& !l&&!r&&!fr) v-=3;
-				else if (l&&fr&& !r&&!rr)       v-=3;
-				else if (fr&& !fl)              v+=2;
-				else if (fl&& !fr)              v-=2;*/
-
 				v &= 0b111;
 			}
 			break;
@@ -213,20 +202,22 @@ break; case Elem_LASER:
 			near->meta = 0;
 			break;
 		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SALTWATER: case Elem_CLOUD:
-			near->meta = near->type<<8|v+1;
 			near->type = Elem_LASER;
-
-			//near->meta = v+1;
+			near->meta = 0;
+			near->Claser.dir = v+1;
 			break;
 		case Elem_GLASS:
 			near->type = Elem_LASER;
-			near->meta = Elem_GLASS<<8|v+1;
+			near->meta = 0;
+			near->Claser.dir = v+1;
+			near->Claser.inside = Elem_GLASS;
 		}
 	} else if (near<=Part_BGFAN /* && check part limit */) {
 		Part* f = Part_create(p->pos.x+nearsX[v],p->pos.y+nearsY[v], Elem_LASER);
 		if (f)
-			f->meta = v+1;
+			f->Claser.dir = v+1;
 	}
-	p->meta = z<<8|yy<<4|v+1;
+	p->Claser.age = age;
+	p->Claser.dir = v+1;
 #endif
 }
