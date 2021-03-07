@@ -45,7 +45,7 @@ ElementDef const ELEMENTS[Elem_MAX] = {
 	{"ACID"      ,COL(0xCCFF00),State_LIQUID,1,0    ,0  ,0.8,0,0  ,0  ,1,0.1  ,0.4,6	 },
 	{"VINE"      ,COL(0x00BB00),State_SOLID ,0,500  ,10 ,0.5,0,0.8,0.2,0,0.1  ,0.4,1	 },
 	{"SALT"      ,COL(0xFFFFFF),State_POWDER,1,0    ,5  ,0.5,0,0.2,0.2,1,0.1  ,0.5,1	 },
-	{"SALTWATER" ,COL(0x3399FF),State_LIQUID,1,0    ,40 ,0.8,0,0  ,0  ,1,0.1  ,0.4,5	 },
+	{"SEAWATER" ,COL(0x3399FF),State_LIQUID,1,0    ,40 ,0.8,0,0  ,0  ,1,0.1  ,0.4,5	 },
 	{"GLASS"     ,COL(0x011111),State_SOLID ,0,0    ,0  ,0.9,0,0.9,0.5,1,0.1  ,0.2,8	 },
 	{"BIRD"      ,COL(0x807050),State_GAS   ,1,2000 ,10 ,0.1,0,0.1,0.1,1,0.05 ,0.5,0	 },
 	{"Save_BALL" ,COL(0xFFE0AE)},

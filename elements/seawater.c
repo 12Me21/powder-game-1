@@ -1,4 +1,4 @@
-break; case Elem_SALTWATER:
+break; case Elem_SEAWATER:
 {
 #ifdef UPDATE_PART
 	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
@@ -28,7 +28,7 @@ break; case Elem_SALTWATER:
 
 #elif defined UPDATE_BALL
 	if (touched==Elem_THUNDER || touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_SALTWATER, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_SEAWATER, 0, 0, 0, 0);
 
 #elif defined UPDATE_BALL_PART
 	switch(part->type) {

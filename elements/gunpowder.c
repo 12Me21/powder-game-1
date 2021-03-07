@@ -53,7 +53,7 @@ break; case Elem_GUNPOWDER:
 #elif defined UPDATE_BALL_PART
 	// meta is increased by water types and decreased by some hot elements
 	switch (part->type) {
-	case Elem_WATER: case Elem_SOAPY: case Elem_SALTWATER:
+	case Elem_WATER: case Elem_SOAPY: case Elem_SEAWATER:
 		if (ball->meta<20)
 			ball->meta++;
 	when(Elem_FIRE): case Elem_MAGMA: case Elem_TORCH: case Elem_LASER: case Elem_SPARK:

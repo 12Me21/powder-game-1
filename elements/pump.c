@@ -61,7 +61,7 @@ break; case Elem_PUMP:
 	}
 #elif defined UPDATE_BALL_PART
 	if (!ball->meta) {
-		if (part->type==Elem_WATER||part->type==Elem_OIL||part->type==Elem_MAGMA||part->type==Elem_NITRO||part->type==Elem_GAS||part->type==Elem_SOAPY||part->type==Elem_ACID||part->type==Elem_SALTWATER||part->type==Elem_MERCURY||part->type==Elem_CLOUD)
+		if (part->type==Elem_WATER||part->type==Elem_OIL||part->type==Elem_MAGMA||part->type==Elem_NITRO||part->type==Elem_GAS||part->type==Elem_SOAPY||part->type==Elem_ACID||part->type==Elem_SEAWATER||part->type==Elem_MERCURY||part->type==Elem_CLOUD)
 			ball->meta = part->type;
 	} else {
 		int type = ball->meta & 0xFF; //what if we used field size uh

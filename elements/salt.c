@@ -10,7 +10,7 @@ break; case Elem_SALT:
 	Part* near = Part_rndNear(p->pos, 3);
 	if (near>=Part_0) {
 		if (near->type==Elem_WATER) {
-			near->type = Elem_SALTWATER;
+			near->type = Elem_SEAWATER;
 			near->meta = 0;
 			Part_KILL();
 		} else if (near->type==Elem_MAGMA && Rnd_perchance(50)) {
@@ -25,7 +25,7 @@ break; case Elem_SALT:
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
 	case Elem_WATER:
-		*newType = Elem_SALTWATER;
+		*newType = Elem_SEAWATER;
 	when(Elem_MAGMA): case Elem_THUNDER:
 		return 1;
 	}

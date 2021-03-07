@@ -22,7 +22,7 @@ break; case Elem_FIRE:
 		switch (g->type) {
 		when(Elem_POWDER):; case Elem_ANT: case Elem_VINE:
 			g->type = Elem_FIRE;
-		when(Elem_WATER): case Elem_SALTWATER:
+		when(Elem_WATER): case Elem_SEAWATER:
 			Part_KILL();
 		when(Elem_SEED):;
 			if (Rnd_perchance(50))
@@ -35,7 +35,7 @@ break; case Elem_FIRE:
 		Part_KILL();
 
 #elif defined UPDATE_BALL
-	if (touched==Elem_WATER||touched==Elem_SOAPY||touched==Elem_SALTWATER||touched==Elem_ACID)
+	if (touched==Elem_WATER||touched==Elem_SOAPY||touched==Elem_SEAWATER||touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_FIRE, 0, 0, 0, 0);
 
 #elif defined UPDATE_BALL_PART

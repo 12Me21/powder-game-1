@@ -18,7 +18,7 @@ break; case Elem_METAL:
 
 #elif defined UPDATE_BALL
 	switch (touched) {
-	when(Elem_SALTWATER):;
+	when(Elem_SEAWATER):;
 		Ball_break(ball, 1, Elem_POWDER, 0, 0, 0, 0);
 	when(Elem_THUNDER):;
 		Ball_break(ball, 2, Elem_METAL, 0, 0, 0, 0);

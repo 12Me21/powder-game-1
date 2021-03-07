@@ -75,7 +75,7 @@ break; case Elem_LASER:
 			break;
 
 			// destroy liquids:
-		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SALTWATER: case Elem_CLOUD:
+		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SEAWATER: case Elem_CLOUD:
 			near->type = Elem_LASER;
 			near->meta = 0;
 			near->Claser.dir = v+1;

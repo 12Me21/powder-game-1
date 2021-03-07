@@ -156,7 +156,7 @@ break; case Elem_THUNDER:
 
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
-	when(Elem_SALTWATER):;
+	when(Elem_SEAWATER):;
 		part->type = Elem_THUNDER;
 		part->meta = 0;
 		return 0;

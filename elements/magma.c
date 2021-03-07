@@ -23,7 +23,7 @@ break; case Elem_MAGMA:
 				near->type = Elem_MAGMA;
 			break;
 			//magma+saltwater=stone+salt (no steam, note)
-		case Elem_SALTWATER:
+		case Elem_SEAWATER:
 			if (Rnd_perchance(50))
 				Part_KILL();
 			p->type = Elem_STONE;
@@ -61,7 +61,7 @@ break; case Elem_MAGMA:
 			*newType = Elem_GLASS;
 		part->type = Elem_STEAM;
 		part->meta = 0;
-	when(Elem_SALTWATER):;
+	when(Elem_SEAWATER):;
 		if (++ball->meta>=20)
 			*newType = Elem_STONE;
 		part->type = Elem_STEAM;
