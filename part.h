@@ -99,3 +99,4 @@ void Part_toGrid(Part* p);
 
 Part* Part_rndNear5(Point pos);
 Part* Part_rndNear(Point pos, axis rad);
+Part* Part_dirNear(Point pos, char dir);

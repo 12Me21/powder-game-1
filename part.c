@@ -105,7 +105,7 @@ void Part_update(void) {
 				if (Menu_dragStart) {
 					if (p->type == Elem_FAN)
 						continue;
-					Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
+					Point d = (Point){.xy=Menu_pen.xy - p->pos.xy};
 					if (Vec_fastDist(d) < 4*Menu_penSize)
 						p->held = true;
 				}
@@ -217,7 +217,7 @@ void Part_liquidUpdate(Part* p, Block* c, real adv, real x1, real x2, real xr1, 
 	p->vel.x *= frc;
 	p->vel.y *= frc;
 	Point airvel = c->vel;
-	Vec_add(&airvel, p->vel);
+	airvel.xy += p->vel.xy;
 	Part_blow(p, airvel);
 }
 
@@ -271,11 +271,14 @@ Part* Part_rndNear(Point pos, axis diam) {
 	return Part_pos3(pos, x, y);
 }
 
-
 void Part_print(Part* p) {
 	printf("%s\npos: %f,%f\nvel: %f,%f\nmeta: %d\npumpType: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->meta, p->pumpType);
 }
 
 void Part_toGrid(Part* p) {
 	*Part_pos2(p->pos) = p;
+}
+
+Part* Part_dirNear(Point pos, char dir) {
+	return Part_pos2(pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
 }

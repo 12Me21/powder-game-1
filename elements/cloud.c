@@ -8,23 +8,23 @@ break; case Elem_CLOUD:
 	Part_blow(p, airvel);
 
 	int dir = Random_int(4);
-	Part* f = Part_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
-	if (f>=Part_0) {
-		if (dir<3 && (ELEMENTS[f->type].state==State_POWDER || ELEMENTS[f->type].state==State_LIQUID)) {
-			Part_swap(p,f);
-		} else if (f->type==Elem_CLOUD) {
+	Part* near = Part_dirNear(p->pos, dir);
+	if (near>=Part_0) {
+		if (dir<3 && (ELEMENTS[near->type].state==State_POWDER || ELEMENTS[near->type].state==State_LIQUID)) {
+			Part_swap(p,near);
+		} else if (near->type==Elem_CLOUD) {
 			p->vel.xy += Rnd_point(-0.1,0.1, -0.1,0.1).xy;
-		} else if (f->type==Elem_WOOD || f->type==Elem_C4 || f->type==Elem_TORCH || f->type==Elem_VINE || f->type==Elem_FUSE) {
+		} else if (near->type==Elem_WOOD || near->type==Elem_C4 || near->type==Elem_TORCH || near->type==Elem_VINE || near->type==Elem_FUSE) {
 			p->type = Elem_WATER;
-		} else if (f->type==Elem_ICE) {
+		} else if (near->type==Elem_ICE) {
 			p->type = Elem_SNOW;
-		} else if (f->type==Elem_METAL) {
+		} else if (near->type==Elem_METAL) {
 			p->type = Elem_THUNDER;
-		} else if (Part_checkPump(p, f, dir)) {
-			f->pumpType = Elem_WATER;
+		} else if (Part_checkPump(p, near, dir)) {
+			near->pumpType = Elem_WATER;
 			Part_KILL();
 		}
-	} else if (f==Part_BLOCK)
+	} else if (near==Part_BLOCK)
 		p->type = Elem_WATER;
 
 #elif defined UPDATE_BALL

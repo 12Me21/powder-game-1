@@ -5,11 +5,11 @@ break; case Elem_WATER:
 	int dir = Random_int(8)-4; //-4 to 3
 	if (dir<0) dir=0; //0 to 3
 	
-	Part* g = Part_pos2(p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,1)}[dir]];
+	Part* g = Part_dirNear(p->pos, dir);
 	if (g>=Part_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int type = g->type;
-		if (dir<3 && ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
+		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
 			//freeze water

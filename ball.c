@@ -132,10 +132,10 @@ bool Ball_react(Ball* ball, Part* part, Elem* newType) {
 	int bstate = ELEMENTS[ball->type].state;
 	//if (ball->type==Elem_ACID)
 		//printf("touching type %s\n",ELEMENTS[part->type].name);
-	return (pstate==State_LIQUID && bstate==State_LIQUID && ball->type!=partType) ||
-		(pstate==State_LIQUID && bstate!=State_LIQUID) ||
-		(pstate==State_GAS && bstate!=State_GAS) ||
-		partType==Elem_FIRE;
+	return (pstate==State_LIQUID && bstate==State_LIQUID && ball->type!=partType) || // liquid part + liquid ball of different type
+		(pstate==State_LIQUID && bstate!=State_LIQUID) || // liquid part + non-liquid ball
+		(pstate==State_GAS && bstate!=State_GAS) || // gas part + non-gas ball
+		partType==Elem_FIRE; // fire part
 }
 
 static void checkDragging(Ball* i) {
@@ -145,25 +145,23 @@ static void checkDragging(Ball* i) {
 				i->held = true;
 		}
 	} else if (Menu_dragging) {
-		i->vel.x += 0.05*(Pen_x-i->pos.x);
-		i->vel.y += 0.05*(Pen_y-i->pos.y);
-		Vec_mul(&i->vel, 0.9);
+		i->vel.xy += 0.05*(Menu_pen.xy - i->pos.xy);
+		i->vel.xy *= 0.9;
 	} else {
-		Vec_mul(&i->vel, 0.3);
+		i->vel.xy *= 0.3;
 		i->held = false;
 	}
 
 }
 
-static void checkEntities(Ball* i) {
+static void checkEntities(Ball* ball) {
 	for (Entity* en=entitys; en<Entity_next; en++) {
 		if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
 			for (int f=4; f<=5; f++) {
-				real dx = abs(en->parts[f].pos.x - i->pos.x);
-				real dy = abs(en->parts[f].pos.y - i->pos.y);
+				real dx = abs(en->parts[f].pos.x - ball->pos.x);
+				real dy = abs(en->parts[f].pos.y - ball->pos.y);
 				if (dx<=9 && dy<=9) {
-					i->vel.x += 0.1*(en->parts[f].pos.x - en->parts[f].oldPos.x);
-					i->vel.y += 0.2*(en->parts[f].pos.y - en->parts[f].oldPos.y);
+					ball->vel.xy += 0.1*(en->parts[f].pos.xy - en->parts[f].oldPos.xy);
 				}
 			}
 		}
@@ -225,7 +223,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 		} else {
 			*touched = near-Part_0;
 		}
-		Vec_sub(&z, neighbors[d].breakVel);
+		z.xy -= neighbors[d].breakVel.xy;
 		touches++;
 	}
 	if (touches==0) {
@@ -234,16 +232,15 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	} else {
 		Vec_normalize(&z);
 		i->vel.y -= weight;
-		real d = 0.999*Vec_dist(i->vel);
-		Vec_mul(&z, -(z.x*i->vel.x + z.y*i->vel.y));
-		Vec_add(&i->vel, z);
-		Vec_mul(&i->vel, 0.999);
-		Vec_mul(&z, 0.1);
-		Vec_add(&i->vel, z);
+		real speed = 0.999*Vec_dist(i->vel);
+		z.xy *= -(z.x*i->vel.x + z.y*i->vel.y);
+		i->vel.xy += z.xy;
+		i->vel.xy *= 0.999;
+		z.xy *= 0.1;
+		i->vel.xy += z.xy;
 		Vec_normalize(&i->vel);
-		Vec_mul(&i->vel, d);
-		i->pos.x += i->vel.x*n;
-		i->pos.y += i->vel.y*n;
+		i->vel.xy *= speed;
+		i->pos.xy += i->vel.xy*n;
 		i->vel.y += weight;
 	}
 	pc = Part_pos2(i->pos);
@@ -268,12 +265,12 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 			if (ptype==Elem_THUNDER && btype==Elem_THUNDER)
 				continue;
 		}
-		Vec_sub(&z, neighbors[d].breakVel);
+		z.xy -= neighbors[d].breakVel.xy;
 		touches++;
 	}
 	if (touches) {
 		Vec_normalize(&z);
-		Vec_add(&i->pos, z);
+		i->pos.xy += z.xy;
 	}
 	return false;
 }
@@ -304,7 +301,7 @@ void Ball_update(void) {
 			i->vel.x += cell->vel.x*adv;
 			i->vel.y += cell->vel.y*adv;
 			if (Vec_fastDist(cell->vel)>0.3)
-				Vec_mul(&i->vel, 0.9+(1-adv)/10);
+				i->vel.xy *= 0.9+(1-adv)/10;
 		}
 
 		checkDragging(i);

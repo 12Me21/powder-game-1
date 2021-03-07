@@ -4,7 +4,6 @@
 #include "platform.h"
 #include "reset.h"
 
-
 #define DEFCALL(name) void name(void); name()
 
 void Platform_main(int argc, void** argv) {

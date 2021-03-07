@@ -62,9 +62,7 @@ break; case Elem_BOMB:
 	// otherwise, check if bomb should explode:
 	
 	// random part in 3x3 radius
-	int x = Random_int(3)-1;
-	int y = Random_int(3)-1;
-	Part* near = Part_pos3(p->pos, x, y);
+	Part* near = Part_rndNear(p->pos,3);
 	// return if it hasn't hit anything explodable
 	if (near<Part_0 || near->type==Elem_BOMB || near->type==Elem_CLONE)
 		break;

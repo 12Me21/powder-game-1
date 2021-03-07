@@ -14,6 +14,8 @@ typedef uint32_t Color;
 #define BLUE(x) ((x)&0xFF)
 #define RGB(r,g,b) ((r)<<16|(g)<<8|(b))
 
+#define Cxy(x,y) ((Point){(x),(y)}.xy)
+
 typedef int axis;
 typedef int Offset;
 typedef char Elem;

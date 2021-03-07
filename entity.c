@@ -86,22 +86,22 @@ void fighterWalk(Entity* a) {
 		int r = Random_int(100);
 		if (r<5) {
 			if (left->pos.x < right->pos.x)
-				Vec_add(&left->pos, (Point){4,-4});
+				left->pos.xy += (Point){4,-4}.xy;
 			else
-				Vec_add(&right->pos, (Point){4,-4});
+				right->pos.xy += (Point){4,-4}.xy;
 		} else if (r<10) {
 			if (left->pos.x > right->pos.x)
-				Vec_add(&left->pos, (Point){-4,-4});
+				left->pos.xy += (Point){-4,-4}.xy;
 			else
-				Vec_add(&right->pos, (Point){-4,-4});
+				right->pos.xy += (Point){-4,-4}.xy;
 		}
 	} else {
 		if (left->touching) {
 			if (Rnd_perchance(2))
-				Vec_add(&left->pos, (Point){Random_2(-4,4),-4});
+				left->pos.xy += (Point){Random_2(-4,4),-4}.xy;
 		} else if (right->touching) {
 			if (Rnd_perchance(2))
-				Vec_add(&right->pos, (Point){Random_2(-4,4),-4});
+				right->pos.xy += (Point){Random_2(-4,4),-4}.xy;
 		}
 	}
 }
@@ -115,10 +115,7 @@ void fighterKick(Entity* a) {
 				real g = abs(foot->pos.x - r->parts[0].pos.x);
 				real q = foot->pos.y - r->parts[0].pos.y;
 				if (g<=2 && q>=0 && q<=6) {
-					Vec_add(&r->vel, (Point){
-						1*(foot->pos.x - foot->oldPos.x),
-						2*(foot->pos.y - foot->oldPos.y)
-					});
+					r->vel.xy += Cxy(foot->pos.x-foot->oldPos.x, 2*(foot->pos.y-foot->oldPos.y));
 					if (r->type==Entity_FIGHTER)
 						r->type = Entity_FIGHTER+1;
 					r->age = 0;
@@ -135,7 +132,7 @@ void checkDrag(Entity* e, int last) {
 			// find the closest node (within 20 units)
 			real closest=20;
 			for (int i=0; i<last; i++) {
-				Point diff = Vec_sub2((Point){Pen_x,Pen_y},e->parts[i].oldPos);
+				Point diff = Vec_sub2(Menu_pen, e->parts[i].oldPos);
 				real dist = Vec_fastDist(diff);
 				if (dist<closest) {
 					closest = dist;
