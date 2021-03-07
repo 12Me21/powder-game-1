@@ -17,7 +17,7 @@ $(output): $(srcs:%=$(junkdir)/%.o)
 # this uses a feature of gcc, which parses a C file
 # and outputs a list of headers it depends on
 $(junkdir)/%.mk: ../%.c
-	$(cc) $(CFLAGS) -MM $< -MG -MP -MQ$@ -MQ$(<:../%.c=$(junkdir)/%.o) -MF$@
+	$(cc) $(CFLAGS) -DHDEPS -MM $< -MG -MP -MQ$@ -MQ$(<:../%.c=$(junkdir)/%.o) -MF$@
 
 # Compile
 $(junkdir)/%.o: ../%.c

@@ -3,11 +3,11 @@ break; case Elem_GUNPOWDER:
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.2);
-	Vec_add(&airvel, p->vel);
-	Vec_mul(&p->vel, 0.8);
+	airvel.xy += p->vel.xy;
+	p->vel.xy *= 0.8;
 	Part_blow(p, airvel);
-	int x = p->pos.x+Random_int(5)-2;
-	Part* g = Part_at[(int)p->pos.y+Random_int(5)-2][x];
+	
+	Part* g = Part_rndNear(p->pos,5);
 	if (g<Part_0 || ELEMENTS[g->type].state != State_HOT)
 		break;
 	void func(axis x, axis y, axis sx, axis sy) {

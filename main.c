@@ -36,28 +36,16 @@ void Platform_frame(void) {
 	DEFCALL(Menu_update);
 	
 	for (int i=0; i<1<<Menu_gameSpeed; i++) {
-		//long n = Platform_millisec();
-		void status(void) {
-			//long m = Platform_millisec();
-			//printf("%3ld, ", m-n);
-			//n=m;
-		}
 		DEFCALL(Cell_update1);
 		if (Menu_paused)
 			continue;
 		DEFCALL(Cell_update);
-		status();
+		DEFCALL(Wheel_update1);
 		DEFCALL(Part_update);
-		status();
 		DEFCALL(Wheel_update);
-		status();
 		DEFCALL(Bubble_update);
-		status();
 		DEFCALL(Entity_update);
-		status();
 		DEFCALL(Ball_update);
-		status();
-		//puts("");
 	}
 	render();
 	DEFCALL(Input_update2);

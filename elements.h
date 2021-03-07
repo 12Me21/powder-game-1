@@ -43,12 +43,3 @@ enum Element {
 };
 
 extern const ElementDef ELEMENTS[Elem_MAX];
-
-typedef struct MenuButtonDef {
-	enum Element element; // hd[]
-	enum Element firework;// ud[]
-	enum Element player;  // vd[]
-	enum Element ball;    // wd[]
-} MenuButtonDef;
-
-extern MenuButtonDef Menu_BUTTONS[100]; //don't feel like counting

@@ -3,28 +3,29 @@ break; case Elem_VIRUS:
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
 	airvel.y += Random_2(0, 0.1);
-	Vec_add(&airvel, p->vel);
-	Vec_mul(&p->vel, 0.7);
+	airvel.xy += p->vel.xy;
+	p->vel.xy *= 0.7;
 	Part_blow(p, airvel);
+	
 	if (p->meta==0) {
-		int x = Random_int(3)-1;
-		Part* f = Part_pos3(p->pos, x, Random_int(3)-1);
+		Part* f = Part_rndNear(p->pos,3);
 		if (f>=Part_0 && f->type!=Elem_VIRUS)
-			p->meta = f->type;
-	} else if (p->meta<=0x800) {
+			p->Cvirus.type = f->type;
+	} else if (p->meta<=0x800) { //this should've been <
 		int x = Random_int(3)-1;
 		int y = Random_int(3)-1;
 		Part* f = Part_pos3(p->pos, x, y);
 		if (x&&y && f>=Part_0 && (f->type!=Elem_VIRUS || f->meta==0)) {
 			f->type = Elem_VIRUS;
-			f->meta = p->meta & 0xFF;
+			f->meta = 0;
+			f->Cvirus.type = p->Cvirus.type;
 			f->pumpType = 0;
 		}
-		p->meta += 0x100;
+		p->Cvirus.age++;
 	} else {
-		p->meta += 0x100;
-		if (p->meta>=0x8000) {
-			p->type = p->meta&0xFF;
+		p->Cvirus.age++;
+		if (p->Cvirus.age>=128) {
+			p->type = p->Cvirus.type;
 			p->meta = 0;
 			p->vel = (Point){0,0};
 		}

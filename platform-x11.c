@@ -114,6 +114,8 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
+	//XFontStruct* font = XLoadQueryFont(D, "serif")
+
 	// Create window
 	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0);
 	XSelectInput(D, win, ButtonPressMask|ButtonReleaseMask|ExposureMask|KeyPressMask|KeyReleaseMask|PointerMotionMask);

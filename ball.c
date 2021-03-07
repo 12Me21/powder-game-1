@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <complex.h>
 #include "ball.h"
 #include "menu.h"
 #include "input.h"
@@ -38,17 +39,18 @@ static const struct neighbor {
 	{(Point){-0.7 ,-0.7 },XYOFS(-1,-1),},
    {(Point){ 0   ,-1   },XYOFS( 0,-1),},
    {(Point){ 0.7 ,-0.7 },XYOFS( 1,-1),},
-   {(Point){-1   , 0   },XYOFS(-1, 0),},
-   {(Point){ 0   , 0   },XYOFS( 0, 0),},
-   {(Point){ 1   , 0   },XYOFS( 1, 0),},
+   {(Point){-1   , 0   },XYOFS(-1, 0),}, // [][][]
+   {(Point){ 0   , 0   },XYOFS( 0, 0),}, // [][][]
+   {(Point){ 1   , 0   },XYOFS( 1, 0),}, // [][][]
    {(Point){-0.7 , 0.7 },XYOFS(-1, 1),},
    {(Point){ 0   , 1   },XYOFS( 0, 1),},
    {(Point){ 0.7 , 0.7 },XYOFS( 1, 1),},
-   {(Point){-0.44,-0.89},XYOFS(-1,-2),},
-   {(Point){ 0   ,-1   },XYOFS( 0,-2),},
-   {(Point){ 0.44,-0.89},XYOFS( 1,-2),},
-   {(Point){-0.44, 0.89},XYOFS(-1, 2),},
-   {(Point){ 0   , 1   },XYOFS( 0, 2),},
+
+   {(Point){-0.44,-0.89},XYOFS(-1,-2),}, //   [][][]
+   {(Point){ 0   ,-1   },XYOFS( 0,-2),}, // []      []
+   {(Point){ 0.44,-0.89},XYOFS( 1,-2),}, // []      []
+   {(Point){-0.44, 0.89},XYOFS(-1, 2),}, // []      []
+   {(Point){ 0   , 1   },XYOFS( 0, 2),}, //   [][][]
    {(Point){ 0.44, 0.89},XYOFS( 1, 2),},
    {(Point){-0.89,-0.44},XYOFS(-2,-1),},
    {(Point){-1   , 0   },XYOFS(-2, 0),},
@@ -56,13 +58,14 @@ static const struct neighbor {
    {(Point){ 0.89,-0.44},XYOFS( 2,-1),},
    {(Point){ 1   , 0   },XYOFS( 2, 0),},
    {(Point){ 0.89, 0.44},XYOFS( 2, 1),},
-   {(Point){-0.31,-0.94},XYOFS(-1,-3),},
-   {(Point){ 0   ,-1   },XYOFS( 0,-3),},
-   {(Point){ 0.31,-0.94},XYOFS( 1,-3),},
-   {(Point){-0.31, 0.94},XYOFS(-1, 3),},
-   {(Point){ 0   , 1   },XYOFS( 0, 3),},
-   {(Point){ 0.31, 0.94},XYOFS( 1, 3),},
-   {(Point){-0.94,-0.31},XYOFS(-3,-1),},
+   
+   {(Point){-0.31,-0.94},XYOFS(-1,-3),}, //     [][][]  
+   {(Point){ 0   ,-1   },XYOFS( 0,-3),}, //   []      []
+   {(Point){ 0.31,-0.94},XYOFS( 1,-3),}, // []          []
+   {(Point){-0.31, 0.94},XYOFS(-1, 3),}, // []          []
+   {(Point){ 0   , 1   },XYOFS( 0, 3),}, // []          []
+   {(Point){ 0.31, 0.94},XYOFS( 1, 3),}, //   []      []
+   {(Point){-0.94,-0.31},XYOFS(-3,-1),}, //     [][][]  
    {(Point){-1   , 0   },XYOFS(-3, 0),},
    {(Point){-0.94, 0.31},XYOFS(-3, 1),},
    {(Point){ 0.94,-0.31},XYOFS( 3,-1),},
@@ -86,7 +89,7 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 					createType
 				);
 				if (near) {
-					near->vel.xy += CMPLXF(vx,vy) + neighbors[i].breakVel.xy * speed;
+					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
 					//near->vel.x += vx+neighbors[i].breakVel.x*speed;
 					//near->vel.y += vy+neighbors[i].breakVel.y*speed;
 					near->meta = meta;
@@ -104,7 +107,7 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 					createType
 				);
 				if (near) {
-					near->vel.xy += CMPLXF(vx,vy) + neighbors[i].breakVel.xy * speed;
+					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
 					near->meta = meta;
 				}
 			} else if (near>=Part_0) {

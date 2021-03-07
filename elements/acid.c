@@ -1,10 +1,8 @@
 break; case Elem_ACID:
 {
 #ifdef UPDATE_PART
-	if (p->meta>=100) {
-		Part_remove(p--);
-		break;
-	}
+	if (p->meta>=100)
+		Part_KILL();
 	Part_liquidUpdate(p, c, 0.2, 0,0.1, 0.01, 0.02,0.05, 0.9);
 	int dir = Random_int(8)-4; //-4 to 3
 	if (dir<0) dir=0; //0 to 3
@@ -19,8 +17,8 @@ break; case Elem_ACID:
 				g->type = Elem_ACID;
 				g->meta = 100; //will die instantly next update
 			}
-		} else if (Part_checkPump(p, g, (int[]){2,1,3,0}[dir]))
-			p--;
+		} else if (Part_checkPump(p, g, dir))
+			Part_KILL();
 	}
 
 #elif defined UPDATE_BALL

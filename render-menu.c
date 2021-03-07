@@ -164,8 +164,35 @@ void Menu_render(void) {
 		}
 		if (Menu_leftSelection==Menu_FAN||Menu_rightSelection==Menu_FAN||Menu_leftSelection==Menu_WIND||Menu_rightSelection==Menu_WIND||Menu_leftSelection==Menu_LASER||Menu_rightSelection==Menu_LASER){ //fan,wind,laser (buttons, not element ids)
 			Point a = Vec_mul2(Pen_dir, 30);
-			Draw_line(Pen_x+a.x, Pen_y+a.y, Pen_x, Pen_y, 0xFF0000);
+			Draw_line(Pen_x, Pen_y, Pen_x+a.x, Pen_y+a.y, 0xFF0000); // I swapped order here
 		}
+		
+		axis xStart = (Pen_oldx)-Menu_penSize;
+		axis yStart = (Pen_oldy)-Menu_penSize;
+		axis xEnd=xStart+2*Menu_penSize;
+		axis yEnd=yStart+2*Menu_penSize;
+		if (xStart<8) xStart=8;
+		if (yStart<8) yStart=8;
+		if (xEnd>W+8-1) xEnd=W+8-1;
+		if (yEnd>H+8-1) yEnd=H+8-1;
+		for (axis g=yStart; g<=yEnd; g++) {
+			for (axis f=xStart; f<=xEnd; f++) {
+				// circle
+				axis dx = f-Pen_oldx;
+				axis dy = g-Pen_oldy;
+				if (Menu_penSize*Menu_penSize+1 < dx*dx+dy*dy) continue;
+				Color c = grp[g][f];
+				int r = RED(c) + 30;
+				if (r>255) r=255;
+				int gg = GREEN(c) + 30;
+				if (gg>255) gg=255;
+				int b = BLUE(c) + 30;
+				if (b>255) b=255;
+				grp[g][f] = RGB(r,gg,b);
+			}
+		}
+		
+		//Draw_rectangle(Pen_x, Pen_y, 1, 1, 0xFF0000);
 	}
 
 	memcpy(Menu_grp, normalMenuImage, sizeof(normalMenuImage));

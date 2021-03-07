@@ -1,13 +1,12 @@
 break; case Elem_ICE:
 {
 #ifdef UPDATE_PART
-	if (Vec_fastDist(c->vel) > 1 && Random_(100)<50)
+	if (Vec_fastDist(c->vel) > 1 && Rnd_perchance(50))
 		p->type = Elem_SNOW;
-	Point airvel = {0,0};
-	Part_blow(p, airvel);
-	axis x = Random_int(9)-4;
-	Part* g = Part_pos2(p->pos)[Part_ofs(x, Random_int(9)-4)];
-	if (g >= Part_0 && ELEMENTS[g->type].state == State_HOT)
+	Part_toGrid(p);
+	
+	Part* near = Part_rndNear(p->pos, 9);
+	if (near>=Part_0 && near->type[ELEMENTS].state==State_HOT)
 		p->type = Elem_WATER;
 
 #elif defined UPDATE_BALL
@@ -15,7 +14,7 @@ break; case Elem_ICE:
 	// break immediately if touching thunder/acid
 	// in other cases, break if velocity is >5
 	if (touched==Elem_THUNDER||touched==Elem_ACID|| 
-	    ((touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB)&&d>5))
+		((touched==-1||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB)&&d>5))
 		Ball_break(ball, 0, Elem_SNOW, 0, ball->vel.x, ball->vel.y, d);
 
 #elif defined UPDATE_BALL_PART

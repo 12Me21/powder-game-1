@@ -27,7 +27,7 @@ void loadSaveFile(FILE* stream) {
 	int hsize;
 	if (version==0)
 		hsize = 8;
-	else if (version>=1)
+	else
 		hsize = 16;
 	char data[hsize];
 	fread(&data[1], 1, hsize-1, stream);

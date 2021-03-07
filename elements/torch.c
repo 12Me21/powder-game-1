@@ -1,17 +1,15 @@
 break; case Elem_TORCH:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, (Point){0,0});
-	axis x = Random_int(5)-2;
-	axis y = Random_int(5)-2;
-	Part* near = Part_pos3(p->pos,x,y);
+	Part_toGrid(p);
+	Part* near = Part_rndNear(p->pos, 5);
 	if (near>=Part_0) {
 		switch (near->type) {
 		case Elem_POWDER: case Elem_SEED: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
 			near->type = Elem_FIRE;
 			break;
 		case Elem_WATER: case Elem_SOAPY: case Elem_SALTWATER:
-			Part_remove(p--);
+			Part_KILL();
 			break;
 		case Elem_WOOD:
 			near->type = Elem_TORCH;

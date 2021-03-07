@@ -1,57 +1,59 @@
 break; case Elem_LASER:
 {
 #ifdef UPDATE_PART
+	// these tables are for converting an angle (0-7) to x/y offsets
 	const Offset nears[] = {1,-WIDTH+1,-WIDTH,-WIDTH-1,-1,WIDTH-1,WIDTH,WIDTH+1};
-	const Offset nearsX[] = {1,1,0,-1,-1,-1,0,1};
-	const Offset nearsY[] = {0,-1,-1,-1,0,1,1,1};
-	*Part_pos2(p->pos) = p;
+	const axis nearsX[] = {1,1,0,-1,-1,-1,0,1};
+	const axis nearsY[] = {0,-1,-1,-1,0,1,1,1};
+
+	Part_toGrid(p);
 	p->vel = (Point){0,0};
-	int v = p->Claser.dir;
+	int v = p->Claser.dir; // this is a number 1-8, or 0 if the laser has no direction.
 	int age = p->Claser.age;
 	age++;
-	if (age==1) {
+	if (age==1) { // do nothing on first frame
 		p->Claser.age = age;
 		break;
-	} else if (age>12) {
+	} else if (age>12) { // remove old laser
 		if (p->Claser.inside==Elem_GLASS) {
 			p->type = Elem_GLASS;
 			p->meta = 0;
 			p--; //bug?
+			break;
 		} else
-			Part_remove(p--);
-		break;
-	} else if (age>8) {
+			Part_KILL();
+	} else if (age>8) { // also do nothing
 		p->Claser.age = age;
 		break;
-	} else if (v==0) {
+	}
+	// laser's age is 2 - 8
+
+	// if the laser's direction is 0:
+	if (v==0) {
 		// this happens if
 		// laser was placed by clone or something
 		// or initially when a save is loaded.
 		// it tries to make the laser shoot away from adjacent walls.
 		Part** at = Part_pos2(p->pos);
-		bool check(int n) {
+		inline bool check(int n) {
 			Part* w = at[nears[n]];
 			return w>=Part_0 && w->type!=Elem_LASER;
 		}
-		// b f c
-		// g * w
-		// q pn r
-		bool w = check(0);
-		bool c = check(1);
-		bool f = check(2);
-		bool b = check(3);
-		bool g = check(4);
-		bool q = check(5);
-		bool n = check(6);
-		bool r = check(7);
-		if (b&&g&&q) v=1;
-		else if (q&&n&&r) v=3;
-		else if (r&&w&&c) v=5;
-		else if (c&&f&&b) v=7;
-		else if (q) v=2;
-		else if (r) v=4;
-		else if (c) v=6;
-		else if (b) v=8;
+		// b   c
+		//   *  
+		// q   r
+		bool ne = check(1);
+		bool nw = check(3);
+		bool sw = check(5);
+		bool se = check(7);
+		if (nw && sw && check(4)) v=1;
+		else if (sw && se && check(6)) v=3;
+		else if (se && ne && check(0)) v=5;
+		else if (ne && nw && check(2)) v=7;
+		else if (sw) v=2;
+		else if (se) v=4;
+		else if (ne) v=6;
+		else if (nw) v=8;
 		else {
 			p->Claser.inside = 0;
 			p->Claser.age = 10;
@@ -59,34 +61,64 @@ break; case Elem_LASER:
 			break;
 		}
 	}
-	v--;			
-	Part* near = Part_pos2(p->pos)[nears[v]];
+	
+	v--; // convert direction from 1-8 to 0-7
+	// check part in front of the laser
+	Part* near = Part_pos2(p->pos)[nears[v]]; 
 	if (near>=Part_0) {
 		switch (near->type) {
+
+			// burn flammable elements:
+		case Elem_POWDER: case Elem_SEED: case Elem_WOOD: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
+			near->type = Elem_FIRE;
+			near->meta = 0;
+			break;
+
+			// destroy liquids:
+		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SALTWATER: case Elem_CLOUD:
+			near->type = Elem_LASER;
+			near->meta = 0;
+			near->Claser.dir = v+1;
+			break;
+
+			// pass through glass:
+		case Elem_GLASS:
+			near->type = Elem_LASER;
+			near->meta = 0;
+			near->Claser.dir = v+1;
+			near->Claser.inside = Elem_GLASS;
+			break;
+			
+			// pass through laser:
 		case Elem_LASER:
-			for (int b=2; b<=4; b++) {
-				near = Part_pos2(p->pos)[nears[v]*b];
-				if (near>=Part_0) {
-					if (near->type != Elem_LASER)
+			// [→p→] [near] [ 2 ] [ 3 ] [ 4 ]
+			for (int dist=2; dist<=4; dist++) {
+				near = Part_pos2(p->pos)[nears[v]*dist];
+				if (near<=Part_BGFAN) {
+					if (!Part_limit1000())
 						break;
-				} else {
-					if (near<=Part_BGFAN) {
-						// todo: break if 1000 part limit
-						Part* f = Part_create((int)p->pos.x+nearsX[v]*b, (int)p->pos.y+nearsY[v]*b, Elem_LASER);
-						if (f)
-							f->Claser.dir = v+1;
-					}
-					break;
-				}
+					Part* f = Part_create(
+						(int)p->pos.x+nearsX[v]*dist,
+						(int)p->pos.y+nearsY[v]*dist,
+						Elem_LASER
+					);
+					if (f)
+						f->Claser.dir = v+1;
+				} else if (near>=Part_0 && near->type==Elem_LASER)
+					// if there is laser particle, we keep checking
+					continue;
+				break; // otherwise,
 			}
 			break;
+
+			// laser reflects off of metal/mercury:
 		case Elem_METAL: case Elem_MERCURY:;
+			// this is big and complicated
 			Part** at = Part_pos2(p->pos);
-			bool check(Offset n) {
+			inline bool check(Offset n) {
 				Part* c = at[n];
 				return (c>=Part_0 && (c->type==Elem_METAL || c->type==Elem_MERCURY));
 			}
-			
 			bool fl = check(nears[v+1 & 7]);
 			bool l = check(nears[v+2 & 7]);
 			bool bl = check(nears[v+3 & 7]);
@@ -126,22 +158,14 @@ break; case Elem_LASER:
 				                                      //   !!!!
 				else if (r&& !fl&&!l&&!br)      v+=2; //   →↑[]
 				                                      // !![]
-				
+
+				// BUG!!
+				// br should've been fr here:
 				                                      // !![]
 				else if (l&& !br&&!r&&!bl)      v-=2; //   →↓[]
 				                                      // ??!!
-				//br should've been fr
 				v &= 0b111;
 			} else { // diagonal
-				//
-				// ｇ ｂ ｆ pa
-				// ｑ ➘➘ ｃ Ｙ
-				// ｎ ｒ [] ｗ
-				// ｅ La Ta
-
-				// ab = r
-				// Ka = c
-
 				// ｂ bl ｌ fll
 				// br ➘➘ fl lf
 				// ｒ fr [] ffl 
@@ -197,23 +221,13 @@ break; case Elem_LASER:
 				v &= 0b111;
 			}
 			break;
-		case Elem_POWDER: case Elem_SEED: case Elem_WOOD: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
-			near->type = Elem_FIRE;
-			near->meta = 0;
-			break;
-		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SALTWATER: case Elem_CLOUD:
-			near->type = Elem_LASER;
-			near->meta = 0;
-			near->Claser.dir = v+1;
-			break;
-		case Elem_GLASS:
-			near->type = Elem_LASER;
-			near->meta = 0;
-			near->Claser.dir = v+1;
-			near->Claser.inside = Elem_GLASS;
 		}
-	} else if (near<=Part_BGFAN /* && check part limit */) {
-		Part* f = Part_create(p->pos.x+nearsX[v],p->pos.y+nearsY[v], Elem_LASER);
+	} else if (near<=Part_BGFAN && Part_limit1000()) {
+		Part* f = Part_create(
+			p->pos.x+nearsX[v],
+			p->pos.y+nearsY[v],
+			Elem_LASER
+		);
 		if (f)
 			f->Claser.dir = v+1;
 	}

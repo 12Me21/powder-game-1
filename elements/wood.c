@@ -2,8 +2,9 @@ break; case Elem_WOOD:
 {
 #ifdef UPDATE_PART
 	Point airvel = p->vel;
-	Vec_mul(&p->vel, 0.3);
+	p->vel.xy *= 0.3;
 	Part_blow(p, airvel);
+	
 	//not burning
 	if (p->meta==0) {
 		int x = p->pos.x + Random_int(5)-2;
@@ -15,28 +16,29 @@ break; case Elem_WOOD:
 				if (Rnd_perchance(50))
 					p->meta = 1;
 				//wood creates seed when near water
-			when(Elem_WATER):
-				//if(Parts_limits[Menu_dotLimit]-Parts_used<1000) return 0; TODO IMPORTANT
-				x = p->pos.x + Random_int(3)-1;
-				y = p->pos.y + Random_int(3)-1;
-				if (Part_at[y][x] <= Part_BGFAN && Rnd_perchance(10))
-					Part_create(x, y, Elem_SEED);
+			when(Elem_WATER):;
+				if (Part_limit1000()) {
+					axis x = p->pos.x + Random_int(3)-1;
+					axis y = p->pos.y + Random_int(3)-1;
+					if (Part_at[y][x] <= Part_BGFAN && Rnd_perchance(10))
+						Part_create(x, y, Elem_SEED);
+				}
 			}
 		}
 		//burning
 	} else if (p->meta==1) {
-		int x = p->pos.x + Random_int(3)-1;
-		int y = p->pos.y + Random_int(3)-1;
-		Part* g = Part_at[y][x];
+		axis x = p->pos.x + Random_int(3)-1;
+		axis y = p->pos.y + Random_int(3)-1;
+		Part* near = *Part_pos(x,y);
 		//make fires
-		if (g <= Part_BGFAN) {
+		if (near <= Part_BGFAN) {
 			if (Rnd_perchance(30)) {
-				g = Part_create(x, y, Elem_FIRE);
+				Part* g = Part_create(x, y, Elem_FIRE);
 				if (g>=Part_0)
 					g->meta = 1;
 			}
 			//water puts out the fire and breaks the wood into powder
-		} else if (g->type==Elem_WATER) {
+		} else if (near->type==Elem_WATER) {
 			p->meta = 0;
 			p->type = Elem_POWDER;
 		}
@@ -61,8 +63,8 @@ break; case Elem_WOOD:
 
 #elif defined UPDATE_BALL_PART
 	if (part->type==Elem_SEED)
-		part->meta = 1;
+		part->meta = 1; // make seed grow
 	else if (part->type==Elem_OIL)
-		ball->meta = 1; //make burn longer
+		ball->meta = 1; // make ball burn longer
 #endif
 }

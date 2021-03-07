@@ -129,3 +129,27 @@ void Wheel_create(axis x, axis y) {
 		Wheel_next++;
 	}
 }
+
+void Wheel_update1(void) {
+	// remove old wheel parts from grid
+	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
+		for (axis y=0; y<32; y++)
+			for (axis x=0; x<32; x++) {
+				Part** p = Part_pos(w->x-16+x, w->y-16+y);
+				if (*p == Part_WHEEL)
+					*p = Part_EMPTY;
+			}
+	}
+	// add new ones
+	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
+		const char (*frame)[32] = Wheel_frames[(int)w->angle];
+		for (axis y=0; y<32; y++)
+			for (axis x=0; x<32; x++) {
+				if (frame[y][x]=='.') {
+					Part** p = Part_pos(w->x-16+x, w->y-16+y);
+					if (*p <= Part_BGFAN)
+						*p = Part_WHEEL;
+				}
+			}
+	}
+}

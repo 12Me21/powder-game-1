@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "common.h"
 #include "vector.h"
+#include "elements.h"
 
 extern bool Menu_dragStart, Menu_dragging;
 extern bool Menu_numberMenu; // Fa
@@ -45,3 +46,12 @@ enum MenuButton {
 	Menu_ERASE=51, Menu_CLEAR, Menu_COPYPASTE, Menu_TEXT, Menu_PEN, Menu_PENSIZE, Menu_SCALE, Menu_SPEED, Menu_START, Menu_UPLOAD, Menu_SAVE,
 	Menu_LOAD=62, Menu_MINIMAP, Menu_MENU, Menu_SIDE, Menu_GRID, Menu_BG, Menu_DOT, Menu_RESET,
 };
+
+typedef struct MenuButtonDef {
+	Elem element; // hd[]
+	Elem firework;// ud[]
+	Elem player;  // vd[]
+	Elem ball;    // wd[]
+} MenuButtonDef;
+
+extern MenuButtonDef Menu_BUTTONS[100]; //don't feel like counting

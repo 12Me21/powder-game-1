@@ -1,18 +1,20 @@
+#ifndef HDEPS
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <dwmapi.h>
 #undef RGB
+#endif
 #include "common.h"
 #include "input.h"
 #include "save.h"
 #include "vector.h"
 #include "draw.h"
 #include "platform.h"
-
-extern int Platform_mouseX, Platform_mouseY;
-extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
-extern bool Platform_keys[256];
+#ifndef HDEPS
+//extern int Platform_mouseX, Platform_mouseY;
+//extern int Platform_mouseLeft, Platform_mouseRight, Platform_mouseMiddle;
+//extern bool Platform_keys[256];
 
 void Platform_frame(void);
 
@@ -20,8 +22,8 @@ void Platform_frame(void);
 
 HWND win;
 
-long Platform_millisec(void) {
-	return GetTickCount();
+long Platform_nanosec(void) {
+	return GetTickCount()*1000000L;
 }
 
 // todo: make a wrapper function so this can be called from outside platform- files.
@@ -115,12 +117,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		POINT p;
 		GetCursorPos(&p);
 		ScreenToClient(win, &p);
-		Platform_mouseX = p.x;
-		Platform_mouseY = p.y;
+		mouse.pos = (Point){p.x, p.y};
+		
 		SHORT b = GetAsyncKeyState(VK_LBUTTON);
-		Platform_mouseLeft = !!(b & 1<<15);
+		//Platform_mouseLeft = !!(b & 1<<15);
 		b = GetAsyncKeyState(VK_RBUTTON);
-		Platform_mouseRight = !!(b & 1<<15);
+		//Platform_mouseRight = !!(b & 1<<15);
 		
 		Platform_frame();
 		
@@ -138,3 +140,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
  exit:
 	return msg.wParam;
 }
+#endif
