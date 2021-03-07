@@ -1,3 +1,5 @@
+#include <string.h>
+#include <math.h> //todo: define macros for abs/fabs etc.
 #include "common.h"
 #include "menu.h"
 #include "draw.h"
@@ -10,6 +12,7 @@ extern Color grp[HEIGHT][WIDTH];
 Color* grp0 = &grp[0][0];
 
 BgPixel Bg_pixels[WIDTH][H+8+1]; //idk why this goes to 309
+BgPixel* const Bg_pixels0 = Bg_pixels[0];
 BgPixel* const Bg_pixels_end = &Bg_pixels[WIDTH-1][H+8+1-1]+1;
 
 void Bg_reset(void) {
@@ -103,6 +106,58 @@ void Bg_render(void) {
 				if (Part_at[y][x] == Part_BLOCK)
 					grp[y][x] = 0x606060;
 		}
+		break;
+	case Bg_AURA:;
+		memset(Bg_pixels, 0, sizeof(Bg_pixels));
+		for (axis c=2;c<(HEIGHT/4)-2;c++) {
+			for (axis b=2;b<(WIDTH/4)-2;b++) {
+				Cell* e = &Part_blocks[c][b];
+				real g = fabs(e->vel.x);
+				real a = fabs(e->vel.y);
+				if (g!=0 || a!=0) {
+					real q = 1/(g+a);
+					int gg = g*q*0xFFFF;
+					int qq = a*q*0xFFFF;
+					axis n=0, d=0;
+					if (e->vel.x<0)
+						d=-1;
+					else if (e->vel.x>0)
+						d=1;
+					if (e->vel.y<0)
+						n=-WIDTH;
+					else if (e->vel.y>0)
+						n=WIDTH;
+					int r = c*4*WIDTH+b*4;
+					for (int a=0; a<16; a++) {
+						int w = RED(grp0[r]);
+						Bg_pixels0[r+d].light += w*gg;
+						Bg_pixels0[r+n].light += w*qq;
+						w = GREEN(grp0[r]);
+						Bg_pixels0[r+d].aura1 += w*gg;
+						Bg_pixels0[r+n].aura1 += w*qq;
+						w = BLUE(grp0[r]);
+						Bg_pixels0[r+d].aura2 += w*gg;
+						Bg_pixels0[r+n].aura2 += w*qq;
+						r += (Offset[]){1,1,1,WIDTH-3,1,1,1,WIDTH-3,1,1,1,WIDTH-3,1,1,1,WIDTH-3}[a];
+					}
+				}
+			}
+		}
+		inline int ff(int x) {
+			if (x>255) return 255;
+			return x;
+		}
+		for (axis y=8;y<H+8-1;y++) {
+			for (axis x=8;x<W+8;x++) {
+				BgPixel* p = &Bg_pixels[y][x];
+				grp[y][x] = Part_at[y][x]==Part_BLOCK ? 0x606060 : RGB(
+					ff(p->light>>16),
+					ff(p->aura1>>16),
+					ff(p->aura2>>16)
+				);
+			}
+		}
+		
 		break;
 	case Bg_LIGHT:;
 		for (Offset a=(H+8)*WIDTH;a>=WIDTH*8;a--) {
