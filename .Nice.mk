@@ -1,29 +1,32 @@
 junkdir?= .junk
+srcdir?= .
 # location for intermediate files (.o and .mk)
 # (will be created automatically, as well as any subdirectories)
 # (ex: src `subdir/file` will create `.junk/subdir/` and compile `subdir/file.c` to `.junk/subdir/file.o`)
 # (remember to update .gitignore if changed)
 
+gcc?= gcc
 # print status nicely (assumes ansi-compatible terminal)
 empty:=
 comma:= ,
 printlist = [$1m$(subst $(empty) $(empty),[m$(comma) [$1m,$(2:$(junkdir)/%=[37m$(junkdir)/[$1m%))
-cc=@echo '$(call printlist,33,$@)	[37mfrom: $(call printlist,32,$^)[m' ; gcc
-
-
+cc=@echo '$(call printlist,33,$@)	[37mfrom: $(call printlist,32,$^)[m' ; $(gcc)
 
 # Link
 $(output): $(srcs:%=$(junkdir)/%.o)
-	$(cc) $(CFLAGS) $(addprefix -l,$(libs)) $^ -o $@
+	$(cc) $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
 
 # this uses a feature of gcc, which parses a C file
 # and outputs a list of headers it depends on
-$(junkdir)/%.mk: %.c
-	$(cc) $(CFLAGS) -MM $< -MG -MP -MQ$@ -MQ$(<:%.c=$(junkdir)/%.o) -MF$@
+$(junkdir)/%.mk: $(srcdir)/%.c
+	$(cc) $(CFLAGS) -DHDEPS -MM $< -MG -MP -MQ$@ -MQ$(<:%.c=$(junkdir)/%.o) -MF$@
 
 # Compile
-$(junkdir)/%.o: %.c
+$(junkdir)/%.o: $(srcdir)/%.c
 	$(cc) $(CFLAGS) -c $< -o $@
+
+fast-$(output): $(srcs:%=$(srcdir)/%.c)
+	$(cc) $(CFLAGS) -O3 $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
 
 .PHONY: clean
 clean:
