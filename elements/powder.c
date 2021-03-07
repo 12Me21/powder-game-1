@@ -3,8 +3,8 @@ break; case Elem_POWDER:
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.1);
-	Vec_add(&airvel, p->vel);
-	Vec_mul(&p->vel, 0.7);
+	airvel.xy += p->vel.xy;
+	p->vel.xy *= 0.7;
 	Part_blow(p, airvel);
 
 #elif defined UPDATE_BALL

@@ -98,6 +98,11 @@ bool Rnd_perchance(int chance) {
 	return Random_(100)<chance;
 }
 
+Point Rnd_point(real x1, real x2, real y1, real y2) {
+	real x = Random_2(x1,x2);
+	return (Point){x, Random_2(y1,y2)};
+}
+
 void Random_update(void) {
 	randomIndex += rand() % 1024 & 0x3FF;
 	randomStep = rand() % 512 | 1;

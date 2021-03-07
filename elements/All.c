@@ -30,7 +30,7 @@
 #include "salt.c"
 #include "saltwater.c"
 #include "glass.c"
-//#include "bird.c"
+#include "bird.c"
 #include "mercury.c"
 #include "spark.c"
 #include "fuse.c"

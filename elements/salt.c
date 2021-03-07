@@ -3,21 +3,18 @@ break; case Elem_SALT:
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.1);
-	Vec_add(&airvel, p->vel);
-	Vec_mul(&p->vel, 0.75);
+	airvel.xy += p->vel.xy;
+	p->vel.xy *= 0.75;
 	Part_blow(p, airvel);
-	axis x = Random_int(3)-1;
-	axis y = Random_int(3)-1;
-	Part* near = Part_pos3(p->pos, x, y);
+	
+	Part* near = Part_rndNear(p->pos, 3);
 	if (near>=Part_0) {
 		if (near->type==Elem_WATER) {
 			near->type = Elem_SALTWATER;
 			near->meta = 0;
-			Part_remove(p--);
-			break;
+			Part_KILL();
 		} else if (near->type==Elem_MAGMA && Rnd_perchance(50)) {
-			Part_remove(p--);
-			break;
+			Part_KILL();
 		}
 	}
 

@@ -17,8 +17,8 @@ break; case Elem_WATER:
 			if (Rnd_perchance(50))
 				p->type = Elem_ICE;
 			//put water into pump
-		} else if (Part_checkPump(p, g, (int[]){2,1,3,0}[dir]))
-			p--;
+		} else if (Part_checkPump(p, g, dir))
+			Part_KILL();
 	}
 
 #elif defined UPDATE_BALL

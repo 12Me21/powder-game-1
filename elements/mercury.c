@@ -12,8 +12,8 @@ break; case Elem_MERCURY:
 		if (dir>0 && (ELEMENTS[type].state==State_POWDER||(ELEMENTS[type].state==State_LIQUID&&type!=Elem_MERCURY))) {
 			Part_swap(p, g);
 			//freeze water
-		} else if (Part_checkPump(p, g, (int[]){2,1,3,0}[dir]))
-			p--;
+		} else if (Part_checkPump(p, g, dir))
+			Part_KILL();
 	}
 #endif
 }

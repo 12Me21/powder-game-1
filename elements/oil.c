@@ -2,37 +2,25 @@ break; case Elem_OIL:
 {
 #ifdef UPDATE_PART
 	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
-	int dir = Random_int(8);
+	int dir = Random_int(8)-4;
+	if (dir<0) dir=0;
 	
-	Part* g;
-	if (dir<5)
-		g = Part_at[(int)p->pos.y-1][(int)p->pos.x];
-	else if (dir<6)
-		g = Part_at[(int)p->pos.y][(int)p->pos.x-1];
-	else if (dir<7)
-		g = Part_at[(int)p->pos.y][(int)p->pos.x+1];
-	else
-		g = Part_at[(int)p->pos.y+1][(int)p->pos.x];
+	Part* g = Part_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
 	if (g>=Part_0) {
 		//powders (except stone), water, nitro, saltwater
 		if (dir<7 && ((ELEMENTS[g->type].state==State_POWDER && g->type!=Elem_STONE) || g->type==Elem_WATER || g->type==Elem_NITRO || g->type==Elem_SALTWATER)) {
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
-			//burn
+		//burn
 		} else if (ELEMENTS[g->type].state==State_HOT) {
 			p->meta = 1;
-			//oil is absorbed by FUSE
-		} else if (g->type==Elem_FUSE && g->meta<256) {
-			g->meta = Elem_OIL;
-			Part_remove(p--);
-			break;
-			//and PUMP
-		} else if (g->type==Elem_PUMP && !g->pumpType) {
-			g->meta = 4 | (dir<5?2:dir<6?1:dir<7?3:0); //make this a func
-			g->pumpType = Elem_OIL;
-			Part_remove(p--);
-			break;
-		}
+		//oil is absorbed by FUSE
+		} else if (g->type==Elem_FUSE && !g->Cfuse.burning) {
+			g->Cfuse.type = Elem_OIL;
+			Part_KILL();
+		//and PUMP
+		} else if (Part_checkPump(p,g,dir))
+			Part_KILL();
 	}
 	if (p->meta==1) {
 		int x = p->pos.x+Random_int(3)-1;
@@ -40,10 +28,8 @@ break; case Elem_OIL:
 		Part* near = Part_at[y][x];
 		if (near<=Part_BGFAN)
 			Part_create(x, y, Elem_FIRE);
-		if (Rnd_perchance(10)) {
-			Part_remove(p--);
-			break;
-		}
+		if (Rnd_perchance(10))
+			Part_KILL();
 	}
 
 #elif defined UPDATE_BALL
@@ -66,7 +52,7 @@ break; case Elem_OIL:
 	when(Elem_SOAPY):;
 		Part_remove(part);
 	when(Elem_FUSE):;
-		if (part->meta<256)
+		if (!part->Cfuse.burning)
 			part->meta = Elem_OIL;
 	}
 #endif

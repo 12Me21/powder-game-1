@@ -124,10 +124,13 @@ void Part_update(void) {
 			*Part_pos2(p->pos) = Part_EMPTY;
 		switch (p->type) {
 			// todo: maybe put this in a real separately compiled file
+#define Part_KILL(...) { Part_remove(p--); goto Part_continue; }
 #define UPDATE_PART 1
 #include "elements/All.c"
 #undef UPDATE_PART
+#undef Part_KILL
 		}
+	Part_continue:;
 	}
 	// check parts that go off screen
 	for (Part* p=parts; p<Part_next; p++) {
@@ -192,9 +195,9 @@ void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, a
 
 bool Part_checkPump(Part* part, Part* pump, int dir) {
 	if (pump->type == Elem_PUMP && !pump->pumpType) {
-		pump->meta = 4|dir;
+		pump->Cpump.dir = ~dir;
+		pump->Cpump.amount = 1;
 		pump->pumpType = part->type;
-		Part_remove(part);
 		return true;
 	}
 	return false;
@@ -254,6 +257,25 @@ void Part_paint(axis x, axis y, Elem replace, Elem type, int meta) {
 	}
 }
 
+// get the particle at a random location
+// within a 5x5 region centered on `pos`
+Part* Part_rndNear5(Point pos) {
+	int x = Random_int(5)-2;
+	int y = Random_int(5)-2;
+	return Part_pos3(pos, x, y);
+}
+
+Part* Part_rndNear(Point pos, axis diam) {
+	int x = Random_int(diam)-diam/2;
+	int y = Random_int(diam)-diam/2;
+	return Part_pos3(pos, x, y);
+}
+
+
 void Part_print(Part* p) {
-	printf("%s\npos: %f,%f\nvel: %f,%f\nmeta: %d\npumpType: %d\n", ELEMENTS[p->type].name, p->pos.x, p->pos.y, p->vel.x, p->vel.y, p->meta, p->pumpType);
+	printf("%s\npos: %f,%f\nvel: %f,%f\nmeta: %d\npumpType: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->meta, p->pumpType);
+}
+
+void Part_toGrid(Part* p) {
+	*Part_pos2(p->pos) = p;
 }

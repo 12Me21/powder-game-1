@@ -35,6 +35,24 @@ typedef struct Part {
 			uint8_t dir: 2;
 			uint32_t type: 32-2;
 		} Cthunder2;
+
+		struct {
+			uint8_t type: 8;
+			uint32_t burning: 32-8;
+		} Cfuse;
+
+		/*struct {
+			uint32_t growing: 32;
+			} Cseed;*/
+		struct {
+			uint8_t dir: 2;
+			uint32_t holding: 32-2;
+		} Cant;
+
+		struct {
+			uint8_t type: 8;
+			uint32_t age: 32-8;
+		} Cvirus;
 	};
 	
 	Elem type;    // t[]
@@ -76,3 +94,8 @@ void Part_reset(int a);
 void Part_print(Part* p); //for debug
 
 bool Part_limit1000(void); // returns true if there are >= 1000 unused parts
+
+void Part_toGrid(Part* p);
+
+Part* Part_rndNear5(Point pos);
+Part* Part_rndNear(Point pos, axis rad);

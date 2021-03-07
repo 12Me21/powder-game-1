@@ -41,3 +41,5 @@ typedef char Elem;
 #define WINDOW_HEIGHT (H+MENU_HEIGHT)
 
 #define AUTORUN __attribute__((constructor)) static void init_##__LINE__(void)
+
+//#define LAMBDA(type, def) ({ type _temp def; _temp; })

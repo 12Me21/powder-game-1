@@ -12,13 +12,12 @@ Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
 void Cell_update1(void) {
 	if (pd!=0) {
 		int open = 0;
-		Block* c;
-		forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
+		for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++)
 			if (!c->block)
 				open++;
 		if (open>0) {
 			pd /= open;
-			forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
+			for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++)
 				if (!c->block)
 					c->pres += pd;
 			pd = 0;
@@ -27,78 +26,75 @@ void Cell_update1(void) {
 }
 
 void Cell_update(void) {
-	Block* c;
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++)
+	for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++)
 		c->vel2 = c->vel;
 	for (int b=2; b<(HEIGHT)/4-2; b++) {
 		for (int d=2; d<(WIDTH)/4-2; d++) {
-			Block* a = &Part_blocks[b][d];
-			if (a->block!=1) {
-				Point c = a->vel;
-				real nn = Vec_fastNormalize(&c);
-				if (nn!=0) {
-					real r = fabs(c.x);
-					real w = fabs(c.y);
-					real y = r/(r+w)*nn*0.5;
-					real n = w/(r+w)*nn*0.5;
-					Point e = Vec_mul2(c, y);
-					Point f = Vec_mul2(c, n);
-					int z = c.x<0 ? -1 : 1;
-					int v = c.y<0 ? -1 : 1;
-					Block* horiz = &Part_blocks[b][d+z];
-					Block* vert = &Part_blocks[b+v][d];
-					Block* both = &Part_blocks[b+v][d+z];
-					if (r>w) {
-						if (horiz->block <= 0) {
-							Vec_sub(&a->vel2, e);
-							Vec_add(&horiz->vel2, e);
-							horiz->pres += y;
-							a->pres -= y;
-						} else {
-							Vec_sub(&a->vel2, e); //yes, twice.
-							Vec_sub(&a->vel2, e);
-						}
-						if (both->block <= 0) {
-							Vec_sub(&a->vel2, f);
-							Vec_add(&both->vel2, f);
-							a->pres -= n;
-							both->pres += n;
-						} else {
-							Vec_sub(&a->vel2, f);
-							Vec_sub(&a->vel2, f);
-						}
+			Block* cell = &Part_blocks[b][d];
+			if (cell->block!=1) {
+				Point vel = cell->vel;
+				real magv = Vec_fastNormalize(&vel);
+				if (magv!=0) {
+					real magvx = fabs(vel.x);
+					real magvy = fabs(vel.y);
+					real rx = magvx/(magvx+magvy)*magv*0.5;
+					real ry = magvy/(magvx+magvy)*magv*0.5;
+					Point sx,sy;
+					sx.xy = vel.xy * rx;
+					sy.xy = vel.xy * ry;
+					int signvx = vel.x<0 ? -1 : 1;
+					int signvy = vel.y<0 ? -1 : 1;
+					
+					Block* diag = &Part_blocks[b+signvy][d+signvx];
+					Block* adjx;
+					Block* adjy;
+					if (magvx>magvy) {
+						adjx = &Part_blocks[b][d+signvx];
+						adjy = diag;
+						cell->vel2.xy -= sx.xy;
+						if (adjx->block <= 0)
+							cell->pres -= rx;
+						else
+							cell->vel2.xy -= sx.xy;
+						cell->vel2.xy -= sy.xy;
+						if (adjy->block <= 0)
+							cell->pres -= ry;
+						else
+							cell->vel2.xy -= sy.xy;
 					} else {
-						if (vert->block <= 0) {
-							Vec_sub(&a->vel2, f);
-							Vec_add(&vert->vel2, f);
-							a->pres -= n;
-							vert->pres += n;
-						} else {
-							Vec_sub(&a->vel2, f);
-							Vec_sub(&a->vel2, f);
-						}
-						if (both->block <= 0) {
-							Vec_sub(&a->vel2, e);
-							Vec_add(&both->vel2, e);
-							a->pres -= y;
-							both->pres += y;
-						} else {
-							Vec_sub(&a->vel2, e);
-							Vec_sub(&a->vel2, e);
-						}
+						adjx = diag;
+						adjy = &Part_blocks[b+signvy][d];
+						cell->vel2.xy -= sy.xy;
+						if (adjy->block <= 0)
+							cell->pres -= ry;
+						else
+							cell->vel2.xy -= sy.xy;
+						cell->vel2.xy -= sx.xy;
+						if (adjx->block <= 0)
+							cell->pres -= rx;
+						else
+							cell->vel2.xy -= sx.xy;
+					}
+					if (adjx->block <= 0) {
+						adjx->vel2.xy += sx.xy;
+						adjx->pres += rx;
+					}
+					if (adjy->block <= 0) {
+						adjy->vel2.xy += sy.xy;
+						adjy->pres += ry;
 					}
 				}
 			}
 		}
 	} //
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
-		c->pres2 = c->pres;
-	}
+	for (Block* cell=Part_blocks[0]; cell<Part_blocks_end; cell++)
+		cell->pres2 = cell->pres;
+	
 	for (int b=2; b<(HEIGHT)/4-2; b++) {
 		for (int d=2; d<(WIDTH)/4-2; d++) {
 			Block* a = &Part_blocks[b][d];
 			if (a->block == 1) continue;
-			void pcheck(int x, int y, real m) {
+			inline void pcheck(int x, int y, real m) {
 				Block* o = &Part_blocks[b+y][d+x];
 				if (o->block <= 0) {
 					real diff = (a->pres - o->pres);
@@ -117,6 +113,7 @@ void Cell_update(void) {
 			pcheck( 1, 1,0.044194173);
 		}
 	}
+	Block* c;
 	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
 		if (c->block != -1) { //woah -1??
 			c->vel = c->vel2;
