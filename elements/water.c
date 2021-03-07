@@ -9,7 +9,7 @@ break; case Elem_WATER:
 	if (g>=Part_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int type = g->type;
-		if (dir<3 && ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SALTWATER)) {
+		if (dir<3 && ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
 			//freeze water
@@ -49,7 +49,7 @@ break; case Elem_WATER:
 		}
 	when(Elem_SALT):;
 		if (++ball->meta>=20) //hmm this is the same as for snow
-			*newType = Elem_SALTWATER;
+			*newType = Elem_SEAWATER;
 	when(Elem_FUSE):;
 		part->type = Elem_GUNPOWDER;
 		part->meta = 0;

@@ -9,7 +9,7 @@ break; case Elem_FUSE:
 		if (near>=Part_0) {
 			if (ELEMENTS[near->type].state==State_HOT && near->type!=Elem_SPARK)
 				p->Cfuse.burning = 1;
-			else if (near->type==Elem_WATER || near->type==Elem_SALTWATER)
+			else if (near->type==Elem_WATER || near->type==Elem_SEAWATER)
 				p->type = Elem_GUNPOWDER;
 		}
 	} else {
@@ -81,7 +81,7 @@ break; case Elem_FUSE:
 				Ball_break(i,0,Elem_STEAM,0,0,0,1);
 			else
 				Ball_break(i,0,Elem_SPARK,0,0,0,0);
-		} else if (touched==Elem_WATER || touched==Elem_SALTWATER)
+		} else if (touched==Elem_WATER || touched==Elem_SEAWATER)
 			Ball_break(i,0,Elem_GUNPOWDER,0,0,0,0);
 		else if (touched==Elem_ACID)
 			Ball_break(i,0,Elem_FUSE,0,0,0,0);

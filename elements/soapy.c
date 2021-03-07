@@ -27,7 +27,7 @@ break; case Elem_SOAPY:
 				Part_KILL();
 		otherwise:;
 			int type = g->type;
-			if ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SALTWATER)
+			if ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SEAWATER)
 				if (dir<3 && Rnd_perchance(10))
 					Part_swap(p, g);
 		}

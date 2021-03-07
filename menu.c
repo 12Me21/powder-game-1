@@ -329,7 +329,7 @@ MenuButtonDef Menu_BUTTONS[] = {
 	{Elem_ACID,Elem_ACID,Elem_ACID,Elem_ACID},
 	{Elem_VINE,0,0,0},
 	{Elem_SALT,Elem_SALT,Elem_SALT,Elem_SALT},
-	{Elem_SALTWATER,Elem_SALTWATER,Elem_SALTWATER,Elem_SALTWATER},
+	{Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER},
 	{Elem_GLASS,0,0,Elem_GLASS},
 	{Elem_BIRD,Elem_BIRD,Elem_BIRD,Elem_BIRD},
 	{Elem_MERCURY,Elem_MERCURY,Elem_MERCURY,0},

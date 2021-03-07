@@ -8,7 +8,7 @@ break; case Elem_OIL:
 	Part* g = Part_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
 	if (g>=Part_0) {
 		//powders (except stone), water, nitro, saltwater
-		if (dir<7 && ((ELEMENTS[g->type].state==State_POWDER && g->type!=Elem_STONE) || g->type==Elem_WATER || g->type==Elem_NITRO || g->type==Elem_SALTWATER)) {
+		if (dir<7 && ((ELEMENTS[g->type].state==State_POWDER && g->type!=Elem_STONE) || g->type==Elem_WATER || g->type==Elem_NITRO || g->type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
 		//burn

@@ -25,7 +25,7 @@ break; case Elem_SPARK:
 		switch (near->type) {
 		case Elem_POWDER: case Elem_ANT:
 			near->type = Elem_FIRE;
-		when(Elem_WATER): case Elem_SALTWATER: case Elem_SOAPY:
+		when(Elem_WATER): case Elem_SEAWATER: case Elem_SOAPY:
 			Part_remove(p--);
 			goto SPARK_brk;
 		when(Elem_SNOW):;
