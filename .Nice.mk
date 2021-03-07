@@ -1,4 +1,9 @@
-junkdir?= .junk
+junkbase:= .junk
+ifdef junkdir
+ junkdir:= $(junkbase)/$(junkdir)
+else
+ junkdir:= $(junkbase)
+endif
 srcdir?= .
 # location for intermediate files (.o and .mk)
 # (will be created automatically, as well as any subdirectories)
@@ -25,8 +30,8 @@ $(junkdir)/%.mk: $(srcdir)/%.c
 $(junkdir)/%.o: $(srcdir)/%.c
 	$(cc) $(CFLAGS) -c $< -o $@
 
-fast-$(output): $(srcs:%=$(srcdir)/%.c)
-	$(cc) $(CFLAGS) -O3 $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
+#fast-$(output): $(srcs:%=$(srcdir)/%.c)
+#	$(cc) $(CFLAGS) -O3 $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
 
 .PHONY: clean
 clean:
