@@ -21,13 +21,18 @@ static const axis col5 = 232;
 static const axis col6 = 288;
 static const axis col7 = 344;
 
-static const axis row1 = 3;
-static const axis row2 = 64;
-static const axis row3 = 120;
-static const axis row4 = 176;
-static const axis row5 = 232;
-static const axis row6 = 288;
-static const axis row7 = 344;
+enum RowY {
+	row1 = 3,
+	row2 = 17,
+	row3 = 31,
+	row4 = 45,
+	row5 = 59,
+	row6 = 73,
+	row7 = 87,
+	row8 = 101,
+	row9 = 115,
+	row10 = 129,
+};
 
 static const axis rowLast = 143;
 
@@ -35,97 +40,97 @@ AUTORUN {
 	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
 	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
 	Draw_text(col1,row1,"POWDER",0xF2BD6B,0);
-	Draw_text(col1,17,"WATER",0x4040FF,0);
-	Draw_text(col1,31,"FIRE",0xFF4040,0);
-	Draw_text(col1,45,"SEED",0x90C040,0);
-	Draw_text(col1,59,"WOOD",0x805020,0);
+	Draw_text(col1,row2,"WATER",0x4040FF,0);
+	Draw_text(col1,row3,"FIRE",0xFF4040,0);
+	Draw_text(col1,row4,"SEED",0x90C040,0);
+	Draw_text(col1,row5,"WOOD",0x805020,0);
 	// -2 spaced text needs to be drawn this special way
 	// maybe fix this
-	Draw_spacedText(col1,73,"G-POWDER",-1,0,-2);
-	Draw_spacedText(col1,73,"G-POWDER",0xB08050,-1,-2);
-	Draw_text(col1,87,"FAN",0x8080FF,0);
-	Draw_text(col1,101,"ICE",0xD0D0FF,0);
-	Draw_text(col1,115,"SNOW",0xFFFFFF,0);
-	Draw_text(col1,129,"STEAM",0xE0E0E0,0);
+	Draw_spacedText(col1,row6,"G-POWDER",-1,0,-2);
+	Draw_spacedText(col1,row6,"G-POWDER",0xB08050,-1,-2);
+	Draw_text(col1,row7,"FAN",0x8080FF,0);
+	Draw_text(col1,row8,"ICE",0xD0D0FF,0);
+	Draw_text(col1,row9,"SNOW",0xFFFFFF,0);
+	Draw_text(col1,row10,"STEAM",0xE0E0E0,0);
 		
 	Draw_text(col2,row1,"S-BALL",0xFF40A0,0);
-	Draw_text(col2,17,"CLONE",0x907010,0);
-	Draw_spacedText(col2,31,"F-WORKS",0xFF9966,0,-1);
-	Draw_text(col2,45,"OIL",0x803020,0);
-	Draw_text(col2,59,"C-4",0xFFFFCC,0);
-	Draw_text(col2,73,"STONE",0x808080,0);
-	Draw_text(col2,87,"MAGMA",0xFF6633,0);
-	Draw_text(col2,101,"VIRUS",0x800080,0);
-	Draw_text(col2,115,"NITRO",0x447700,0);
-	Draw_text(col2,129,"ANT",0xC080C0,0);
+	Draw_text(col2,row2,"CLONE",0x907010,0);
+	Draw_spacedText(col2,row3,"F-WORKS",0xFF9966,0,-1);
+	Draw_text(col2,row4,"OIL",0x803020,0);
+	Draw_text(col2,row5,"C-4",0xFFFFCC,0);
+	Draw_text(col2,row6,"STONE",0x808080,0);
+	Draw_text(col2,row7,"MAGMA",0xFF6633,0);
+	Draw_text(col2,row8,"VIRUS",0x800080,0);
+	Draw_text(col2,row9,"NITRO",0x447700,0);
+	Draw_text(col2,row10,"ANT",0xC080C0,0);
 		
 	Draw_text(col3,row1,"TORCH",0xFFA020,0);
-	Draw_text(col3,17,"GAS",0xCC9999,0);
-	Draw_text(col3,31,"SOAPY",0xE0E0E0,0);
-	Draw_spacedText(col3,45,"THUNDER",0xFFFF20,0,-1);
-	Draw_text(col3,59,"METAL",0x404040,0);
-	Draw_text(col3,73,"BOMB",0x666600,0);
-	Draw_text(col3,87,"LASER",0xCC0000,0);
-	Draw_text(col3,101,"ACID",0xCCFF00,0);
-	Draw_text(col3,115,"VINE",0x00BB00,0);
-	Draw_text(col3,129,"SALT",0xFFFFFF,0);
+	Draw_text(col3,row2,"GAS",0xCC9999,0);
+	Draw_text(col3,row3,"SOAPY",0xE0E0E0,0);
+	Draw_spacedText(col3,row4,"THUNDER",0xFFFF20,0,-1);
+	Draw_text(col3,row5,"METAL",0x404040,0);
+	Draw_text(col3,row6,"BOMB",0x666600,0);
+	Draw_text(col3,row7,"LASER",0xCC0000,0);
+	Draw_text(col3,row8,"ACID",0xCCFF00,0);
+	Draw_text(col3,row9,"VINE",0x00BB00,0);
+	Draw_text(col3,row10,"SALT",0xFFFFFF,0);
 		
 	Draw_spacedText(col4,row1,"S-WATER",0x3399FF,0,-1);
-	Draw_text(col4,17,"GLASS",0x404040,0);
-	Draw_text(col4,31,"BIRD",0x807050,0);
-	Draw_spacedText(col4,45,"MERCURY",0xAAAAAA,0,-1);
-	Draw_text(col4,59,"SPARK",0xFFCC33,0);
-	Draw_text(col4,73,"FUSE",0x443322,0);
-	Draw_text(col4,87,"CLOUD",0xCCCCCC,0);
-	Draw_text(col4,101,"PUMP",0x003333,0);
+	Draw_text(col4,row2,"GLASS",0x404040,0);
+	Draw_text(col4,row3,"BIRD",0x807050,0);
+	Draw_spacedText(col4,row4,"MERCURY",0xAAAAAA,0,-1);
+	Draw_text(col4,row5,"SPARK",0xFFCC33,0);
+	Draw_text(col4,row6,"FUSE",0x443322,0);
+	Draw_text(col4,row7,"CLOUD",0xCCCCCC,0);
+	Draw_text(col4,row8,"PUMP",0x003333,0);
 		
 	Draw_text(col5,row1,"WIND",0x8080FF,0);
-	Draw_text(col5,17,"AIR",0x8080FF,0);
-	Draw_text(col5,31,"DRAG",0xFFFFFF,0);
-	Draw_text(col5,45,"B",0xFFE0E0,0);
-	Draw_text(col5,45," U",0xFFFFE0,0);
-	Draw_text(col5,45,"  B",0xE0FFE0,0);
-	Draw_text(col5,45,"   B",0xE0FFFF,0);
-	Draw_text(col5,45,"    L",0xE0E0FF,0);
-	Draw_text(col5,45,"     E",0xFFE0FF,0);
-	Draw_text(col5,59,"WHEEL",0xB0A090,0);
-	Draw_text(col5,73,"PLAYER",0xF2BD6B,0);
-	Draw_spacedText(col5,87,"FIGHTER",0xF2BD6B,0,-1);
-	Draw_text(col5,101,"BOX",0xF2BD6B,0);
-	Draw_text(col5,115,"BALL",0xF2BD6B,0);
-	Draw_text(col5,129,"CREATE",0x907010,0);
+	Draw_text(col5,row2,"AIR",0x8080FF,0);
+	Draw_text(col5,row3,"DRAG",0xFFFFFF,0);
+	Draw_text(col5,row4,"B",0xFFE0E0,0);
+	Draw_text(col5,row4," U",0xFFFFE0,0);
+	Draw_text(col5,row4,"  B",0xE0FFE0,0);
+	Draw_text(col5,row4,"   B",0xE0FFFF,0);
+	Draw_text(col5,row4,"    L",0xE0E0FF,0);
+	Draw_text(col5,row4,"     E",0xFFE0FF,0);
+	Draw_text(col5,row5,"WHEEL",0xB0A090,0);
+	Draw_text(col5,row6,"PLAYER",0xF2BD6B,0);
+	Draw_spacedText(col5,row7,"FIGHTER",0xF2BD6B,0,-1);
+	Draw_text(col5,row8,"BOX",0xF2BD6B,0);
+	Draw_text(col5,row9,"BALL",0xF2BD6B,0);
+	Draw_text(col5,row10,"CREATE",0x907010,0);
 	
 	Draw_text(col6,row1,"BLOCK",0x808080,0);
-	Draw_text(col6,17,"ERASE",0x808080,0); //rename?
-	Draw_text(col6,31,"CLEAR",0xFFFFFF,0);
-	Draw_spacedText(col6-1,45,"Copy",-1,0,-2);
-	Draw_spacedText(col6-1,45,"Copy",0xFFFFFF,-1,-2);
-	Draw_spacedText(col6+23,45,"Paste",-1,0,-3);
-	Draw_spacedText(col6+23,45,"Paste",0xFFFFFF,-1,-3);
-	Draw_text(col6,59,"TEXT",0xFFFFFF,0);
-	Draw_spacedText(col6,73,"PEN",-1,0,-1);
-	Draw_spacedText(col6,73,"PEN",0xFFFFFF,-1,-1);
-	Draw_spacedText(col6,87,"PEN-S ",0xFFFFFF,0,-1);
-	Draw_spacedText(col6,101,"SCALE",0xFFFFFF,0,-1);
-	Draw_spacedText(col6,115,"SPEEDx",0xFFFFFF,0,-1);
-	Draw_spacedText(col6-1,129,"Start",-1,0,-3);
-	Draw_spacedText(col6-1,129,"Start",0xFFFFFF,-1,-3);
-	Draw_spacedText(col6+25,129,"Stop",-1,0,-2);
-	Draw_spacedText(col6+25,129,"Stop",0xFFFFFF,-1,-2);
+	Draw_text(col6,row2,"ERASE",0x808080,0); //rename?
+	Draw_text(col6,row3,"CLEAR",0xFFFFFF,0);
+	Draw_spacedText(col6-1,row4,"Copy",-1,0,-2);
+	Draw_spacedText(col6-1,row4,"Copy",0xFFFFFF,-1,-2);
+	Draw_spacedText(col6+23,row4,"Paste",-1,0,-3);
+	Draw_spacedText(col6+23,row4,"Paste",0xFFFFFF,-1,-3);
+	Draw_text(col6,row5,"TEXT",0xFFFFFF,0);
+	Draw_spacedText(col6,row6,"PEN",-1,0,-1);
+	Draw_spacedText(col6,row6,"PEN",0xFFFFFF,-1,-1);
+	Draw_spacedText(col6,row7,"PEN-S ",0xFFFFFF,0,-1);
+	Draw_spacedText(col6,row8,"SCALE",0xFFFFFF,0,-1);
+	Draw_spacedText(col6,row9,"SPEEDx",0xFFFFFF,0,-1);
+	Draw_spacedText(col6-1,row10,"Start",-1,0,-3);
+	Draw_spacedText(col6-1,row10,"Start",0xFFFFFF,-1,-3);
+	Draw_spacedText(col6+25,row10,"Stop",-1,0,-2);
+	Draw_spacedText(col6+25,row10,"Stop",0xFFFFFF,-1,-2);
 	
 	Draw_text(col7,row1,"UPLOAD",0xFFA0A0,0);
-	Draw_text(col7,17,"SAVE",0xFFA0A0,0);
-	Draw_text(col7,31,"LOAD",0xFFA0A0,0);
-	Draw_spacedText(col7,45,"MiniMap",0xFFA0A0,0,-1);
-	Draw_spacedText(col7,59,"MENU-",-1,0,-2);
-	Draw_spacedText(col7,59,"MENU-",0xFFFFFF,-1,-2);
-	Draw_spacedText(col7,73,"SIDE-",-1,0,-3);
-	Draw_spacedText(col7,73,"SIDE-",0xFFFFFF,-1,-3);
-	Draw_text(col7,87,"GRID",0x800000,0);
-	Draw_spacedText(col7,101,"BG-",-1,0,-2);
-	Draw_spacedText(col7,101,"BG-",0xFFFFFF,-1,-2);
-	Draw_text(col7,115,"DOT ",0xFFFFFF,0);
-	Draw_text(col7,129,"RESET",0xFFFFFF,0);
+	Draw_text(col7,row2,"SAVE",0xFFA0A0,0);
+	Draw_text(col7,row3,"LOAD",0xFFA0A0,0);
+	Draw_spacedText(col7,row4,"MiniMap",0xFFA0A0,0,-1);
+	Draw_spacedText(col7,row5,"MENU-",-1,0,-2);
+	Draw_spacedText(col7,row5,"MENU-",0xFFFFFF,-1,-2);
+	Draw_spacedText(col7,row6,"SIDE-",-1,0,-3);
+	Draw_spacedText(col7,row6,"SIDE-",0xFFFFFF,-1,-3);
+	Draw_text(col7,row7,"GRID",0x800000,0);
+	Draw_spacedText(col7,row8,"BG-",-1,0,-2);
+	Draw_spacedText(col7,row8,"BG-",0xFFFFFF,-1,-2);
+	Draw_text(col7,row9,"DOT ",0xFFFFFF,0);
+	Draw_text(col7,row10,"RESET",0xFFFFFF,0);
 	
 	Draw_spacedText(56,rowLast,"x    y",-1,0,-1);
 	Draw_spacedText(133,rowLast,"dot",-1,0,-1);
@@ -226,47 +231,47 @@ void Menu_render(void) {
 	}
 	// ...
 	if (Menu_copyMode)
-		Draw_spacedText(col6-1,45,"Copy",0xFF4040,-1,-2);
+		Draw_spacedText(col6-1,row4,"Copy",0xFF4040,-1,-2);
 	else
-		Draw_spacedText(col6+23,45,"Paste",0xFF4040,-1,-3);
+		Draw_spacedText(col6+23,row4,"Paste",0xFF4040,-1,-3);
 	static char* a[] = {"free","line","lock","paint"};
-	Draw_spacedText(8+280+(4*(8-2)),73,a[Menu_penMode],-1,0,-2);
-	Draw_spacedText(8+280+(4*(8-2)),73,a[Menu_penMode],0xFFFFFF,-1,-2);
-	Draw_printf(8+280-1,87,0xFFFFFF,0,-1, "      %d", Menu_penSize);
-	Draw_printf(8+280,101,0xFFFFFF,0,-2,"      %s",(char*[]){"x1","x2","x4","x8","16","32","64","aa","ff","help","please","stop","AAAAA"}[Menu_zoomLevel]);
-	Draw_printf(8+280,115,0xFFFFFF,0,-2, "       %d", 1<<Menu_gameSpeed);
+	Draw_spacedText(8+280+(4*(8-2)),row6,a[Menu_penMode],-1,0,-2);
+	Draw_spacedText(8+280+(4*(8-2)),row6,a[Menu_penMode],0xFFFFFF,-1,-2);
+	Draw_printf(8+280-1,row7,0xFFFFFF,0,-1, "      %d", Menu_penSize);
+	Draw_printf(8+280,row8,0xFFFFFF,0,-2,"      %s",(char*[]){"x1","x2","x4","x8","16","32","64","aa","ff","help","please","stop","AAAAA"}[Menu_zoomLevel]);
+	Draw_printf(8+280,row9,0xFFFFFF,0,-2, "       %d", 1<<Menu_gameSpeed);
 	if (!Menu_paused)
-		Draw_spacedText(col6-1,129,"Start",0xFF4040,-1,-3);
+		Draw_spacedText(col6-1,row10,"Start",0xFF4040,-1,-3);
 	else
-		Draw_spacedText(col6+25,129,"Stop",0xFF4040,-1,-2);
+		Draw_spacedText(col6+25,row10,"Stop",0xFF4040,-1,-2);
 	if (buttonflash>0) {
 		buttonflash--;
 		if (buttonflash>1)
-			Draw_text(col7,3+14,"SAVE",0xFFFFFF,0xFF0000);
+			Draw_text(col7,row2,"SAVE",0xFFFFFF,0xFF0000);
 	}
 	if (buttonflash<0) {
 		buttonflash++;
 		if (buttonflash<-1)
-			Draw_text(col7,3+28,"LOAD",0xFFFFFF,0xFF0000);
+			Draw_text(col7,row3,"LOAD",0xFFFFFF,0xFF0000);
 	}
 	if (Menu_minimapEnabled)
-		Draw_spacedText(8+336,3+42,"MiniMap",0xFFFFFF,0xFF0000,-1);
+		Draw_spacedText(8+336,row4,"MiniMap",0xFFFFFF,0xFF0000,-1);
 	char* str = Menu_numberMenu ? "     num" : "     str";
-	Draw_spacedText(8+336,59,str,-1,0,-2);
-	Draw_spacedText(8+336,59,str,0xFFFFFF,-1,-2);
+	Draw_spacedText(8+336,row5,str,-1,0,-2);
+	Draw_spacedText(8+336,row5,str,0xFFFFFF,-1,-2);
 	str = Menu_edgeMode ? "OFF" : "LOOP";
-	Draw_spacedText(8+336+25,73,str,-1,0,-2);
-	Draw_spacedText(8+336+25,73,str,0xFFFFFF,-1,-2);
-	Draw_printf(8+336,87,0x800000,0,0,"     %d",Menu_gridSize); //this is too dark
+	Draw_spacedText(8+336+25,row6,str,-1,0,-2);
+	Draw_spacedText(8+336+25,row6,str,0xFFFFFF,-1,-2);
+	Draw_printf(8+336,row7,0x800000,0,0,"     %d",Menu_gridSize); //this is too dark
 	str = (char*[]){"none","air","line","blur","shade","aura","light","toon","mesh","gray","track","dark","TG","siluet"}[Menu_bgMode];
-	Draw_spacedText(8+336+6*3,101,str,-1,0,-2);
-	Draw_spacedText(8+336+6*3,101,str,0xFFFFFF,-1,-2);
-	Draw_text(8+336+8*4,3+112,(char*[]){"S","M","L"}[Menu_dotLimit],0xFFFFFF,0);
+	Draw_spacedText(8+336+6*3,row8,str,-1,0,-2);
+	Draw_spacedText(8+336+6*3,row8,str,0xFFFFFF,-1,-2);
+	Draw_text(8+336+8*4,row9,(char*[]){"S","M","L"}[Menu_dotLimit],0xFFFFFF,0);
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_leftSelection/Menu_BUTTONROWS),11-8+Menu_leftSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0xFF0000);
 	///rectangle(4+0+56*floor(Menu_middleSelection/10),3+4+Menu_middleSelection%10*14,3,3,0x00FF00);
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_rightSelection/Menu_BUTTONROWS),11+Menu_rightSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0x0000FF);
-	Draw_printf(64-8,rowLast,-1,0,-1," %d",Pen_x-8);
-	Draw_printf(64-8,rowLast,-1,0,-1,"      %d",Pen_y-8);
+	Draw_printf(col2-8,rowLast,-1,0,-1," %d",Pen_x-8);
+	Draw_printf(col2-8,rowLast,-1,0,-1,"      %d",Pen_y-8);
 	//Draw_printf(141,451,-1,0,-1,"   %d",Parts_limits[Menu_dotLimit]-Parts_used);
 	if (Menu_fps<=999)
 		Draw_printf(0,rowLast,-1,0,0,"%3dfps",Menu_fps);

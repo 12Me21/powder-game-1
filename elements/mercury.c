@@ -5,7 +5,7 @@ break; case Elem_MERCURY:
 	int dir = Random_int(8);
 	if (dir>3) dir=3;
 	
-	Part* g = Part_pos2(p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,1)}[dir]];
+	Part* g = Part_dirNear(p->pos, dir);
 	if (g>=Part_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int type = g->type;

@@ -150,6 +150,8 @@ int main(int argc, char** argv) {
 	
 	// start
 	Platform_main(argc, argv);
+	Platform_frame();
+	redraw();
 	while (processEvent()) {
 		Platform_frame();
 		redraw();

@@ -7,7 +7,7 @@ break; case Elem_SOAPY:
 	int dir = Random_int(8)-4;
 	if (dir<0) dir=0;
 
-	Part* g = Part_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
+	Part* g = Part_dirNear(p->pos,dir);
 	if (g>=Part_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		switch (g->type) {

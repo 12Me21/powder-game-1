@@ -1,7 +1,8 @@
 break; case Elem_C4:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, (Point){0,0});
+	Part_toGrid(p);
+	// note: we do not set velocity to 0 here
 	
 	if (p->meta==0) {
 		Part* near = Part_rndNear(p->pos, 3);
