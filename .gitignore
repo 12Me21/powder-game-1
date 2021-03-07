@@ -3,3 +3,5 @@ pg1
 pg1-fast
 *.exe
 old/
+primary/
+saves/
