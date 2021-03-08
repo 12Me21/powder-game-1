@@ -11,9 +11,9 @@
 extern Color grp[HEIGHT][WIDTH];
 Color* grp0 = &grp[0][0];
 
-BgPixel Bg_pixels[WIDTH][H+8+1]; //idk why this goes to 309
+BgPixel Bg_pixels[HEIGHT][WIDTH];
 BgPixel* const Bg_pixels0 = Bg_pixels[0];
-BgPixel* const Bg_pixels_end = &Bg_pixels[WIDTH-1][H+8+1-1]+1;
+BgPixel* const Bg_pixels_end = &Bg_pixels[HEIGHT-1][WIDTH-1]+1;
 
 void Bg_reset(void) {
 	for (BgPixel* px=Bg_pixels[0]; px<Bg_pixels_end; px++)
@@ -127,7 +127,7 @@ void Bg_render(void) {
 						n=-WIDTH;
 					else if (e->vel.y>0)
 						n=WIDTH;
-					int r = c*4*WIDTH+b*4;
+					Offset r = (c*4*WIDTH)+(b*4);
 					for (int a=0; a<16; a++) {
 						int w = RED(grp0[r]);
 						Bg_pixels0[r+d].light += w*gg;
@@ -147,7 +147,7 @@ void Bg_render(void) {
 			if (x>255) return 255;
 			return x;
 		}
-		for (axis y=8;y<H+8-1;y++) {
+		for (axis y=8;y<H+8;y++) {
 			for (axis x=8;x<W+8;x++) {
 				BgPixel* p = &Bg_pixels[y][x];
 				grp[y][x] = Part_at[y][x]==Part_BLOCK ? 0x606060 : RGB(
