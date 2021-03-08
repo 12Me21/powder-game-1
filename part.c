@@ -24,6 +24,7 @@ Part* const Part_0 = parts;
 Part* Part_next = parts;
 
 Part* Part_at[HEIGHT][WIDTH];
+Part** const Part_grid0 = &Part_at[0][0];
 
 static int Part_counts[Elem_MAX];
 int* Part_updateCounts(void) {

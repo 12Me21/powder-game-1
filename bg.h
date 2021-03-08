@@ -5,11 +5,11 @@ enum Bg {Bg_NONE=0,Bg_AIR=1,Bg_LINE=2,Bg_BLUR=3,Bg_SHADE=4,Bg_AURA=5,Bg_LIGHT=6,
 
 typedef struct BgPixel {
 	union {
-		int light;
+		long int light;
 		int auraR;
 	};
-	int aura1;
-	int aura2;
+	int auraG;
+	int auraB;
 } BgPixel;
 
 void Bg_reset(void);
