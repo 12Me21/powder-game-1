@@ -5,6 +5,8 @@
 
 typedef float real;
 typedef _Complex float Complex;
+#define fabs(x) fabsf(x)
+#define floor(x) floorf(x)
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 
@@ -16,9 +18,9 @@ typedef uint32_t Color;
 
 #define Cxy(x,y) ((Point){(x),(y)}.xy)
 
-typedef int axis;
-typedef int Offset;
-typedef char Elem;
+typedef int32_t axis;
+typedef int32_t Offset;
+typedef int8_t Elem;
 
 #define when(x) break;case x
 #define orwhen : case

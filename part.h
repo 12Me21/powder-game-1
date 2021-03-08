@@ -62,6 +62,7 @@ typedef struct Part {
 } Part;
 
 extern Part* Part_at[HEIGHT][WIDTH]; // C[]  this contains pointers to Part structs rather than dot ids.
+extern Part** const Part_grid0;
 
 extern Part* const Part_0; // list of dots
 extern Part* Part_next; // s (roughly)

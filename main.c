@@ -21,7 +21,8 @@ void render() {
 	DEFCALL(Bubble_render);
 	DEFCALL(Entity_render);
 	DEFCALL(Ball_render);
-	// todo: more bg stuff
+
+	DEFCALL(Bg_render2);
 	
 	DEFCALL(Menu_render);
 	DEFCALL(Scale_render);
