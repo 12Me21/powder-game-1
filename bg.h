@@ -14,5 +14,5 @@ typedef struct BgPixel {
 
 void Bg_reset(void);
 
-extern BgPixel Bg_pixels[WIDTH][H+8+1];
+extern BgPixel Bg_pixels[HEIGHT][WIDTH];
 extern BgPixel* const Bg_pixels_end;

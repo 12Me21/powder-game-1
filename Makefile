@@ -21,7 +21,8 @@ endif
 ifdef opt
  junkdir:= $(junkdir)/optimized
  output:= fast-$(output)
- CFLAGS+= -O3
+ LDFLAGS+= -flto
+ CFLAGS+= -O3 -flto
 endif
 
 # enable/disable tons of warnings
