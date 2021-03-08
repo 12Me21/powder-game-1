@@ -2,7 +2,7 @@
 Note: __requires linux__  
 
 Run `make` to compile.  
-(If your cpu has multiple cores, you can can make it faster if you pass `-jl` to make.)
+(If your cpu has multiple cores, you can can make it faster if you pass `-j -l` to make.)
 
 ## Optimizations
 set environment variable `opt` to compile with optimizations enabled (this will take longer)
