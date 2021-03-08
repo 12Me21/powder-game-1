@@ -250,6 +250,45 @@ void Bg_render(void) {
 			}
 		}
 		break;
+	case Bg_GRAY:
+		for (y=2; y<(H+8)/4; y++) {
+			for (x=2; x<(W+8)/4; x++) {
+				Block* cell = &Part_blocks[y][x];
+				if (cell->block==1)
+					Draw_rectangle(x*4,y*4,4,4,0x606060);
+				else {
+					int f = 0;
+					if (cell->pres>0)
+						f = atMost(cell->pres*48, 72);
+					if (cell->pres<0)
+						f = atMost(-cell->pres*48, 72);
+					Draw_rectangle(x*4,y*4,4,4,RGB(f,f,f));
+				}
+			}
+		}
+		break;
+	case Bg_TRACK:;
+		const Offset blockOffsets[] = {0,1,2,3,WIDTH+0,WIDTH+1,WIDTH+2,WIDTH+3,2*WIDTH+0,2*WIDTH+1,2*WIDTH+2,2*WIDTH+3,3*WIDTH+0,3*WIDTH+1,3*WIDTH+2,3*WIDTH+3};
+		for (y=2; y<(H+8)/4; y++) {
+			for (x=2; x<(W+8)/4; x++) {
+				Block* cell = &Part_blocks[y][x];
+				if (cell->block==1)
+					Draw_rectangle(x*4,y*4,4,4,0x606060);
+				else {
+					int n = 256 - (int)atMost(fabs(12*cell->pres),32); //should the conversion to int be before or after abs?
+					if (n!=256) {
+						for (int i=0;i<16;i++) {
+							Offset e = x*4+y*4*WIDTH+blockOffsets[i];
+							int r = RED(grp0[e])*n / 256;
+							int g = GREEN(grp0[e])*n / 256;
+							int b = BLUE(grp0[e])*n / 256;
+							grp0[e] = RGB(r,g,b);
+						}
+					}
+				}
+			}
+		}
+		break;
 	case Bg_DARK:
 		for (Offset a=(HEIGHT-8)*WIDTH; a>=0; a--) {
 			BgPixel* px = &Bg_pixels0[a];
@@ -266,6 +305,60 @@ void Bg_render(void) {
 		for (Offset a=(HEIGHT-8)*WIDTH; a>=0; a--) {
 			grp0[a] = Part_grid0[a]==Part_BLOCK ? 0x606060 : 0;
 		}
+		break;
+	case Bg_TG:
+		for(Part* p=Part_0; p<Part_next; p++)
+			Bg_pixels[(int)p->pos.y][(int)p->pos.x].light = p->type[ELEMENTS].temperature;
+		inline void blend(axis x,axis y, axis x2,axis y2) {
+			Bg_pixels[y][x].light = Bg_pixels[y+y2][x+x2].light = (Bg_pixels[y][x].light+Bg_pixels[y+y2][x+x2].light)/2;
+		}
+		for (y=8;y<H+8;y++) {
+			for (x=8;x<W+8-1;x++)
+				blend(x,y,1,0);
+			for (x=W+8-1;x>=8-1;x--)
+				blend(x,y,-1,0);
+		}
+		for (x=8;x<W+8;x++) {
+			for (y=8;y<H+8-1;y++)
+				blend(x,y,0,1);
+			for (y=H+8-1;y>=8-1;y--)
+				blend(x,y,0,-1);
+		}
+		for (i=(HEIGHT-8)*WIDTH; i>=0; i--) {
+			int l = Bg_pixels0[i].light;
+			int r,g,b;
+			if (l<0) { // purple -> black
+				r = atMost(-l*128/0x400, 255);
+				g = 0;
+				b = atMost(-l*255/0x400, 255);
+			} else if (l<0x400) { // black -> blue
+				r = g = 0;
+				b = l*255/1024;
+			} else if (l<0x800) { // blue -> bluegreen
+				r = 0;
+				g = (l-0x400)*255/1024;
+				b = 255;
+			} else if (l<0xC00) { // bluegreen -> green
+				r = 0;
+				g = 255;
+				b = 255 - (l-0x800)*255/1024;
+			} else if (l<0x1000) { // green -> yellow
+				r = (l-3072)*255/1024;
+				g = 255;
+				b = 0;
+			} else if (l<0x1800) { // yellow -> red
+				r = 255;
+				g = 255 - (l-0x1000)*255/2048;
+				b = 0;
+			} else { // red -> white
+				r = 255;
+				g = b = atMost((l-6144)*255/2048, 255);
+			}
+			grp0[i] = RGB(r,g,b);
+		}
+		for (i=(HEIGHT-8)*WIDTH; i>=0; i--)
+			if (Part_grid0[i]==Part_BLOCK)
+				grp0[i] = 0x606060;;
 		break;
 	case Bg_SILUET:
 		for (Offset a=(HEIGHT-8)*WIDTH; a>=WIDTH*8+128; a--) { //128??
