@@ -25,10 +25,8 @@ void Bg_render(void) {
 	switch (Menu_bgMode) {
 	case Bg_NONE:
 	default:
-		for (y=0;y<H+8;y++) {
-			for (x=0;x<WIDTH;x++) {
-				*Draw_pxRef(x, y) = Part_at[y][x] == Part_BLOCK ? 0x606060 : 0;
-			}
+		for (Offset i=0;i<WIDTH*HEIGHT;i++) {
+			grp0[i] = Part_at[0][i]==Part_BLOCK ? 0x606060 : 0;
 		}
 		break;
 	case Bg_AIR: case Bg_LINE:;
@@ -212,6 +210,18 @@ void Bg_render(void) {
 					grp0[a] = 0xEEEEEE;
 				if (grp[-1][a] && grp[-1][a]!=0xEEEEEE)
 					grp0[a] = 0xEEEEEE;
+			}
+		}
+		break;
+	case Bg_SILUET:
+		for (Offset a=(HEIGHT-8)*WIDTH; a>=WIDTH*8+128; a--) { //128??
+			if (Part_at[0][a]==Part_BLOCK)
+				grp0[a] = 0;
+			else if (Part_at[0][a]==Part_EMPTY) {
+				int r = 0xFF-((0xFF-RED(grp0[a]))>>1);
+				int g = 0xFF-((0xFF-GREEN(grp0[a]))>>1);
+				int b = 0xFF-((0xFF-BLUE(grp0[a]))>>1);
+				grp0[a] = RGB(r,g,b);
 			}
 		}
 	}
