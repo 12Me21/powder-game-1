@@ -11,11 +11,11 @@ break; case Elem_WATER:
 		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
-			//freeze water
+		//freeze water
 		} else if (type==Elem_ICE) {
 			if (Rnd_perchance(50))
 				p->type = Elem_ICE;
-			//put water into pump
+		//put water into pump
 		} else if (Part_checkPump(p, g, dir))
 			Part_KILL();
 	}
@@ -26,30 +26,36 @@ break; case Elem_WATER:
 
 #elif defined UPDATE_BALL_PART
 	switch(part->type) {
-	when(Elem_FIRE):;
+	case Elem_FIRE:;
 		Part_remove(part);
 		return 1;
-	when(Elem_WOOD):;
+		break;
+	case Elem_WOOD:;
 		part->type = Elem_SEED;
 		part->meta = 0;
-	when(Elem_ICE):;
+		break;
+	case Elem_ICE:;
 		*newType = Elem_ICE;
-	when(Elem_SNOW):;
+		break;
+	case Elem_SNOW:;
 		if (++ball->meta>=20)
 			*newType = Elem_ICE;
-	when(Elem_MAGMA):; case Elem_THUNDER: case Elem_LASER:
+		break;
+	case Elem_MAGMA: case Elem_THUNDER: case Elem_LASER:;
 		return 1;
-	when(Elem_TORCH):;
+		break;
+	case Elem_TORCH:;
 		Part_remove(part);
-	when(Elem_METAL):;
+		break;
+	case Elem_METAL:;
 		if (Rnd_perchance(10)) {
 			part->type = Elem_POWDER;
 			part->meta = 0;
 		}
-	when(Elem_SALT):;
 		if (++ball->meta>=20) //hmm this is the same as for snow
 			*newType = Elem_SEAWATER;
-	when(Elem_FUSE):;
+		break;
+	case Elem_FUSE:;
 		part->type = Elem_GUNPOWDER;
 		part->meta = 0;
 	}
