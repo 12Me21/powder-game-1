@@ -295,7 +295,8 @@ void Entity_update(void) {
 			a->parts[dest].pos = a->parts[src].pos;
 			a->parts[dest].oldPos = a->parts[src].oldPos;
 		}
-		if (a->type == Entity_PLAYER) {
+		switch (a->type) {
+		case Entity_PLAYER:;
 			/// todo: held || gotPress perhaps?
 			bool left = a->isPlayer2==0 ? Keys[37].held : Keys[65].held||Keys[97].held;
 			bool right = a->isPlayer2==0 ? Keys[39].held : Keys[68].held||Keys[100].held;
@@ -463,7 +464,8 @@ void Entity_update(void) {
 					}
 				}
 			}
-		} else if (a->type == Entity_PLAYER+2) {
+			break;
+		case Entity_PLAYER+1:
 			copyPos(10, 5);
 			copyPos(9, 4);
 			copyPos(8, 3);
@@ -478,7 +480,8 @@ void Entity_update(void) {
 			a->vel.y -= 1;
 			a->age = 0;
 			a->type = Entity_PLAYER+3;
-		} else if (a->type == Entity_PLAYER+3) {
+			break;
+		case Entity_PLAYER+3:
 			a->age++;
 			for (int b=0;b<11;b++) {
 				moveNode(&a->parts[b], 0.1, 0.999);
@@ -495,7 +498,8 @@ void Entity_update(void) {
 				updateNode(&a->parts[b], 0.1, false, false);
 			if (a->age>150)
 				Entity_remove(a--);
-		} else if (a->type==Entity_FIGHTER||a->type==Entity_FIGHTER+1) {
+			break;
+		case Entity_FIGHTER: case Entity_FIGHTER+1:
 			a->age++;
 			if (a->type==Entity_FIGHTER) {
 				moveNode(&a->parts[0],-0.2,0.995);
@@ -572,7 +576,8 @@ void Entity_update(void) {
 					}
 				}
 			}
-		} else if (a->type==Entity_FIGHTER+2) {
+			break;
+		case Entity_FIGHTER+2:
 			copyPos(10, 5);
 			copyPos(9, 4);
 			copyPos(8, 3);
@@ -586,14 +591,15 @@ void Entity_update(void) {
 			a->vel.y -= 1;
 			a->age = 0;
 			a->type = Entity_FIGHTER+3;
-		} else if (a->type==Entity_FIGHTER+3) {
+			break;
+		case Entity_FIGHTER+3:
 			a->age++;
 			for (int b=0; b<11; b++) {
 				moveNode(&a->parts[b], 0.1, 0.999);
 				a->parts[b].pos.c += a->vel.c;
 			}
 			a->vel.c *= 0.5;
-			real e = (150-a->age)/150;
+			e = (150-a->age)/150;
 			pullNodes(a, 1, 2, 4*e,0.5,0.5);
 			pullNodes(a, 3, 5, 4*e,0.5,0.5);
 			pullNodes(a, 4, 7, 4*e,0.5,0.5);
@@ -603,7 +609,8 @@ void Entity_update(void) {
 				updateNode(&a->parts[b], 0.1, false, false);
 			if (a->age>150)
 				Entity_remove(a--);
-		} else if (a->type==Entity_BOX) {
+			break;
+		case Entity_BOX:
 			a->age++;
 			for (int b=0;b<4;b++)
 				moveNode(&a->parts[b],0.1,1);
@@ -633,10 +640,11 @@ void Entity_update(void) {
 			pullNodes(a,1,3,1.4142135*r,0.5,0.5);
 			for (int b=0;b<4;b++)
 				updateNode(&a->parts[b],0.5,false,true);
-			int t = checkTouching(a,0,6);
+			t = checkTouching(a,0,6);
 			if (t==3 || t==-5)
 				a->type = Entity_BOX+1;
-		} else if (a->type == Entity_BOX+1) {
+			break;
+		case Entity_BOX+1:
 			copyPos(7, 0);
 			copyPos(6, 3);
 			copyPos(5, 3);
@@ -646,22 +654,23 @@ void Entity_update(void) {
 			a->held = 0;
 			a->age = 0;
 			a->type = checkTouching(a,0,4)==-5 ? Entity_BOX+3 : Entity_BOX+2;
-		} else if (a->type==Entity_BOX+2 || a->type==Entity_BOX+3) {
+			break;
+		case Entity_BOX+2: case Entity_BOX+3:
 			a->age++;
 			checkDrag(a, 8);
 			for (int b=0;b<8;b++)
 				moveNode(&a->parts[b], 0.1, 0.999);
-			real r=(real)(150-a->age)/150*(a->meta+1)*4;
+			r=(real)(150-a->age)/150*(a->meta+1)*4;
 			pullNodes(a, 0, 1, r, 0.5, 0.5);
 			pullNodes(a, 2, 3, r, 0.5, 0.5);
 			pullNodes(a, 4, 5, r, 0.5, 0.5);
 			pullNodes(a, 6, 7, r, 0.5, 0.5);
-			if (a->type==Entity_BOX+2/*&&Parts_limits[Menu_dotLimit]-Parts_used>=1000*/) {
+			if (a->type==Entity_BOX+2 && Part_limit1000()) {
 				for (int b=0;b<5;b+=2) {
 					Point e = {.c=
 						(a->parts[b+1].oldPos.c - a->parts[b].oldPos.c) * Random_(1) + a->parts[b].oldPos.c
 					};
-					if (Part_pos2(e)[0]<=Part_BGFAN)
+					if (*Part_pos2(e)<=Part_BGFAN)
 						Part_create(e.x, e.y, Elem_FIRE);
 				}
 			}
