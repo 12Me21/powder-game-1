@@ -13,7 +13,7 @@
 
 #define PARTS_MAX 400000
 
-static Part parts_2[PARTS_MAX+6];
+static Part parts_2[PARTS_MAX+6] = {{.type=-5},{.type=-4},{.type=-3},{.type=-2},{.type=-1}};
 static Part* const parts = parts_2+5;
 Part* const Part_EMPTY = parts-5;
 Part* const Part_BGFAN = parts-4;
