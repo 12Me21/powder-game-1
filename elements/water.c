@@ -2,8 +2,7 @@ break; case Elem_WATER:
 {
 #ifdef UPDATE_PART
 	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
-	int dir = Random_int(8)-4; //-4 to 3
-	if (dir<0) dir=0; //0 to 3
+	int dir = atLeast(Random_int(8)-4, 0); //0 to 3
 	
 	Part* g = Part_dirNear(p->pos, dir);
 	if (g>=Part_0) {

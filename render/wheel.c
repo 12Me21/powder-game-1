@@ -1,7 +1,6 @@
 #include "../common.h"
 #include "../wheel.h"
 #include "draw.h"
-#include "bg.h"
 #include "../menu.h"
 
 extern const char Wheel_frames[16][32][32];

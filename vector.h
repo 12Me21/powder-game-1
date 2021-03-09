@@ -41,6 +41,3 @@ real clamp(real value, real min, real max); // Lc()
 
 #define PI ((real)M_PI)
 #define TAU (PI*2)
-
-#define sign(x) ((x)<0 ? -1 : (x)>0)
-#define atMost(x,lim) ((x)>(lim) ? (lim) : (x))

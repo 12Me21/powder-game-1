@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "../common.h"
-#include "draw.h"
 #include "../entity.h"
-#include "bg.h"
 #include "../elements.h"
 #include "../menu.h"
+#include "draw.h"
+#include "bg.h"
 
 static void line(Entity* e, int a, int b, Color c) {
 	Draw_vline(e->parts[a].pos, e->parts[b].pos, c);

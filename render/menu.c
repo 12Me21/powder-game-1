@@ -172,14 +172,10 @@ void Menu_render(void) {
 			Draw_line(Pen_x, Pen_y, Pen_x+a.x, Pen_y+a.y, 0xFF0000); // I swapped order here
 		}
 		
-		axis xStart = (Pen_oldx)-Menu_penSize;
-		axis yStart = (Pen_oldy)-Menu_penSize;
-		axis xEnd=xStart+2*Menu_penSize;
-		axis yEnd=yStart+2*Menu_penSize;
-		if (xStart<8) xStart=8;
-		if (yStart<8) yStart=8;
-		if (xEnd>W+8-1) xEnd=W+8-1;
-		if (yEnd>H+8-1) yEnd=H+8-1;
+		axis xStart = atLeast((Pen_oldx)-Menu_penSize, 8);
+		axis yStart = atLeast((Pen_oldy)-Menu_penSize, 8);
+		axis xEnd = atMost(xStart+2*Menu_penSize, W+8-1);
+		axis yEnd = atMost(yStart+2*Menu_penSize, H+8-1);
 		for (axis g=yStart; g<=yEnd; g++) {
 			for (axis f=xStart; f<=xEnd; f++) {
 				// circle
@@ -187,12 +183,9 @@ void Menu_render(void) {
 				axis dy = g-Pen_oldy;
 				if (Menu_penSize*Menu_penSize+1 < dx*dx+dy*dy) continue;
 				Color c = grp[g][f];
-				int r = RED(c) + 30;
-				if (r>255) r=255;
-				int gg = GREEN(c) + 30;
-				if (gg>255) gg=255;
-				int b = BLUE(c) + 30;
-				if (b>255) b=255;
+				int r = atMost(RED(c) + 30, 255);
+				int gg = atMost(GREEN(c) + 30, 255);
+				int b = atMost(BLUE(c) + 30, 255);
 				grp[g][f] = RGB(r,gg,b);
 			}
 		}
