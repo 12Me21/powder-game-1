@@ -10,6 +10,7 @@
 
 // we are assuming that colors are represented in a normal format etc.
 Color grp[HEIGHT][WIDTH];
+Color* const grp0 = &grp[0][0];
 Color Menu_grp[MENU_HEIGHT][MENU_WIDTH];
 
 extern const char Draw_FONT[96][12][8];
@@ -70,7 +71,7 @@ Color composite(Color base, Color new, int alpha) {
 	return red<<16|green<<8|blue;
 }
 
-void Draw_line(real x1, real y1, real x2, real y2, Color color) {
+void Draw_line(int x1, int y1, int x2, int y2, Color color) {
 	//x1 = floor(x1);
 	//y1 = floor(y1);
 	x2 -= x1;
@@ -88,11 +89,14 @@ void Draw_line(real x1, real y1, real x2, real y2, Color color) {
 		y2 = (y2>=0) ? 65536 : -65536;
 	}
 	x1=floor(65536*x1)+32768;
-	for (y1=floor(65536*y1)+32768; g>=0; g--,x1+=x2,y1+=y2) {
+	y1=floor(65536*y1)+32768;
+	for (; g>=0; g--) {
 		if (x1>=0 && (int)x1>>16<WIDTH && y1>=0 && (int)y1>>16<HEIGHT) {
 			Color* px = &grp[(int)y1>>16][(int)x1>>16];
 			*px = blendmode==0 ? color : composite(*px, color, color>>24&0xFF);
 		}
+		x1+=x2;
+		y1+=y2;
 	}
 }
 
@@ -101,6 +105,7 @@ void Draw_vline(Point v1, Point v2, Color color) {
 }
 
 void Draw_box(int x, int y, int width, int height, Color color) {
+	// optimize this
 	Draw_line(x,y,x+width-1,y,color);
 	Draw_line(x,y+height-1,x+width-1,y+height-1,color);
 	Draw_line(x,y,x,y+height-1,color);
@@ -108,35 +113,23 @@ void Draw_box(int x, int y, int width, int height, Color color) {
 }
 
 void Draw_mrectangle(int x, int y, int width, int height, Color color) {
-	width += x;
-	if (width>=WIDTH) width = WIDTH;
-	height += y;
-	if (height>=HEIGHT) height = HEIGHT;
-	if (x<0) x = 0;
-	if (y<0) y = 0;
+	width = between(width+x, 0, WIDTH);
+	height = between(height+y, 0, HEIGHT);
 	//if (blendmode==0) {
 	for (; y<height; y++) {
-		int i;
-		for (i=x; i<width; i++) {
+		for (int i=x; i<width; i++)
 			Menu_grp[y][i] = color;
-		}
 	}
 	//}
 }
 
 void Draw_rectangle(int x, int y, int width, int height, Color color) {
-	width += x;
-	if (width>=WIDTH) width = WIDTH;
-	height += y;
-	if (height>=HEIGHT) height = HEIGHT;
-	if (x<0) x = 0;
-	if (y<0) y = 0;
+	width = between(width+x, 0, WIDTH);
+	height = between(height+y, 0, HEIGHT);
 	//if (blendmode==0) {
 	for (; y<height; y++) {
-		int i;
-		for (i=x; i<width; i++) {
+		for (int i=x; i<width; i++)
 			grp[y][i] = color;
-		}
 	}
 	//}
 }
@@ -197,9 +190,8 @@ void Draw_centeredText(int x, int y, char* text, Color color){
 }
 
 void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Color color) {
-	int i,j;
-	forRange (j, =y1, <=y2, ++) {
-		forRange (i, =x1, <=x2, ++) {
+	for (int j=y1; j<=y2; j++) {
+		for (int i=x1; i<=x2; i++) {
 			if (x1+1>i || i>x2-1 || y1+1>j || j>y2-1) {
 				int x = bx+i;
 				int y = by+j;
@@ -211,11 +203,11 @@ void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Col
 				      (player2&&i==x1&&j==y2)||
 				      (player2&&i==x2&&j==y2)
 				      )) {
-					Color* dest = Draw_pxRef(x, y);
-					if (*dest == color)
-						*dest=0;
+					Color* dest = &grp[y][x];
+					if (*dest==color)
+						*dest = 0;
 					else
-						*dest=color;
+						*dest = color;
 				}
 			}
 		}
@@ -223,8 +215,7 @@ void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Col
 }
 
 void Draw_ball(int x, int y, Color color) {
-	int j;
-	forRange (j, =-1, <=1, ++) {
+	for (int j=-1; j<=1; j++) {
 		grp[y-2][x+j] = color;
 		grp[y+2][x+j] = color;
 		grp[y+j][x-2] = color;

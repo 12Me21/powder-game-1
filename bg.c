@@ -8,9 +8,6 @@
 #include "cell.h"
 #include "bg.h"
 
-extern Color grp[HEIGHT][WIDTH];
-Color* grp0 = &grp[0][0];
-
 BgPixel Bg_pixels[HEIGHT][WIDTH] = {0};
 BgPixel* const Bg_pixels0 = Bg_pixels[0];
 BgPixel* const Bg_pixels_end = &Bg_pixels[HEIGHT-1][WIDTH-1]+1;
@@ -26,10 +23,9 @@ void Bg_render(void) {
 	Offset i;
 	switch (Menu_bgMode) {
 	case Bg_NONE:
-	default:
-		for (Offset i=0;i<WIDTH*HEIGHT;i++) {
+	default:;
+		for (Offset i=0;i<WIDTH*HEIGHT;i++)
 			grp0[i] = Part_grid0[i]==Part_BLOCK ? 0x606060 : 0;
-		}
 		break;
 	case Bg_AIR: case Bg_LINE:;
 		for (y=2; y<(H+8)/4; y++) {
