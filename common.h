@@ -53,4 +53,8 @@ typedef int8_t Elem;
 #define AUTORUN __attribute__((constructor)) static void init_##__LINE__(void)
 
 //#define LAMBDA(type, def) ({ type _temp def; _temp; })
-#define between(a,b,c) (a<b ? b : a>c ? c : a)
+
+#define sign(x) ({__auto_type z = (x); (z>0)-(z<0); })
+#define atMost(x,lim) ({__auto_type z = (x); __auto_type a = (lim); if (z>a) z=a; z; })
+#define atLeast(x,lim) ({__auto_type z = (x); __auto_type a = (lim); if (z<a) z=a; z; })
+#define between(x,a,b) ({__auto_type z = (x); if (z<a) z=a; else if (z>b) z=b; z; })

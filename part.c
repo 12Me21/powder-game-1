@@ -5,11 +5,9 @@
 #include "vector.h"
 #include "elements.h"
 #include "part.h"
-#include "render/bg.h"
 #include "menu.h"
 #include "input.h"
 #include "cell.h"
-
 
 #define PARTS_MAX 400000
 
@@ -179,15 +177,10 @@ void Part_update(void) {
 
 // this is a very common pattern used by elements for explosions
 void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis)) {
-	axis n=x-radius;
-	if (n<4) n=4;
-	axis z=y-radius;
-	if (z<4) z=4;
-	axis v=x+radius;
-	if (v>WIDTH-4-1) v=WIDTH-4-1;
-	axis r=y+radius;
-	if (r>H+12-1)
-		r = H+12-1;
+	axis n = atLeast(x-radius, 4);
+	axis z = atLeast(y-radius, 4);
+	axis v = atMost(x+radius, WIDTH-4-1);
+	axis r = atMost(y+radius, HEIGHT-4-1);
 	for (axis b=z;b<=r;b++)
 		for (axis e=n;e<=v;e++)
 			if ((e-x)*(e-x)+(b-y)*(b-y)<=radius*radius)

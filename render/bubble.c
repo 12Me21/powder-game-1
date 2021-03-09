@@ -1,7 +1,6 @@
 #include "../common.h"
 #include "draw.h"
 #include "../menu.h"
-#include "bg.h"
 #include "../bubble.h"
 
 void Bubble_render(void) {

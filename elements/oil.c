@@ -2,8 +2,7 @@ break; case Elem_OIL:
 {
 #ifdef UPDATE_PART
 	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
-	int dir = Random_int(8)-4;
-	if (dir<0) dir=0;
+	int dir = atLeast(Random_int(8)-4, 0);
 	
 	Part* g = Part_dirNear(p->pos, dir);
 	if (g>=Part_0) {

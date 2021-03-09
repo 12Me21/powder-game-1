@@ -35,14 +35,10 @@ void Bg_render(void) {
 					Draw_rectangle(x*4, y*4, 4, 4, 0x606060);
 				} else {
 					int q=0, g=0;
-					if (block->pres>0) {
-						g = block->pres*48;
-						if (g>96) g=96;
-					}
-					if (block->pres<0) {
-						q = -block->pres*48;
-						if (q>96) q=96;
-					}
+					if (block->pres>0)
+						g = atMost(block->pres*48, 96);
+					if (block->pres<0)
+						q = atMost(-block->pres*48, 96);
 					Draw_rectangle(x*4, y*4, 4, 4, RGB(0,g,q));
 				}
 			}
@@ -53,14 +49,11 @@ void Bg_render(void) {
 					Point e = c->vel;
 					real r = Vec_fastNormalize(&e);
 					if (r>=0.2) {
-						if (r>8) r=8;
-						int f = 48*r;
-						if (f>96) f=96;
+						r = atMost(r, 8);
+						int f = atMost(48*r, 96);
 						int d = c-Part_blocks[0];
-						int n = d/(WIDTH/4);
-						d = d%(WIDTH/4);
-						n*=4;
-						d*=4;
+						int n = d/(WIDTH/4)*4;
+						d = d%(WIDTH/4)*4;
 						Draw_line(d+e.x*r*10, n+e.y*r*10, d, n, f<<16);
 					}
 				}
@@ -123,7 +116,7 @@ void Bg_render(void) {
 				real vx = fabs(e->vel.x);
 				real vy = fabs(e->vel.y);
 				if (vx!=0 || vy!=0) {
-					real q = 1/(vx+vy);
+					real q = 1.0/(vx+vy);
 					int gg = vx*q*0xFFFF;
 					int qq = vy*q*0xFFFF;
 					axis sx = sign(e->vel.x);
@@ -144,17 +137,17 @@ void Bg_render(void) {
 				}
 			}
 		}
-		inline int ff(int x) {
+		/*inline int ff(int x) {
 			if (x>255) return 255;
 			return x;
-		}
+			}*/
 		for (y=8;y<H+8;y++) {
 			for (x=8;x<W+8;x++) {
 				BgPixel* p = &Bg_pixels[y][x];
 				grp[y][x] = Part_at[y][x]==Part_BLOCK ? 0x606060 : RGB(
-					ff(p->auraR>>16),
-					ff(p->auraG>>16),
-					ff(p->auraB>>16)
+					atMost(p->auraR>>16, 255),
+					atMost(p->auraG>>16, 255),
+					atMost(p->auraB>>16, 255)
 				);
 			}
 		}
@@ -225,7 +218,7 @@ void Bg_render(void) {
 				if (cell->block!=0) continue;
 				real vel = Vec_fastDist(cell->vel);
 				if (vel<0.2) continue;
-				if (vel>2) vel=2;
+				vel = atMost(vel, 2);
 				int g = atMost(vel*48, 96);
 				int r = 0;
 				if (cell->pres>0)
@@ -388,10 +381,10 @@ void Bg_render2(void) {
 	}
 	for (Offset a=(HEIGHT-8)*WIDTH; a>=0; a--) {
 		int l = Bg_pixels0[a].light;
-		if (l<1)
+		if (l<=0)
 			grp0[a] = 0;
 		else {
-			if (l>255) l=255;
+			l = atMost(l, 255);
 			int r = ((RED(grp0[a]))*l)/256;
 			int g = ((GREEN(grp0[a]))*l)/256;
 			int b = ((BLUE(grp0[a]))*l)/256;

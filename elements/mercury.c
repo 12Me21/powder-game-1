@@ -2,8 +2,7 @@ break; case Elem_MERCURY:
 {
 #ifdef UPDATE_PART
 	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
-	int dir = Random_int(8);
-	if (dir>3) dir=3;
+	int dir = atMost(Random_int(8), 3);
 	
 	Part* g = Part_dirNear(p->pos, dir);
 	if (g>=Part_0) {

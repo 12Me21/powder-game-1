@@ -92,7 +92,7 @@ void Menu_update(void) {
 				if (Menu_penSize>1 || !Menu_paused || Menu_zoomLevel>1 || vx || vy || Menu_penMode == Pen_PAINT) {
 					axis w = abs(vx);
 					if (w<abs(vy)) w=abs(vy);
-					if (w<1) w=1;
+					w = atLeast(w, 1);
 					vx = (vx<<8)/w;
 					vy = (vy<<8)/w;
 					axis x2 = (Pen_oldx<<8)+127;
@@ -221,7 +221,7 @@ void Menu_update(void) {
 					axis r = Pen_y/4 - Pen_oldy/4;
 					axis w = abs(n);
 					if (abs(r)>w) w=abs(r);
-					if (1>w) w=1;
+					w = atLeast(w, 1);
 					n = (n<<8)/w;
 					r = (r<<8)/w;
 					int y = (Pen_oldx/4<<8)-127;
