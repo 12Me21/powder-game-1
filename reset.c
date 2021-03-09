@@ -48,5 +48,6 @@ void Sim_reset(bool a) {
 				if (Part_blocks[y/4][x/4].block==1)
 					Part_at[y][x] = Part_BLOCK;
 	}
+	Part_limit = Part_LIMITS[Menu_dotLimit];
 	Bg_reset();
 }

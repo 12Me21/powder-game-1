@@ -13,13 +13,11 @@
 
 static Color normalMenuImage[MENU_HEIGHT][MENU_WIDTH];
 
-static const axis col1 = 8;
-static const axis col2 = 64;
-static const axis col3 = 120;
-static const axis col4 = 176;
-static const axis col5 = 232;
-static const axis col6 = 288;
-static const axis col7 = 344;
+enum ButtonX {
+	col5 = 232,
+	col6 = 288,
+	col7 = 344,
+};
 
 enum RowY {
 	row1 = 3,
@@ -37,52 +35,25 @@ enum RowY {
 static const axis rowLast = 143;
 
 AUTORUN {
-	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
 	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
-	Draw_text(col1,row1,"POWDER",0xF2BD6B,0);
-	Draw_text(col1,row2,"WATER",0x4040FF,0);
-	Draw_text(col1,row3,"FIRE",0xFF4040,0);
-	Draw_text(col1,row4,"SEED",0x90C040,0);
-	Draw_text(col1,row5,"WOOD",0x805020,0);
-	// -2 spaced text needs to be drawn this special way
-	// maybe fix this
-	Draw_spacedText(col1,row6,"G-POWDER",-1,0,-2);
-	Draw_spacedText(col1,row6,"G-POWDER",0xB08050,-1,-2);
-	Draw_text(col1,row7,"FAN",0x8080FF,0);
-	Draw_text(col1,row8,"ICE",0xD0D0FF,0);
-	Draw_text(col1,row9,"SNOW",0xFFFFFF,0);
-	Draw_text(col1,row10,"STEAM",0xE0E0E0,0);
-		
-	Draw_text(col2,row1,"S-BALL",0xFF40A0,0);
-	Draw_text(col2,row2,"CLONE",0x907010,0);
-	Draw_spacedText(col2,row3,"F-WORKS",0xFF9966,0,-1);
-	Draw_text(col2,row4,"OIL",0x803020,0);
-	Draw_text(col2,row5,"C-4",0xFFFFCC,0);
-	Draw_text(col2,row6,"STONE",0x808080,0);
-	Draw_text(col2,row7,"MAGMA",0xFF6633,0);
-	Draw_text(col2,row8,"VIRUS",0x800080,0);
-	Draw_text(col2,row9,"NITRO",0x447700,0);
-	Draw_text(col2,row10,"ANT",0xC080C0,0);
-		
-	Draw_text(col3,row1,"TORCH",0xFFA020,0);
-	Draw_text(col3,row2,"GAS",0xCC9999,0);
-	Draw_text(col3,row3,"SOAPY",0xE0E0E0,0);
-	Draw_spacedText(col3,row4,"THUNDER",0xFFFF20,0,-1);
-	Draw_text(col3,row5,"METAL",0x404040,0);
-	Draw_text(col3,row6,"BOMB",0x666600,0);
-	Draw_text(col3,row7,"LASER",0xCC0000,0);
-	Draw_text(col3,row8,"ACID",0xCCFF00,0);
-	Draw_text(col3,row9,"VINE",0x00BB00,0);
-	Draw_text(col3,row10,"SALT",0xFFFFFF,0);
-		
-	Draw_spacedText(col4,row1,"S-WATER",0x3399FF,0,-1);
-	Draw_text(col4,row2,"GLASS",0x404040,0);
-	Draw_text(col4,row3,"BIRD",0x807050,0);
-	Draw_spacedText(col4,row4,"MERCURY",0xAAAAAA,0,-1);
-	Draw_text(col4,row5,"SPARK",0xFFCC33,0);
-	Draw_text(col4,row6,"FUSE",0x443322,0);
-	Draw_text(col4,row7,"CLOUD",0xCCCCCC,0);
-	Draw_text(col4,row8,"PUMP",0x003333,0);
+	
+	void drawLabel(int pos, Elem elem) {
+		axis y = 3+(pos%10)*14;
+		axis x = 8+(pos/10)*56;
+		const ElementDef* d = &ELEMENTS[elem];
+		int spacing = 0;
+		int l = strlen(d->name);
+		if (l>=7)
+			spacing = -1;
+		if (l>=8)
+			spacing = -2;
+		Draw_spacedText(x,y,d->name,d->color,0, spacing);
+	}
+	
+	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
+
+	for (int i=0; i<40; i++)
+		drawLabel(i, Menu_BUTTONS[i].element);
 		
 	Draw_text(col5,row1,"WIND",0x8080FF,0);
 	Draw_text(col5,row2,"AIR",0x8080FF,0);
@@ -114,7 +85,7 @@ AUTORUN {
 	Draw_spacedText(col6,row8,"SCALE",0xFFFFFF,0,-1);
 	Draw_spacedText(col6,row9,"SPEEDx",0xFFFFFF,0,-1);
 	Draw_spacedText(col6-1,row10,"Start",-1,0,-3);
-	Draw_spacedText(col6-1,row10,"Start",0xFFFFFF,-1,-3);
+	Draw_spacedText(col6-1,row10,"Start",0xFFFFFF,0,-3);
 	Draw_spacedText(col6+25,row10,"Stop",-1,0,-2);
 	Draw_spacedText(col6+25,row10,"Stop",0xFFFFFF,-1,-2);
 	
@@ -131,7 +102,8 @@ AUTORUN {
 	Draw_spacedText(col7,row8,"BG-",0xFFFFFF,-1,-2);
 	Draw_text(col7,row9,"DOT ",0xFFFFFF,0);
 	Draw_text(col7,row10,"RESET",0xFFFFFF,0);
-	
+
+	Draw_spacedText(0,rowLast,"   fps",-1,0,0);
 	Draw_spacedText(56,rowLast,"x    y",-1,0,-1);
 	Draw_spacedText(133,rowLast,"dot",-1,0,-1);
 	memcpy(normalMenuImage, Menu_grp, sizeof(normalMenuImage));
@@ -263,18 +235,18 @@ void Menu_render(void) {
 	str = (char*[]){"none","air","line","blur","shade","aura","light","toon","mesh","gray","track","dark","TG","siluet"}[Menu_bgMode];
 	Draw_spacedText(8+336+6*3,row8,str,-1,0,-2);
 	Draw_spacedText(8+336+6*3,row8,str,0xFFFFFF,-1,-2);
-	Draw_text(8+336+8*4,row9,(char*[]){"S","M","L"}[Menu_dotLimit],0xFFFFFF,0);
+	Draw_text(8+336+8*4,row9,(char*[]){"S","M","L","X"}[Menu_dotLimit],0xFFFFFF,0);
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_leftSelection/Menu_BUTTONROWS),11-8+Menu_leftSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0xFF0000);
 	///rectangle(4+0+56*floor(Menu_middleSelection/10),3+4+Menu_middleSelection%10*14,3,3,0x00FF00);
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_rightSelection/Menu_BUTTONROWS),11+Menu_rightSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0x0000FF);
-	Draw_printf(col2-8,rowLast,-1,0,-1," %d",Pen_x-8);
-	Draw_printf(col2-8,rowLast,-1,0,-1,"      %d",Pen_y-8);
-	Draw_printf(141-8,rowLast,-1,0,-1,"   %d", Part_next-Part_0);
+	Draw_printf(56,rowLast,0x808080,0,-1," %d",Pen_x-8);
+	Draw_printf(56,rowLast,0x808080,0,-1,"      %d",Pen_y-8);
+	Draw_printf(141-8,rowLast,0x808080,0,-1,"   %d", Part_limit - (Part_next-Part_0));
 	if (Menu_fps<=999)
-		Draw_printf(0,rowLast,-1,0,0,"%3dfps",Menu_fps);
+		Draw_printf(0,rowLast,0x808080,0,0,"%3d",Menu_fps);
 	else {
 		int d = log10f(Menu_fps);
-		Draw_printf(0,rowLast,-1,0,0,"%de%dfps", (int)roundf(Menu_fps/powf(10,d)), d);
+		Draw_printf(0,rowLast,0x808080,0,0,"%de%d", (int)roundf(Menu_fps/powf(10,d)), d);
 	}
 	//if(sldebug==1){
 	//	k.drawtext(64,451,Sc+"sl",0xFFFFFF,0);

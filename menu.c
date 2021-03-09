@@ -3,6 +3,7 @@
 #include <math.h>
 #include "common.h"
 #include "input.h"
+#include "part.h"
 #include "menu.h"
 //#include "bg.h"
 #include "platform.h"
@@ -17,8 +18,6 @@ axis Pen_oldx=0, Pen_oldy=0;
 Point Menu_pen = {0,0};
 Point Menu_penOld = {0,0};
 Point Pen_dir = {0,0};
-
-const int Part_LIMITS[3] = {10000, 20000, 40000}; //todo;
 
 static void clampZoom(void) {
 	Menu_zoomX = clamp(Menu_zoomX, 0, W-ceil((real)W/(1<<Menu_zoomLevel)));
