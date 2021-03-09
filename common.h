@@ -22,10 +22,16 @@ typedef int32_t axis;
 typedef int32_t Offset;
 typedef int8_t Elem;
 
+//#define SWITCH(cond) switch(cond) {
+//#define CASE break; case
+//#define OR : case
+//#define DEFAULT break; default:
+//#define OR_DEFAULT : default
+
 #define when(x) break;case x
 #define orwhen : case
 #define otherwise break;default
-#define forRange(var, start, cond, step) for(var start; var cond; var step)
+//#define forRange(var, start, cond, step) for(var start; var cond; var step)
 
 // size of visible area
 #define W 400
@@ -47,3 +53,4 @@ typedef int8_t Elem;
 #define AUTORUN __attribute__((constructor)) static void init_##__LINE__(void)
 
 //#define LAMBDA(type, def) ({ type _temp def; _temp; })
+#define between(a,b,c) (a<b ? b : a>c ? c : a)

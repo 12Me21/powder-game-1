@@ -113,8 +113,7 @@ void Cell_update(void) {
 			pcheck( 1, 1,0.044194173);
 		}
 	}
-	Block* c;
-	forRange (c, =Part_blocks[0], <Part_blocks_end, ++) {
+	for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++) {
 		if (c->block != -1) { //woah -1??
 			c->vel = c->vel2;
 			c->pres = c->pres2;
