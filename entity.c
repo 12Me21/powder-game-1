@@ -651,7 +651,7 @@ void Entity_update(void) {
 			checkDrag(a, 8);
 			for (int b=0;b<8;b++)
 				moveNode(&a->parts[b], 0.1, 0.999);
-			real r=(150-a->age)/150*(a->meta+1)*4;
+			real r=(real)(150-a->age)/150*(a->meta+1)*4;
 			pullNodes(a, 0, 1, r, 0.5, 0.5);
 			pullNodes(a, 2, 3, r, 0.5, 0.5);
 			pullNodes(a, 4, 5, r, 0.5, 0.5);
