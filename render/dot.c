@@ -1,10 +1,9 @@
-#include "common.h"
-#include "vector.h"
-#include "elements.h"
+#include "../common.h"
+#include "../elements.h"
 #include "draw.h"
-#include "part.h"
+#include "../part.h"
 #include "bg.h"
-#include "menu.h"
+#include "../menu.h"
 
 void Dot_render(void) {
 	if (Menu_bgMode==Bg_TOON)

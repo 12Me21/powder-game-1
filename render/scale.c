@@ -1,6 +1,6 @@
-#include "common.h"
+#include "../common.h"
 #include "draw.h"
-#include "menu.h"
+#include "../menu.h"
 
 void Scale_render(void) {
 	if (!Menu_zoomLevel)

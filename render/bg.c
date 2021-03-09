@@ -1,11 +1,11 @@
 #include <string.h>
 #include <math.h> //todo: define macros for abs/fabs etc.
-#include "common.h"
-#include "menu.h"
+#include "../common.h"
+#include "../menu.h"
 #include "draw.h"
-#include "elements.h"
-#include "part.h"
-#include "cell.h"
+#include "../elements.h"
+#include "../part.h"
+#include "../cell.h"
 #include "bg.h"
 
 BgPixel Bg_pixels[HEIGHT][WIDTH] = {0};

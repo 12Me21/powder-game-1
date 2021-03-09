@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
-#include "common.h"
-#include "vector.h"
+#include "../common.h"
+#include "../vector.h"
 
 // main framebuffer
 

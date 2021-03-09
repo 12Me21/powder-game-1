@@ -5,7 +5,7 @@
 #include "vector.h"
 #include "elements.h"
 #include "part.h"
-#include "bg.h"
+#include "render/bg.h"
 #include "menu.h"
 #include "input.h"
 #include "cell.h"

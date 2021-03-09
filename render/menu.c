@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "common.h"
-#include "menu.h"
-#include "elements.h"
-#include "part.h"
+#include "../common.h"
+#include "../menu.h"
+#include "../elements.h"
+#include "../part.h"
 #include "bg.h"
 #include "draw.h"
-#include "entity.h"
-#include "save.h"
-#include "input.h"
+#include "../entity.h"
+#include "../save.h"
+#include "../input.h"
 
 static Color normalMenuImage[MENU_HEIGHT][MENU_WIDTH];
 
