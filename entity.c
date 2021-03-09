@@ -6,7 +6,7 @@
 #include "vector.h"
 #include "elements.h"
 #include "menu.h" //todo: split this into sim properties (edge mode etc.) and others
-#include "bg.h"
+#include "render/bg.h"
 #include "part.h"
 #include "input.h"
 #include "entity.h"
@@ -139,7 +139,6 @@ void checkDrag(Entity* e, int last) {
 					e->held = i+1;
 				}
 			}
-			printf("got node %d\n", e->held-1);
 		}
 	// being held
 	} else if (Menu_dragging) {

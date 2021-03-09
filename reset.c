@@ -2,7 +2,7 @@
 #include "common.h"
 #include "sim.h"
 #include "menu.h"
-#include "bg.h"
+#include "render/bg.h"
 
 // todo: full reset function
 void Sim_reset(bool a) {

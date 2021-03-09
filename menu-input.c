@@ -1,8 +1,8 @@
 #include <math.h>
 #include "input.h"
 #include "menu.h"
-#include "bg.h"
 #include "reset.h"
+#include "render/bg.h"
 
 int wa; //this is the state when navigating the upload menu
 

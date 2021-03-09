@@ -4,7 +4,7 @@
 #include "common.h"
 #include "input.h"
 #include "menu.h"
-#include "bg.h"
+//#include "bg.h"
 #include "platform.h"
 #include "sim.h"
 

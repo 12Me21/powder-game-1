@@ -4,7 +4,7 @@
 #include "common.h"
 #include "input.h"
 #include "save.h"
-#include "draw.h"
+#include "render/draw.h"
 #include "vector.h"
 
 #include <X11/Xlib.h>

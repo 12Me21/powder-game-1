@@ -4,10 +4,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "common.h"
+#include "../common.h"
 #include "draw.h"
-#include "part.h"
-#include "elements.h"
+#include "../elements.h"
 
 // we are assuming that colors are represented in a normal format etc.
 Color grp[HEIGHT][WIDTH];

@@ -1,7 +1,7 @@
-#include "ball.h"
-#include "elements.h"
+#include "../ball.h"
+#include "../elements.h"
 #include "bg.h"
-#include "menu.h"
+#include "../menu.h"
 #include "draw.h"
 
 void Ball_render(void) {
