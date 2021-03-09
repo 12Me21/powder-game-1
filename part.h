@@ -4,6 +4,10 @@
 #include "vector.h"
 #include "cell.h"
 
+#define Part_MAX (WIDTH*HEIGHT+1000)
+
+extern int Part_limit;
+
 typedef struct Part {
 	Point pos;    // L[]
 	Point vel;    // E[]

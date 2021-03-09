@@ -149,6 +149,7 @@ void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format,
 void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacing) {
 	char Y = color != (Color)-1 ? '.' : 'x'; //todo
 	char Ka = bg != (Color)-1 ? '#' : 'x';
+	int last[12] = {0};
 	for (; *text; text++, x+= 8+spacing) {
 		unsigned char character = *text-32;
 		if (character!=0) {
@@ -159,10 +160,13 @@ void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacin
 			for (iy=0; iy<12; iy++) {
 				for (ix=0; ix<8; ix++) {
 					char n = Draw_FONT[character][iy][ix];
+					if (spacing==-2 && ix==6)
+						last[iy] = n==Y;
 					if (n == Y)
 						Menu_grp[y+iy][x+ix] = color;
 					if (n == Ka)
-						Menu_grp[y+iy][x+ix] = bg;
+						if (!(spacing && ix==0 && last[iy]))
+							Menu_grp[y+iy][x+ix] = bg;
 				}
 			}
 			if (j!=0)

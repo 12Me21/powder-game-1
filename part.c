@@ -9,9 +9,10 @@
 #include "input.h"
 #include "cell.h"
 
-#define PARTS_MAX 200000
+int Part_limit = 0;
+const int Part_LIMITS[] = {20000, 30000, 40000, Part_MAX};
 
-static Part parts_2[PARTS_MAX+6] = {{.type=-5},{.type=-4},{.type=-3},{.type=-2},{.type=-1}};
+static Part parts_2[Part_MAX+6] = {{.type=-5},{.type=-4},{.type=-3},{.type=-2},{.type=-1}};
 static Part* const parts = parts_2+5;
 Part* const Part_EMPTY = parts-5;
 Part* const Part_BGFAN = parts-4;
@@ -35,12 +36,12 @@ int* Part_updateCounts(void) {
 }
 
 bool Part_limit1000(void) {
-	return Part_next+1000 < parts+PARTS_MAX;
+	return Part_next+1000 < parts+Part_limit;
 }
 
 // todo: make a create that takes a vector
 Part* Part_create(real x, real y, Elem element) {
-	if (Part_next>=parts+PARTS_MAX || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
+	if (Part_next>=parts+Part_limit || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
 	*Part_next = (Part){
 		{x,y},
