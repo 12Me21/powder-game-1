@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -72,31 +73,24 @@ Color composite(Color base, Color new, int alpha) {
 }
 
 void Draw_line(int x1, int y1, int x2, int y2, Color color) {
-	//x1 = floor(x1);
-	//y1 = floor(y1);
-	x2 -= x1;
-	y2 -= y1;
-	real g;
-	if (fabs(x2) >= fabs(y2)) {
-		g = floor(fabs(x2));
-		if (g!=0)
-			y2 = floor(65536*y2/g);
-		x2 = (x2>=0) ? 65536 : -65536;
-	} else {
-		g = floor(fabs(y2));
-		if (g!=0)
-			x2 = floor(65536*x2/g);
-		y2 = (y2>=0) ? 65536 : -65536;
-	}
-	x1=floor(65536*x1)+32768;
-	y1=floor(65536*y1)+32768;
-	for (; g>=0; g--) {
-		if (x1>=0 && (int)x1>>16<WIDTH && y1>=0 && (int)y1>>16<HEIGHT) {
-			Color* px = &grp[(int)y1>>16][(int)x1>>16];
-			*px = blendmode==0 ? color : composite(*px, color, color>>24&0xFF);
-		}
-		x1+=x2;
-		y1+=y2;
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+
+	int n = abs(dx);
+	if (abs(dy)>n) n = abs(dy);
+	if (n<1) n = 1;
+	
+	dx = (dx<<8)/n;
+	dy = (dy<<8)/n;
+	x1 = (x1<<8)+127;
+	y1 = (y1<<8)+127;
+	for(int i=0; i<=n; i++) {
+		x2 = x1>>8;
+		y2 = y1>>8;
+		if (x2>=0 && x2<WIDTH && y2>=0 && y2<HEIGHT)
+			grp[y2][x2] = color;
+		x1 += dx;
+		y1 += dy;
 	}
 }
 
