@@ -186,41 +186,41 @@ static void updateNode(EntityNode* node, real dd, bool noCollide, bool held) {
 	node->pos = node->oldPos;
 	if (dd!=0) {
 		Block* cell = &Part_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
-		e.c += cell->vel.c*dd;
+		e.xy += cell->vel.xy*dd;
 	}
 	int d;
 	if (!held) {
 		real f = Vec_fastDist(e)+1;
 		if (f>=8) {
-			e.c *= 3.8/f;
+			e.xy *= 3.8/f;
 			d = 2;
 		} else if (f>=4) {
-			e.c *= 0.5;
+			e.xy *= 0.5;
 			d = 2;
 		} else
 			d = 1;
 	} else {
 		d = (int)(Vec_fastDist(e)/3)+1;
-		e.c *= 1/d;
+		e.xy *= 1.0/d;
 	}
 	node->touching = 0;
 	if (noCollide) {
-		e.c *= d;
-		node->pos.c += e.c;
+		e.xy *= d;
+		node->pos.xy += e.xy;
 		node->pos.x = clamp(node->pos.x, 4, WIDTH-5);
 		node->pos.y = clamp(node->pos.y, 4, HEIGHT-5);
 	} else {
 		for (int c=0; c<d; c++) {
 			double b = node->pos.y + e.y;
-			if (b<4 || b>=H+12) {
+			if (b<4 || b>=HEIGHT-4) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
 			//added
-			if (node->pos.x<0 || node->pos.x>=W) {
-				node->touching = Elem_EMPTY;
-				break;
-			}
+			//if (node->pos.x<0 || node->pos.x>=W) {
+			//	node->touching = Elem_EMPTY;
+			//	break;
+			//}
 			Part* part = *Part_pos(node->pos.x, b);
 			int type = part->type;
 			if (part <= Part_BGFAN) {
@@ -228,7 +228,7 @@ static void updateNode(EntityNode* node, real dd, bool noCollide, bool held) {
 			} else if (part <= Part_BLOCK) {
 				e.x *= 0.5;
 				e.y = -e.y;
-				node->touching = type;
+				node->touching = type; //hhh
 			} else {
 				e.x *= ELEMENTS[type].friction;
 				node->touching = type;
@@ -244,7 +244,7 @@ static void updateNode(EntityNode* node, real dd, bool noCollide, bool held) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			part = (*Part_at)[Part_ofs(b, part->pos.y)];
+			part = *Part_pos(b, node->pos.y);
 			type = part->type;
 			if (part <= Part_BGFAN) {
 				node->pos.x = b;
