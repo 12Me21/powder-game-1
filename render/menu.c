@@ -137,60 +137,64 @@ AUTORUN {
 	memcpy(normalMenuImage, Menu_grp, sizeof(normalMenuImage));
 }
 
+static void drawCursor() {
+	if (Menu_leftSelection==Menu_BLOCK||Menu_leftSelection==Menu_ERASE/*||Menu_leftSelection==Menu_CLEAR||Menu_rightSelection==Menu_BLOCK||Menu_rightSelection==Menu_ERASE||Menu_rightSelection==Menu_CLEAR*/) {
+		const char* paths[] = {
+			"",
+			"111222333444",
+			"1111111222222233333334444444",
+			"11111111111222222222223333333333344444444444",
+			"111111122221111222222233332222333333344443333444444411114444",
+			"1111111111122221111222222222223333222233333333333444433334444444444411114444",
+			"11111111111111122221111222222222222222333322223333333333333334444333344444444444444411114444",
+			"111111111112222111122221111222222222223333222233332222333333333334444333344443333444444444441111444411114444",
+			"1111111111111112222111122221111222222222222222333322223333222233333333333333344443333444433334444444444444441111444411114444",
+			"11111111111111111112222111122221111222222222222222222233332222333322223333333333333333333444433334444333344444444444444444441111444411114444",
+			"111111111111111222211111111222222221111222222222222222333322222222333333332222333333333333333444433333333444444443333444444444444444111144444444111111114444",
+		};
+		axis cx = ((Pen_oldx>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,2,2,2,3,3,3,4}[Menu_penSize])*4;
+		axis cy = ((Pen_oldy>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,1,1,1,1,1,1,1}[Menu_penSize])*4;
+		for (const char* c=paths[Menu_penSize]; *c; c++) {
+			axis x = clamp(cx, 0, WIDTH-1);
+			axis y = clamp(cy, 0, H+8);
+			grp[y][x] = grp[y][x] ^ 0xFFFFFF;
+			switch (*c) {
+			when('1'):; cx++;
+			when('2'):; cy++;
+			when('3'):; cx--;
+			when('4'):; cy--;
+			}
+		}
+	}
+	/*if (Menu_leftSelection==Menu_FAN||Menu_rightSelection==Menu_FAN||Menu_leftSelection==Menu_WIND||Menu_rightSelection==Menu_WIND||Menu_leftSelection==Menu_LASER||Menu_rightSelection==Menu_LASER){ //fan,wind,laser (buttons, not element ids)
+		Point a = Vec_mul2(Pen_dir, 30);
+		Draw_line(Pen_x, Pen_y, Pen_x+a.x, Pen_y+a.y, 0xFF0000); // I swapped order here
+		}*/
+		
+	axis xStart = atLeast((Pen_oldx)-Menu_penSize, 8);
+	axis yStart = atLeast((Pen_oldy)-Menu_penSize, 8);
+	axis xEnd = atMost(xStart+2*Menu_penSize, W+8-1);
+	axis yEnd = atMost(yStart+2*Menu_penSize, H+8-1);
+	for (axis g=yStart; g<=yEnd; g++) {
+		for (axis f=xStart; f<=xEnd; f++) {
+			// circle
+			axis dx = f-Pen_oldx;
+			axis dy = g-Pen_oldy;
+			if (Menu_penSize*Menu_penSize+1 < dx*dx+dy*dy) continue;
+			/*Color c = grp[g][f];
+			int r = atMost(RED(c) + 30, 255);
+			int gg = atMost(GREEN(c) + 30, 255);
+			int b = atMost(BLUE(c) + 30, 255);*/
+			grp[g][f] ^= 0xFFFFFF;
+		}
+	}
+	
+	//Draw_rectangle(Pen_x, Pen_y, 1, 1, 0xFF0000);
+}
+
 void Menu_render(void) {
 	if (!Menu_cursorInMenu /*&& !wa*/) {
-		if (Menu_leftSelection==Menu_BLOCK||Menu_leftSelection==Menu_ERASE||Menu_leftSelection==Menu_CLEAR||Menu_rightSelection==Menu_BLOCK||Menu_rightSelection==Menu_ERASE||Menu_rightSelection==Menu_CLEAR) {
-			const char* paths[] = {
-				"",
-				"111222333444",
-				"1111111222222233333334444444",
-				"11111111111222222222223333333333344444444444",
-				"111111122221111222222233332222333333344443333444444411114444",
-				"1111111111122221111222222222223333222233333333333444433334444444444411114444",
-				"11111111111111122221111222222222222222333322223333333333333334444333344444444444444411114444",
-				"111111111112222111122221111222222222223333222233332222333333333334444333344443333444444444441111444411114444",
-				"1111111111111112222111122221111222222222222222333322223333222233333333333333344443333444433334444444444444441111444411114444",
-				"11111111111111111112222111122221111222222222222222222233332222333322223333333333333333333444433334444333344444444444444444441111444411114444",
-				"111111111111111222211111111222222221111222222222222222333322222222333333332222333333333333333444433333333444444443333444444444444444111144444444111111114444",
-			};
-			axis cy = ((Pen_oldy>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,2,2,2,3,3,3,4}[Menu_penSize])*4;
-			axis cx = ((Pen_oldx>>2)-1-(int)(Menu_penSize/2) + (axis[]){0,1,1,1,1,1,1,1,1,1,1}[Menu_penSize])*4;
-			for (const char* c=paths[Menu_penSize]; *c; c++) {
-				axis x = clamp(cx, 0, WIDTH-1);
-				axis y = clamp(cy, 0, H+8);
-				grp[y][x] = 0xC00000;
-				switch (*c) {
-				when('1'):; cx++;
-				when('2'):; cy++;
-				when('3'):; cx--;
-				when('4'):; cy--;
-				}
-			}
-		}
-		if (Menu_leftSelection==Menu_FAN||Menu_rightSelection==Menu_FAN||Menu_leftSelection==Menu_WIND||Menu_rightSelection==Menu_WIND||Menu_leftSelection==Menu_LASER||Menu_rightSelection==Menu_LASER){ //fan,wind,laser (buttons, not element ids)
-			Point a = Vec_mul2(Pen_dir, 30);
-			Draw_line(Pen_x, Pen_y, Pen_x+a.x, Pen_y+a.y, 0xFF0000); // I swapped order here
-		}
-		
-		axis xStart = atLeast((Pen_oldx)-Menu_penSize, 8);
-		axis yStart = atLeast((Pen_oldy)-Menu_penSize, 8);
-		axis xEnd = atMost(xStart+2*Menu_penSize, W+8-1);
-		axis yEnd = atMost(yStart+2*Menu_penSize, H+8-1);
-		for (axis g=yStart; g<=yEnd; g++) {
-			for (axis f=xStart; f<=xEnd; f++) {
-				// circle
-				axis dx = f-Pen_oldx;
-				axis dy = g-Pen_oldy;
-				if (Menu_penSize*Menu_penSize+1 < dx*dx+dy*dy) continue;
-				Color c = grp[g][f];
-				int r = atMost(RED(c) + 30, 255);
-				int gg = atMost(GREEN(c) + 30, 255);
-				int b = atMost(BLUE(c) + 30, 255);
-				grp[g][f] = RGB(r,gg,b);
-			}
-		}
-		
-		//Draw_rectangle(Pen_x, Pen_y, 1, 1, 0xFF0000);
+		drawCursor();
 	}
 
 	memcpy(Menu_grp, normalMenuImage, sizeof(normalMenuImage));
@@ -265,7 +269,7 @@ void Menu_render(void) {
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_rightSelection/Menu_BUTTONROWS),11+Menu_rightSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0x0000FF);
 	Draw_printf(col2-8,rowLast,-1,0,-1," %d",Pen_x-8);
 	Draw_printf(col2-8,rowLast,-1,0,-1,"      %d",Pen_y-8);
-	//Draw_printf(141,451,-1,0,-1,"   %d",Parts_limits[Menu_dotLimit]-Parts_used);
+	Draw_printf(141-8,rowLast,-1,0,-1,"   %d", Part_next-Part_0);
 	if (Menu_fps<=999)
 		Draw_printf(0,rowLast,-1,0,0,"%3dfps",Menu_fps);
 	else {

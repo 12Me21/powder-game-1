@@ -217,24 +217,24 @@ void Menu_update(void) {
 					old = btn->gotRelease;
 				if (old) {
 					// god, more line drawing shit
-					axis n = Pen_x/4 - Pen_oldx/4;
-					axis r = Pen_y/4 - Pen_oldy/4;
+					axis n = (int)Pen_x/4 - (int)Pen_oldx/4;
+					axis r = (int)Pen_y/4 - (int)Pen_oldy/4;
 					axis w = abs(n);
 					if (abs(r)>w) w=abs(r);
 					w = atLeast(w, 1);
 					n = (n<<8)/w;
 					r = (r<<8)/w;
-					int y = (Pen_oldx/4<<8)-127;
-					int z = (Pen_oldy/4<<8)-127;
+					int y = ((int)Pen_oldx/4<<8)-127;
+					int z = ((int)Pen_oldy/4<<8)-127;
 					for (int b=0; b<=w; b++, y+=n, z+=r) {
-						int c = (y>>8) - Menu_penSize/2;
-						int v = (z>>8) - Menu_penSize/2;
+						int c = (y>>8) - (int)Menu_penSize/2;
+						int v = (z>>8) - (int)Menu_penSize/2;
 						int Y = c+(real)Menu_penSize/2+0.5;
 						int Ka = v+(real)Menu_penSize/2+0.5;
 						for (axis g=v; g<=v+Menu_penSize; g++) {
 							for (axis f=c; f<=c+Menu_penSize; f++) {
 								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
-									Block* cell = &Part_blocks[(int)clamp(g,2,(H+16)/4-3)][(int)clamp(f,2,(W+16)/4-3)];
+									Block* cell = &Part_blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
 									switch(selection) {
 									when(Menu_BLOCK):;
 										cell->block = 1;
