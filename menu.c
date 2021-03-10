@@ -83,7 +83,7 @@ void Menu_update(void) {
 		bool gotPress = btn->gotPress;
 		bool gotRelease = btn->gotRelease;
 		bool old = btn->wasHeld;
-		if (selection<38 || selection==Menu_CLEAR) {
+		if (selection<Menu_ELEMENTS || selection==Menu_CLEAR) {
 			if (Menu_penMode == Pen_LINE)
 				old = gotRelease;
 			if (old) {
@@ -137,7 +137,7 @@ void Menu_update(void) {
 										}
 									} else if (p == Part_EMPTY) {
 										Elem pa = Menu_BUTTONS[selection].element;
-										if (otherBtn->wasHeld && selection<38)
+										if (otherBtn->wasHeld && selection<Menu_ELEMENTS)
 											pa = Menu_BUTTONS[otherSel].element;
 										
 										Part* e = Part_create(f, g, pa);

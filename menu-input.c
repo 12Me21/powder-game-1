@@ -145,7 +145,7 @@ void Menu_input(void) {
 			if (Mouse_fallingDirection)
 				Sim_reset(false);
 		otherwise:
-			if (selection < 38 || selection >= 40) {
+			if (selection < Menu_ELEMENTS || selection >= 40) {
 				if (mouse.left.gotPress)
 					Menu_leftSelection = selection;
 				else if (mouse.right.gotPress)

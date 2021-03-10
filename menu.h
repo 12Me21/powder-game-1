@@ -40,6 +40,8 @@ extern axis Pen_oldx, Pen_oldy; // sd, td
 #define Menu_BUTTONHEIGHT 14
 #define Menu_BUTTONROWS 10
 
+#define Menu_ELEMENTS 38
+
 enum MenuButton {
 	Menu_FAN=6, // angle indicator is drawn on cursor
 	Menu_LASER=26, // if these buttons are selected
