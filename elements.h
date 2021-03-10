@@ -9,6 +9,7 @@ typedef struct ElementDef {
 	char* name; //for debug
 	Color color;       // Ib[]
 	Color grayColor;   // Jb[]
+	Color menuColor;
 	enum State state;  // V[]
 	bool playerValid;  // Qe[]  can be held by player
 	int temperature;   // xd[]  light generated in "TG" bg mode

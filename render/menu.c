@@ -35,9 +35,9 @@ enum RowY {
 static const axis rowLast = 143;
 
 AUTORUN {
-	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
-	
 	void drawLabel(int pos, Elem elem) {
+		if (!elem)
+			return;
 		axis y = 3+(pos%10)*14;
 		axis x = 8+(pos/10)*56;
 		const ElementDef* d = &ELEMENTS[elem];
@@ -47,12 +47,13 @@ AUTORUN {
 			spacing = -1;
 		if (l>=8)
 			spacing = -2;
-		Draw_spacedText(x,y,d->name,d->color,0, spacing);
+		Draw_spacedText(x,y,d->name,d->menuColor,0, spacing);
 	}
 	
 	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
+	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
 
-	for (int i=0; i<40; i++)
+	for (int i=0; i<39; i++)
 		drawLabel(i, Menu_BUTTONS[i].element);
 		
 	Draw_text(col5,row1,"WIND",0x8080FF,0);
@@ -72,34 +73,26 @@ AUTORUN {
 	Draw_text(col5,row10,"CREATE",0x907010,0);
 	
 	Draw_text(col6,row1,"BLOCK",0x808080,0);
-	Draw_text(col6,row2,"ERASE",0x808080,0); //rename?
+	Draw_text(col6,row2,"ERASE",0x808080,0);
 	Draw_text(col6,row3,"CLEAR",0xFFFFFF,0);
-	Draw_spacedText(col6-1,row4,"Copy",-1,0,-2);
-	Draw_spacedText(col6-1,row4,"Copy",0xFFFFFF,-1,-2);
-	Draw_spacedText(col6+23,row4,"Paste",-1,0,-3);
-	Draw_spacedText(col6+23,row4,"Paste",0xFFFFFF,-1,-3);
+	Draw_spacedText(col6-1,row4,"Copy",0xFFFFFF,0,-2);
+	Draw_spacedText(col6+23,row4,"Paste",0xFFFFFF,0,-3);
 	Draw_text(col6,row5,"TEXT",0xFFFFFF,0);
-	Draw_spacedText(col6,row6,"PEN",-1,0,-1);
-	Draw_spacedText(col6,row6,"PEN",0xFFFFFF,-1,-1);
+	Draw_spacedText(col6,row6,"PEN",0xFFFFFF,0,-1);
 	Draw_spacedText(col6,row7,"PEN-S ",0xFFFFFF,0,-1);
 	Draw_spacedText(col6,row8,"SCALE",0xFFFFFF,0,-1);
 	Draw_spacedText(col6,row9,"SPEEDx",0xFFFFFF,0,-1);
-	Draw_spacedText(col6-1,row10,"Start",-1,0,-3);
 	Draw_spacedText(col6-1,row10,"Start",0xFFFFFF,0,-3);
-	Draw_spacedText(col6+25,row10,"Stop",-1,0,-2);
-	Draw_spacedText(col6+25,row10,"Stop",0xFFFFFF,-1,-2);
+	Draw_spacedText(col6+25,row10,"Stop",0xFFFFFF,0,-2);
 	
-	Draw_text(col7,row1,"UPLOAD",0xFFA0A0,0);
+	Draw_spacedText(col7,row1,"FILE -",0xFFA0A0,0,0);
 	Draw_text(col7,row2,"SAVE",0xFFA0A0,0);
 	Draw_text(col7,row3,"LOAD",0xFFA0A0,0);
 	Draw_spacedText(col7,row4,"MiniMap",0xFFA0A0,0,-1);
-	Draw_spacedText(col7,row5,"MENU-",-1,0,-2);
-	Draw_spacedText(col7,row5,"MENU-",0xFFFFFF,-1,-2);
-	Draw_spacedText(col7,row6,"SIDE-",-1,0,-3);
-	Draw_spacedText(col7,row6,"SIDE-",0xFFFFFF,-1,-3);
+	Draw_spacedText(col7,row5,"MENU-",0xFFFFFF,0,-2);
+	Draw_spacedText(col7,row6,"SIDE-",0xFFFFFF,0,-3);
 	Draw_text(col7,row7,"GRID",0x800000,0);
-	Draw_spacedText(col7,row8,"BG-",-1,0,-2);
-	Draw_spacedText(col7,row8,"BG-",0xFFFFFF,-1,-2);
+	Draw_spacedText(col7,row8,"BG-",0xFFFFFF,0,-2);
 	Draw_text(col7,row9,"DOT ",0xFFFFFF,0);
 	Draw_text(col7,row10,"RESET",0xFFFFFF,0);
 
@@ -173,22 +166,24 @@ void Menu_render(void) {
 	if (Menu_numberMenu) {
 		int* counts = Part_updateCounts();
 		void Draw_count(int i, int elem) {
+			if (!elem)
+				return;
 			axis x = i/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
 			axis y = i%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
 			char buffer[29];
 			buffer[0] = ELEMENTS[elem].name[0];
 			buffer[1] = 0;
 			Draw_mrectangle(4+x+4, 11-8+y, Menu_BUTTONWIDTH, Menu_BUTTONHEIGHT, 0x404040);
-			Draw_text(4+4+x,11-8+y,buffer,ELEMENTS[elem].color, 0);
+			Draw_text(4+4+x,11-8+y,buffer,ELEMENTS[elem].menuColor, 0);
 			sprintf(buffer, "  %d", counts[elem]);
-			Draw_spacedText(4+x,11-8+y,buffer,ELEMENTS[elem].color,0,-1);
+			Draw_spacedText(4+4+x,11-8+y,buffer,ELEMENTS[elem].menuColor,0,-1);
 		}
-		for (int i=0; i<38; i++) {
+		for (int i=0; i<39; i++) {
 			Draw_count(i, Menu_BUTTONS[i].element);
 		}
-		Draw_mrectangle(0,0,W,1,0x660000);
 	}
 	if (Menu_hover>=0) {
+		Draw_mrectangle(0,0,W,1,0x660000);
 		axis bx = 4+Menu_hover/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
 		axis by = 2+Menu_hover%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
 		for (axis y=0; y<Menu_BUTTONHEIGHT-1; y++)
@@ -204,8 +199,7 @@ void Menu_render(void) {
 	else
 		Draw_spacedText(col6+23,row4,"Paste",0xFF4040,-1,-3);
 	static char* a[] = {"free","line","lock","paint"};
-	Draw_spacedText(8+280+(4*(8-2)),row6,a[Menu_penMode],-1,0,-2);
-	Draw_spacedText(8+280+(4*(8-2)),row6,a[Menu_penMode],0xFFFFFF,-1,-2);
+	Draw_spacedText(8+280+(4*(8-2)),row6,a[Menu_penMode],0xFFFFFF,0,-2);
 	Draw_printf(8+280-1,row7,0xFFFFFF,0,-1, "      %d", Menu_penSize);
 	Draw_printf(8+280,row8,0xFFFFFF,0,-2,"      %s",(char*[]){"x1","x2","x4","x8","16","32","64","aa","ff","help","please","stop","AAAAA"}[Menu_zoomLevel]);
 	Draw_printf(8+280,row9,0xFFFFFF,0,-2, "       %d", 1<<Menu_gameSpeed);
@@ -226,15 +220,12 @@ void Menu_render(void) {
 	if (Menu_minimapEnabled)
 		Draw_spacedText(8+336,row4,"MiniMap",0xFFFFFF,0xFF0000,-1);
 	char* str = Menu_numberMenu ? "     num" : "     str";
-	Draw_spacedText(8+336,row5,str,-1,0,-2);
-	Draw_spacedText(8+336,row5,str,0xFFFFFF,-1,-2);
+	Draw_spacedText(8+336,row5,str,0xFFFFFF,0,-2);
 	str = Menu_edgeMode ? "OFF" : "LOOP";
-	Draw_spacedText(8+336+25,row6,str,-1,0,-2);
-	Draw_spacedText(8+336+25,row6,str,0xFFFFFF,-1,-2);
+	Draw_spacedText(8+336+25,row6,str,0xFFFFFF,0,-2);
 	Draw_printf(8+336,row7,0x800000,0,0,"     %d",Menu_gridSize); //this is too dark
 	str = (char*[]){"none","air","line","blur","shade","aura","light","toon","mesh","gray","track","dark","TG","siluet"}[Menu_bgMode];
-	Draw_spacedText(8+336+6*3,row8,str,-1,0,-2);
-	Draw_spacedText(8+336+6*3,row8,str,0xFFFFFF,-1,-2);
+	Draw_spacedText(8+336+6*3,row8,str,0xFFFFFF,0,-2);
 	Draw_text(8+336+8*4,row9,(char*[]){"S","M","L","X"}[Menu_dotLimit],0xFFFFFF,0);
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_leftSelection/Menu_BUTTONROWS),11-8+Menu_leftSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0xFF0000);
 	///rectangle(4+0+56*floor(Menu_middleSelection/10),3+4+Menu_middleSelection%10*14,3,3,0x00FF00);

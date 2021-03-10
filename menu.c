@@ -29,6 +29,7 @@ void Menu_update(void) {
 	long ms = Platform_nanosec();
 	if (ms>last) {
 		real fps = (1000000000.0)/(ms-last);
+		fps *= 1<<Menu_gameSpeed;
 		last = ms;
 		Menu_fps = (Menu_fps*9+fps)/10;
 	} else {
@@ -82,7 +83,7 @@ void Menu_update(void) {
 		bool gotPress = btn->gotPress;
 		bool gotRelease = btn->gotRelease;
 		bool old = btn->wasHeld;
-		if (selection < 38) {
+		if (selection<38 || selection==Menu_CLEAR) {
 			if (Menu_penMode == Pen_LINE)
 				old = gotRelease;
 			if (old) {
@@ -128,22 +129,29 @@ void Menu_update(void) {
 										if (p>=Part_0 && p->type!=e)
 											Part_paint(f, g, p->type, e, meta);
 									}
-								} else if (p == Part_EMPTY) {
-									Elem pa = Menu_BUTTONS[selection].element;
-									if (otherBtn->wasHeld && selection<38)
-										pa = Menu_BUTTONS[otherSel].element;
-									
-									Part* e = Part_create(f, g, pa);
-									if (e>=Part_0) {
-										if (pa==Elem_FAN) {
-											e->vel = Vec_mul2(Pen_dir, 0.1);
-										} else if (pa==Elem_FIREWORKS) {
-											e->meta = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
-										} else if (pa==Elem_LASER) {
-											int meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
-											if (meta>=8)
-												meta = 0;
-											e->meta = meta+1;
+								} else {
+									if (selection==Menu_CLEAR) {
+										if (p>=Part_0) {
+											Part_remove(p);
+											Part_at[g][f] = Part_EMPTY;
+										}
+									} else if (p == Part_EMPTY) {
+										Elem pa = Menu_BUTTONS[selection].element;
+										if (otherBtn->wasHeld && selection<38)
+											pa = Menu_BUTTONS[otherSel].element;
+										
+										Part* e = Part_create(f, g, pa);
+										if (e>=Part_0) {
+											if (pa==Elem_FAN) {
+												e->vel = Vec_mul2(Pen_dir, 0.1);
+											} else if (pa==Elem_FIREWORKS) {
+												e->meta = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
+											} else if (pa==Elem_LASER) {
+												int meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
+												if (meta>=8)
+													meta = 0;
+												e->meta = meta+1;
+											}
 										}
 									}
 								}
@@ -298,16 +306,13 @@ void Menu_update(void) {
 }
 
 MenuButtonDef Menu_BUTTONS[] = {
-	{Elem_POWDER,Elem_POWDER,Elem_POWDER,Elem_POWDER},
+	{Elem_BLOCK,Elem_POWDER,Elem_POWDER,Elem_POWDER},
 	{Elem_WATER,Elem_WATER,Elem_WATER,Elem_WATER},
 	{Elem_FIRE,Elem_FIRE,Elem_FIRE,Elem_FIRE},
 	{Elem_SEED,Elem_SEED,Elem_SEED,Elem_SEED},
-	{Elem_WOOD,0,0,Elem_WOOD},
 	{Elem_GUNPOWDER,Elem_GUNPOWDER,Elem_GUNPOWDER,Elem_GUNPOWDER},
 	{Elem_FAN,0,Elem_FAN,Elem_FAN},
 	{Elem_ICE,0,0,Elem_ICE},
-	{Elem_SNOW,Elem_SNOW,Elem_SNOW,0},//0?
-	{Elem_STEAM,Elem_STEAM,Elem_STEAM,Elem_STEAM},
 	{Elem_SUPERBALL,Elem_SUPERBALL,Elem_SUPERBALL,0},
 	{Elem_CLONE,0,0,Elem_CLONE},
 	{Elem_FIREWORKS,0,Elem_FIREWORKS,0},
@@ -328,7 +333,6 @@ MenuButtonDef Menu_BUTTONS[] = {
 	{Elem_ACID,Elem_ACID,Elem_ACID,Elem_ACID},
 	{Elem_VINE,0,0,0},
 	{Elem_SALT,Elem_SALT,Elem_SALT,Elem_SALT},
-	{Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER},
 	{Elem_GLASS,0,0,Elem_GLASS},
 	{Elem_BIRD,Elem_BIRD,Elem_BIRD,Elem_BIRD},
 	{Elem_MERCURY,Elem_MERCURY,Elem_MERCURY,0},
@@ -336,5 +340,11 @@ MenuButtonDef Menu_BUTTONS[] = {
 	{Elem_FUSE,0,0,Elem_FUSE},
 	{Elem_CLOUD,Elem_CLOUD,Elem_CLOUD,Elem_CLOUD},
 	{Elem_PUMP,0,0,Elem_PUMP},
+	//{0,0,0,0},
+	{Elem_WOOD,0,0,Elem_WOOD},
+	{Elem_SNOW,Elem_SNOW,Elem_SNOW,0},
+	{Elem_STEAM,Elem_STEAM,Elem_STEAM,Elem_STEAM},
+	{Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER},
+	{0,0,0,0},
 	// rest is 0
 };
