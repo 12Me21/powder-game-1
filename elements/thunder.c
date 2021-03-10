@@ -35,17 +35,14 @@ break; case Elem_THUNDER:
 			p->Cthunder1.prng = n;
 			p->Cthunder1.dir = c;
 		} else if (near>=Part_0) { // hit other particle
-			if (near->type==Elem_THUNDER && (near->Cthunder1.prng!=n && near->Cthunder1.dir!=c)) {
+			if (near->type==Elem_THUNDER && (near->Cthunder1.prng!=n || near->Cthunder1.dir!=c)) {
 				Part_KILL();
 			}
-			
 			if (near->type!=Elem_THUNDER) {
 				Elem type = near->type;
 				if (type==Elem_METAL || type==Elem_MERCURY) {
-					if (type==Elem_METAL)
-						near->meta = 6000+c;
-					else
-						near->meta = 6100+c;
+					near->meta = type==Elem_METAL ? 6000 : 6100;
+					near->Cthunder2.dir = c;
 					near->type = Elem_THUNDER;
 					Part_KILL();
 				} else if (ELEMENTS[type].state==State_POWDER||ELEMENTS[type].state==State_LIQUID||type==Elem_MAGMA||type==Elem_WOOD||type==Elem_ICE||type==Elem_VINE||type==Elem_GLASS) { //powders, liquids, magma, wood, ice, vine, glass

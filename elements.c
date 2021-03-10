@@ -2,7 +2,8 @@
 #include "elements.h"
 
 #define BRIGHTNESS(color) (int)((real)(color>>16&0xFF)*0.2989+(real)(color>>8&0xFF)*0.5866+(real)(color&0xFF)*0.1145)
-#define COL(col) col,BRIGHTNESS(col)<<16|BRIGHTNESS(col)<<8|BRIGHTNESS(col)
+#define GRAY(col) (BRIGHTNESS(col)<<16|BRIGHTNESS(col)<<8|BRIGHTNESS(col))
+#define COL(col) col,GRAY(col),col
 
 ElementDef const ELEMENTS[Elem_MAX] = {
 	{"Elem_0"},
@@ -46,7 +47,7 @@ ElementDef const ELEMENTS[Elem_MAX] = {
 	{"VINE"    ,COL(0x00BB00),State_SOLID ,0,500  ,10 ,0.5,0,0.8,0.2,0,0.1  ,0.4,1 },
 	{"SALT"    ,COL(0xFFFFFF),State_POWDER,1,0    ,5  ,0.5,0,0.2,0.2,1,0.1  ,0.5,1 },
 	{"S-WATER" ,COL(0x3399FF),State_LIQUID,1,0    ,40 ,0.8,0,0  ,0  ,1,0.1  ,0.4,5 },
-	{"GLASS"   ,COL(0x011111),State_SOLID ,0,0    ,0  ,0.9,0,0.9,0.5,1,0.1  ,0.2,8 },
+	{"GLASS"   ,0x011111,GRAY(0x011111),0x404040,State_SOLID ,0,0    ,0  ,0.9,0,0.9,0.5,1,0.1  ,0.2,8 },
 	{"BIRD"    ,COL(0x807050),State_GAS   ,1,2000 ,10 ,0.1,0,0.1,0.1,1,0.05 ,0.5,0 },
 	{"Elem_41" ,COL(0xFFE0AE)},
 	{"MERCURY" ,COL(0xAAAAAA),State_LIQUID,1,0    ,20 ,1  ,0,0.9,0.9,0,0.2  ,0  ,20},

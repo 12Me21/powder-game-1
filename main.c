@@ -29,6 +29,7 @@ void render() {
 }
 
 void Platform_frame(void) {
+	DEFCALL(Menu_render);
 	DEFCALL(Input_update);
 	DEFCALL(Random_update);
 	

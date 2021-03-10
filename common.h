@@ -11,9 +11,9 @@ typedef _Complex float Complex;
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 
 typedef uint32_t Color;
-#define RED(x) ((x)>>16&0xFF)
-#define GREEN(x) ((x)>>8&0xFF)
-#define BLUE(x) ((x)&0xFF)
+#define RED(x) (int)((x)>>16&0xFF)
+#define GREEN(x) (int)((x)>>8&0xFF)
+#define BLUE(x) (int)((x)&0xFF)
 #define RGB(r,g,b) ((r)<<16|(g)<<8|(b))
 
 #define Cxy(x,y) ((Point){(x),(y)}.xy)
