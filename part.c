@@ -8,6 +8,7 @@
 #include "menu.h"
 #include "input.h"
 #include "cell.h"
+#include "save.h"
 
 int Part_limit = 0;
 const int Part_LIMITS[] = {20000, 30000, 40000, Part_MAX};
@@ -276,4 +277,35 @@ void Part_toGrid(Part* p) {
 
 Part* Part_dirNear(Point pos, char dir) {
 	return Part_pos2(pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
+}
+
+static bool onscreen(int x, int y){
+	return x>=8 && x<W+8 && y>=8 && y<H+8;
+}
+
+void Part_save(SavePixel save[H][W]) {
+	for (Part* p=parts; p<Part_next; p++) {
+		axis x = p->pos.x;
+		axis y = p->pos.y;
+		if (onscreen(x,y)) {
+			x -= 8;
+			y -= 8;
+			Elem type = p->type;
+			if (type==Elem_FAN)
+				save[y][x].meta = (int)(64*Vec_angle(p->vel)/TAU);// does this need to be wrapped?
+			else if (type==Elem_FIREWORKS)
+				save[y][x].meta = p->meta%100;
+			else if (type==Elem_THUNDER) {//my addition
+				if (p->meta>=7000)
+					type = Elem_GLASS;
+				else if (p->meta>=6000) {
+					if (p->Cthunder2.type==6000>>2)
+						type = Elem_METAL;
+					else
+						type = Elem_MERCURY;
+				}
+			}
+			save[y][x].type = type;
+		}
+	}
 }

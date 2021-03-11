@@ -168,32 +168,10 @@ static int wrap(int a, int b) {
 }
 
 void Save_save1(void) {
+#define DEFCALL(type) void type##_save(SavePixel save[H][W]); type##_save(Save_data);
+	
 	memset(Save_data, 0, sizeof(Save_data));
-	// blocks
-	for (int y=0;y<H;y++)
-		for (int x=0;x<W;x++)
-			if (Part_blocks[(int)y/4+2][(int)x/4+2].block == 1)
-				Save_data[y][x].type=Elem_BLOCK;
-	// particles
-	for (Part* p=Part_0; p<Part_next; p++) {
-		int x = p->pos.x;
-		int y = p->pos.y;
-		if (onscreen(x,y)) {
-			SavePixel* px = &Save_data[y-8][x-8];
-			px->type = p->type;
-			if (p->type == Elem_FAN) {
-				px->meta = wrap(64*Vec_angle(p->vel)/TAU, 63);
-			} else if (p->type == Elem_FIREWORKS) {
-				px->meta = p->meta%100;
-				//fix thunder saving badly :(
-			} else if (p->type==Elem_THUNDER){
-				if ((p->meta&0xFFFC)==6000)
-					px->type = Elem_METAL;
-				else if (p->meta >= 7000)
-					px->type = Elem_GLASS;
-				else if ((p->meta&0xFFFC)==6100)
-					px->type = Elem_MERCURY;
-			}
-		}
-	}
+	DEFCALL(Cell);
+	DEFCALL(Part);
+	DEFCALL(Wheel);
 }

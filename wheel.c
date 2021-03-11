@@ -5,6 +5,7 @@
 #include "elements.h"
 #include "part.h"
 #include "wheel.h"
+#include "save.h"
 
 Wheel Wheel_wheels[Wheel_MAX];
 Wheel* const Wheel_end = &Wheel_wheels[Wheel_MAX];
@@ -14,13 +15,13 @@ extern const char Wheel_frames[16][32][32];
 
 void Wheel_update(void) {
 	if (Menu_dragging) {
-		for (Wheel* w=Wheel_wheels;w<Wheel_end;w++) {
+		Wheel_FOREACH (w) {
 			Point d = {Pen_x-w->x, Pen_y-w->y};
 			if (Vec_fastDist(d)<16)
 				w->vel -= d.x*(Pen_y-Pen_oldy)-d.y*(Pen_x-Pen_oldx);
 		}
 	}
-	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
+	Wheel_FOREACH (w) {
 		const char (*frame)[32] = Wheel_frames[(int)w->angle];
 		for (axis y=0; y<32; y++) {
 			for (axis x=0; x<32; x++) {
@@ -101,7 +102,7 @@ void Wheel_remove(Wheel* w) {
 }
 
 void Wheel_create(axis x, axis y) {
-	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
+	Wheel_FOREACH (w) {
 		if (x==w->x && y==w->y)
 			return;
 	}
@@ -118,7 +119,7 @@ void Wheel_create(axis x, axis y) {
 
 void Wheel_update1(void) {
 	// remove old wheel parts from grid
-	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
+	Wheel_FOREACH (w) {
 		for (axis y=0; y<32; y++)
 			for (axis x=0; x<32; x++) {
 				Part** p = Part_pos(w->x-16+x, w->y-16+y);
@@ -127,7 +128,7 @@ void Wheel_update1(void) {
 			}
 	}
 	// add new ones
-	for (Wheel* w=Wheel_wheels; w<Wheel_next; w++) {
+	Wheel_FOREACH (w) {
 		const char (*frame)[32] = Wheel_frames[(int)w->angle];
 		for (axis y=0; y<32; y++)
 			for (axis x=0; x<32; x++) {
@@ -137,5 +138,11 @@ void Wheel_update1(void) {
 						*p = Part_WHEEL;
 				}
 			}
+	}
+}
+
+void Wheel_save(SavePixel save[H][W]) {
+	Wheel_FOREACH (w) {
+		save[w->y-8][w->x-8] = (SavePixel){Elem_WHEEL, 0};
 	}
 }
