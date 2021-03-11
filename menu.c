@@ -306,7 +306,7 @@ void Menu_update(void) {
 }
 
 MenuButtonDef Menu_BUTTONS[] = {
-	{Elem_BLOCK,Elem_POWDER,Elem_POWDER,Elem_POWDER},
+	{Elem_POWDER,Elem_POWDER,Elem_POWDER,Elem_POWDER},
 	{Elem_WATER,Elem_WATER,Elem_WATER,Elem_WATER},
 	{Elem_FIRE,Elem_FIRE,Elem_FIRE,Elem_FIRE},
 	{Elem_SEED,Elem_SEED,Elem_SEED,Elem_SEED},
@@ -345,6 +345,7 @@ MenuButtonDef Menu_BUTTONS[] = {
 	{Elem_SNOW,Elem_SNOW,Elem_SNOW,0},
 	{Elem_STEAM,Elem_STEAM,Elem_STEAM,Elem_STEAM},
 	{Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER,Elem_SEAWATER},
+	{Elem_CONCRETE,Elem_CONCRETE,Elem_CONCRETE,Elem_CONCRETE},
 	{0,0,0,0},
 	// rest is 0
 };

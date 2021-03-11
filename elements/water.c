@@ -8,7 +8,7 @@ break; case Elem_WATER:
 	if (g>=Part_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int type = g->type;
-		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
+		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE && type!=Elem_CONCRETE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
 		//freeze water
