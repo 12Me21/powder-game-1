@@ -8,6 +8,9 @@
 
 extern int Part_limit;
 
+#define Part_FOR(var) for (Part* var=Part_0; var<Part_next; var++)
+//#define Part_EACH(var) Part* var=Part_0; var<Part_next; var++
+
 typedef struct Part {
 	Point pos;    // L[]
 	Point vel;    // E[]

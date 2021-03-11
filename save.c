@@ -11,7 +11,7 @@
 #include "vector.h"
 #include "reset.h"
 #include "save.h"
-
+int carefullyCreated2 = 0;
 static int number(char x) {
 	if (x>='0' || x<='9')
 		return x-48;
@@ -155,7 +155,7 @@ void Save_Load_test(void* filename) {
 	}
 }
 
-static bool onscreen(int x, int y){
+bool Save_onscreen(axis x, axis y) {
 	return x>=8 && x<W+8 && y>=8 && y<H+8;
 }
 
@@ -174,4 +174,110 @@ void Save_save1(void) {
 	DEFCALL(Cell);
 	DEFCALL(Part);
 	DEFCALL(Wheel);
+	DEFCALL(Entity);
+	DEFCALL(Ball);
+	//carefullycreated2=clamp(carefullycreated+100,0,4095);
+}
+
+/*void Save_makeThumbnail() {
+	
+  }*/
+
+static int checksum(char* text) {
+	int checksum = 0;
+	int i=0;
+	for (char* c=text; *c; c++)
+		checksum += (int)*c*((i++ & 0xFF)+1);
+	return checksum;
+}
+
+char* Save_string(SavePixel save[H][W]) {
+	char data[W*H];
+	char* d = data;
+	for (int a=0; a<W*H; a++) {
+		int type = save[0][a].type;
+		if (type==Elem_FAN || type==Elem_FIREWORKS || type==Elem_BOX || type==Elem_SAVE_BALL) {
+			*d++ = type;
+			*d++ = save[0][a].meta;
+		} else if (type==Elem_PLAYER) {
+			*d++ = Elem_PLAYER2;
+			*d++ = save[0][a].meta;
+		} else {
+			int run=1;
+			*d++ = type;
+			for (; a<W*H && run<255; a++) {
+				if (save[0][a+1].type==type)
+					run++;
+				else
+					break;
+			}
+			if (run>1) {
+				if (run<0x10)
+					*d++ = '0'+run;
+				else {
+					*d++ = '0'+(run & 0xF);
+					*d++ = '0'+(run>>4);
+				}
+			}
+		}
+	}
+	int dLen = d-data;
+	const char base64[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.*";
+	char* fd = malloc(20*dLen+4);
+	char* f = fd;
+	*f++ = '1';
+	*f++ = '0';
+	*f++ = "0123456789:;ABCDEF"[Menu_bgMode+1];
+	*f++ = '0'+Menu_dotLimit;
+	*f++ = '0'+Menu_gridSize;
+	*f++ = '0'+Menu_gameSpeed;
+	*f++ = '0'+Menu_edgeMode;
+	*f++ = '0';
+	*f++ = base64[carefullyCreated2 & 0b111111];
+	*f++ = base64[carefullyCreated2>>6 & 0b111111];
+	*f++ = '0';
+	*f++ = '0';
+	*f++ = '0';
+	*f++ = '0';
+	*f++ = '0';
+	*f++ = '0';
+	int* q[0x1000] = {0};
+	int qLen[0x1000] = {0};
+	int w=1;
+	int n=1;
+	for (int a=0; a<dLen; a+=w) {
+		int r=0;
+		w=1;
+		for (int y=1; y<n; y++) {
+			if (qLen[y] == w) {
+				for (int c=0; c<w; c++) {
+					if (q[y][c]!=data[a+c])
+						goto fail;
+				}
+				r = y;
+				w++;
+				if (a+w>=dLen)
+					break;
+			fail:;
+			}
+		}
+		*f++ = base64[r>>6];
+		*f++ = base64[r&0b111111];
+		*f++ = base64[data[a+w-1]];
+		if (n<0x1000) {
+			qLen[n] = w;
+			q[n] = alloca(sizeof(int)*w);
+			memcpy(q[n], &data[a], sizeof(int)*w);
+			n++;
+		}
+	}
+	if (!f[-1]) //idk
+		f[-1] = base64[0];
+	*f = '\0'; //no inc
+	int cs = checksum(fd);
+	*f++ = 'a'+(cs & 0b1111);
+	*f++ = 'A'+(cs>>4 & 0b1111);
+	*f++ = '0'+(cs>>8 & 0b111);
+	*f++ = '\0';
+	return fd;
 }

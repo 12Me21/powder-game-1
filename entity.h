@@ -39,5 +39,7 @@ typedef struct Entity {
 extern Entity entitys[Entity_MAX];
 extern Entity* Entity_next;
 
+#define Entity_FOR(en) for (Entity* en=entitys; en<Entity_next; en++)
+
 void Entity_create(real x, real y, int type, int meta2); // Gd()
 void Entity_remove(Entity* entity); // oe()

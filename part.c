@@ -30,9 +30,10 @@ static int Part_counts[Elem_MAX];
 int* Part_updateCounts(void) {
 	for (Elem i=0; i<Elem_MAX; i++)
 		Part_counts[i] = 0;
-	for (Part* p=parts; p<Part_next; p++)
+	Part_FOR (p) {
 		if (p->type > 0)
 			Part_counts[p->type]++;
+	}
 	return Part_counts;
 }
 
@@ -85,7 +86,7 @@ void Part_blow(Part* part, Point airvel) {
 }
 
 void Part_shuffle(void) {
-	for (Part* p=parts; p<Part_next; p++) {
+	Part_FOR (p) {
 		Part* c = &parts[rand() % (Part_next-parts)];
 		Part temp = *p;
 		*p = *c;
@@ -100,7 +101,7 @@ extern int wa;
 
 void Part_update(void) {
 	// todo: wheels
-	for (Part* p=parts; p<Part_next; p++) {
+	Part_FOR (p) {
 		if (!Menu_cursorInMenu && wa==0) {
 			if (!p->held) {
 				if (Menu_dragStart) {
@@ -134,7 +135,7 @@ void Part_update(void) {
 	Part_continue:;
 	}
 	// check parts that go off screen
-	for (Part* p=parts; p<Part_next; p++) {
+	Part_FOR (p) {
 		if (Menu_edgeMode==0) { // void edge
 			if (p->pos.x<8||p->pos.x>=W+8||p->pos.y<8||p->pos.y>=H+8) {
 				Part_remove(p--);
@@ -284,7 +285,7 @@ static bool onscreen(int x, int y){
 }
 
 void Part_save(SavePixel save[H][W]) {
-	for (Part* p=parts; p<Part_next; p++) {
+	Part_FOR (p) {
 		axis x = p->pos.x;
 		axis y = p->pos.y;
 		if (onscreen(x,y)) {

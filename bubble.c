@@ -53,14 +53,14 @@ static void pull(Bubble* a, Bubble* b) {
 }
 
 void Bubble_update(void) {
-	for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++) {
+	Bubble_FOR (b) {
 		Block* cell = &Part_blocks[(int)b->y/4][(int)b->x/4];
 		Point vel = cell->vel;
 		Vec_mul(&vel, 3.8/(Vec_fastDist(vel)+1));
 		b->x += vel.x;
 		b->y += vel.y;
 	}
-	for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++) {
+	Bubble_FOR (b) {
 		if (!b->held) {
 			if (Menu_dragStart) {
 				if (Vec_fastDist((Point){Pen_x-b->x, Pen_y-b->y})<10)
@@ -99,7 +99,7 @@ void Bubble_update(void) {
 		pull(d, b);
 		b+=e;
 	}
-	for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++) {
+	Bubble_FOR (b) {
 		Part* part = Part_EMPTY;
 		if (b->x>=0 && b->x<WIDTH && b->y>=0 && b->y<H+16) {
 			part = *Part_pos(b->x, b->y);

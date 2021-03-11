@@ -11,6 +11,7 @@
 #include "input.h"
 #include "entity.h"
 #include "cell.h"
+#include "save.h"
 
 Entity entitys[Entity_MAX];
 Entity* Entity_next = entitys;
@@ -21,7 +22,7 @@ void Entity_create(real x, real y, int type, int meta) {
 	Entity* oldPlayer = NULL;
 	if (type==Elem_PLAYER || type==Elem_PLAYER2) {
 		int totalPlayers=0;
-		for (Entity* e=entitys; e<Entity_next; e++) {
+		Entity_FOR (e) {
 			if (e->type == Entity_PLAYER) {
 				totalPlayers++;
 				oldPlayer = e;
@@ -107,7 +108,7 @@ void fighterWalk(Entity* a) {
 }
 
 void fighterKick(Entity* a) {
-	for (Entity* r=entitys; r<Entity_next; r++) {
+	Entity_FOR (r) {
 		if (r==a) continue;
 		if (r->type==Entity_FIGHTER || r->type==Entity_FIGHTER+1 || r->type==Entity_PLAYER) {
 			for (int i=4; i<=5; i++) {
@@ -289,7 +290,7 @@ typedef struct Player {
 Player players[2];
 
 void Entity_update(void) {
-	for (Entity* a=entitys; a<Entity_next; a++) {
+	Entity_FOR (a) {
 		void copyPos(int dest, int src) {
 			a->parts[dest].pos = a->parts[src].pos;
 			a->parts[dest].oldPos = a->parts[src].oldPos;
@@ -616,7 +617,7 @@ void Entity_update(void) {
 			checkDrag(a, 4);
 			// kick
 			for (int b=0;b<4;b++) {
-				for (Entity* r=entitys; r<Entity_next; r++) {
+				Entity_FOR (r) {
 					if (r->type==Entity_FIGHTER||r->type==Entity_FIGHTER+1||r->type==Entity_PLAYER) {
 						for (int i=4;i<=5;i++) {
 							EntityNode* part = &r->parts[i];
@@ -678,5 +679,34 @@ void Entity_update(void) {
 			if (a->age>150)
 				Entity_remove(a--);
 		}
+	}
+}
+
+void Entity_save(SavePixel save[H][W]) {
+	Entity_FOR (e) {
+		EntityNode* node = NULL;
+		Elem type;
+		int meta = 0;
+		if (e->type==Entity_FIGHTER || e->type==Entity_FIGHTER+1) {
+			node = &e->parts[4];
+			type = Elem_FIGHTER;
+		} else if (e->type==Entity_BOX) {
+			node = &e->parts[0]; //todo: maybe avg the points instead?
+			type = Elem_BOX;
+			meta = e->meta;
+		} else if (e->type==Entity_PLAYER) {
+			node = &e->parts[4];
+			type = Elem_PLAYER;
+			meta = e->meta;
+		} else if (e->type==Entity_CREATE) {
+			node = &e->parts[0];
+			type = Elem_BOX;
+			meta = 10;
+		} else
+			continue;
+		axis x = (int)node->pos.x & ~3;
+		axis y = (int)node->pos.y & ~3;
+		if (Save_onscreen(x,y))
+			save[y-8][x-8] = (SavePixel){type, meta};
 	}
 }

@@ -8,12 +8,13 @@
 #include "entity.h"
 #include "elements.h"
 #include "cell.h"
+#include "save.h"
 
 Ball balls[Ball_MAX];
 Ball* const Ball_END = &balls[Ball_MAX];
 
 void Ball_create(int x, int y, Elem type) {
-	for (Ball* ball=balls; ball<Ball_END; ball++) {
+	Ball_FOR (ball) {
 		if (!ball->used) {
 			*ball = (Ball){
 				.pos={x+0.5, y+0.5},
@@ -155,7 +156,7 @@ static void checkDragging(Ball* i) {
 }
 
 static void checkEntities(Ball* ball) {
-	for (Entity* en=entitys; en<Entity_next; en++) {
+	Entity_FOR (en) {
 		if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
 			for (int f=4; f<=5; f++) {
 				real dx = abs(en->parts[f].pos.x - ball->pos.x);
@@ -284,7 +285,7 @@ static void undraw(Ball* i) {
 }
 
 void Ball_update(void) {
-	for(Ball* i=balls; i<Ball_END; i++) {
+	Ball_FOR (i) {
 		if (!i->used) continue;
 		// remove invalid balls
 		if (!ELEMENTS[i->type].ballValid) {
@@ -341,6 +342,18 @@ void Ball_update(void) {
 				if (*p<=Part_BGFAN)
 					*p = Part_BALL;
 			}
+		}
+	}
+}
+
+void Ball_save(SavePixel save[H][W]) {
+	Ball_FOR (ball) {
+		if (!ball->used) continue;
+		axis x = ball->pos.x;
+		axis y = ball->pos.y;
+		if (Save_onscreen(x,y)) {
+			if (save[y-8][x-8].type == 0)
+				save[y-8][x-8] = (SavePixel){Elem_SAVE_BALL, ball->type};
 		}
 	}
 }

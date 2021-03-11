@@ -1,7 +1,10 @@
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "input.h"
 #include "menu.h"
 #include "reset.h"
+#include "save.h"
 #include "render/bg.h"
 
 int wa; //this is the state when navigating the upload menu
@@ -116,6 +119,12 @@ void Menu_input(void) {
 				wa=1;
 		when(Menu_SAVE):;
 			if (mouse.right.gotPress || mouse.left.gotPress) {
+				Save_save1();
+				char* s = Save_string(Save_data);
+				if (s) {
+					printf("%s\n", s);
+					free(s);
+				}
 				//save1();
 				//makesavestring();
 				buttonflash=10;
