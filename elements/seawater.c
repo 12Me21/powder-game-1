@@ -4,22 +4,30 @@ break; case Elem_SEAWATER:
 	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	Part* near = Part_rndNear(p->pos, 5);
 	// turn seed, wood, metal into powder
-	if (near>=Part_0 && (near->type==Elem_SEED||near->type==Elem_WOOD||near->type==Elem_METAL)) {
-		near->type = Elem_POWDER;
-		near->meta = 0;
+	if (near>=Part_0) {
+		if (near->type==Elem_SEED||near->type==Elem_WOOD||near->type==Elem_METAL) {
+			near->type = Elem_POWDER;
+			near->meta = 0;
+		}
 	}
 	int dir = atLeast(Random_int(8)-4, 0); //0 to 3, usually 0
 	
 	Part* g = Part_pos2(p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,1)}[dir]];
 	if (g>=Part_0) {
 		int type = g->type;
-		if (dir!=3 && ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO)) { //nitro, and solids except powder,stone
+		if (dir!=3 && ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE && type!=Elem_CONCRETE)||type==Elem_NITRO)) { //nitro, and solids except powder,stone
 			if (Rnd_perchance(10))
 				Part_swap(p, g);
 		// destroy vine AGAIN
 		} else if (type==Elem_VINE) {
 			g->type = Elem_POWDER;
 			g->meta = 0;
+		} else if (type==Elem_CONCRETE) {
+			if (Rnd_perchance(1)) {
+				g->type = Elem_STONE;
+				g->meta = 0;
+				Part_swap(p, g);
+			}
 		//put water into pump
 		} else if (Part_checkPump(p, g, dir))
 			Part_KILL();

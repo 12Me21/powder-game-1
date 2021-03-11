@@ -412,15 +412,15 @@ void Entity_update(void) {
 							f->vel.x += 20;
 						f->vel.y += Random_(3)+1;
 						switch (a->meta) {
-						when(Elem_FIRE):
+						when(Elem_FIRE):;
 							f->vel.x *= 3;
 							f->vel.y += 18;
 							f->meta = 2;
-						when(Elem_SUPERBALL):
+						when(Elem_SUPERBALL):;
 							f->vel.y = 20;
 						when(Elem_STONE):;
 							f->vel.c *= 0.1;
-						when(Elem_LASER):
+						when(Elem_LASER):;
 							f->meta = player->facing ? 1 : 5;
 						}
 					}

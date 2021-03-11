@@ -40,6 +40,7 @@ enum Element {
 	Elem_LASER, Elem_ACID, Elem_VINE, Elem_SALT, Elem_SEAWATER, Elem_GLASS, Elem_BIRD,
 	Elem_SAVE_BALL = 40,
 	Elem_MERCURY, Elem_SPARK, Elem_FUSE, Elem_CLOUD, Elem_PUMP,
+	Elem_CONCRETE,
 	Elem_MAX,
 };
 
