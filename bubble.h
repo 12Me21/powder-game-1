@@ -3,12 +3,12 @@
 #include "common.h"
 
 void Bubble_nextId(void);
-extern int Qd; // Qd
+//extern int Qd; // Qd
 
 typedef struct Bubble {
-	real x, y;// Ke[], Le[]
-	int ke;   // ke[]
-	bool held;// Me[]
+	Point pos; // Ke[], Le[]
+	int group; // ke[]
+	bool held; // Me[]
 } Bubble;
 
 // Pd
