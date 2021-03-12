@@ -11,11 +11,14 @@ ifdef win
  libs:= winmm dwmapi
  srcs+= platform-windows
  output:= pg1.exe
+
 else
  junkdir:= linux
  libs:= X11 m Xpm
  srcs+= platform-x11
  output:= pg1
+ cflags2+= $(shell pkg-config --cflags gtk+-3.0)
+ LDFLAGS+= $(shell pkg-config --libs gtk+-3.0)
 endif
 
 ifdef opt

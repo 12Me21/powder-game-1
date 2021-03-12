@@ -12,6 +12,8 @@
 #include <X11/xpm.h>
 #include <X11/keysym.h>
 
+#include <gtk/gtk.h>
+
 void Platform_frame(void);
 void Platform_main(int argc, char** argv);
 
@@ -88,7 +90,7 @@ static bool processEvent(void) {
 			when(XK_Down): code = 40;
 			when(XK_Left): code = 37;
 			when(XK_Right): code = 39;
-			when(XK_Return): code = 13;
+			when(XK_Return): code = '\r';
 			otherwise:;
 				char* sym_name = XKeysymToString(key);
 				printf("Got keysym: (%s)\n", sym_name);
@@ -160,4 +162,25 @@ int main(int argc, char** argv) {
 
 FILE* Platform_fopen(const void* name) {
 	return fopen((const char*)name, "r");
+}
+
+void Platform_saveAs(char* text) {
+	GtkWidget* dialog = gtk_file_chooser_dialog_new(
+		"ligma balls",
+		NULL,
+		GTK_FILE_CHOOSER_ACTION_SAVE,
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+		NULL
+	);
+	gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), "save.txt");
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), TRUE);
+	if (gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+		char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		FILE* n = fopen(filename, "w+");
+		fputs(text, n);
+		fclose(n);
+		g_free(filename);
+	}
+	gtk_widget_destroy(dialog);
 }

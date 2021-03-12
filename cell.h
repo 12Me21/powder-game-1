@@ -7,7 +7,12 @@ typedef struct Block {
 	real pres; // J[]
 	Point vel2; // md[] (these names might be reversed)
 	real pres2; // nd[]
+
 	char block; // K[]
+	// -1: offscreen
+	// 0: empty
+	// 1: normal block
+	// -2: (temporary) when erasing block
 } Block;
 
 typedef struct Block Cell;

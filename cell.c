@@ -146,9 +146,30 @@ void Cell_save(SavePixel save[H][W]) {
 				save[y][x].type = Elem_BLOCK;
 }
 
-void Cell_reset(void) {
-	Cell_FOR (cell) {
-		*cell = (Cell){.vel={0,0}, .vel2={0,0}, .pres=0, .pres2=0, .block=0};
+void Cell_reset(bool drawBorder) {
+	for (axis y=0; y<HEIGHT/4; y++) {
+		for (axis x=0; x<WIDTH/4; x++) {
+			Cell* cell = &Part_blocks[y][x];
+			*cell = (Cell){.vel={0,0}, .vel2={0,0}, .pres=0, .pres2=0, .block=0};
+			if (x<2 || y<2 || x>=WIDTH/4-2 || y>=HEIGHT/4-2)
+				cell->block = -1;
+			else if (x<3 || y<3 || x>=WIDTH/4-3 || y>=HEIGHT/4-3)
+				cell->block = 1;
+		}
 	}
-	// todo: fill edges with -1
+	// [] - offscreen blocks
+	// ## - screen border blocks
+	//    - empty space
+	
+	//[][][][][]:::[][][][][]
+	//[][][][][]:::[][][][][]
+	//[][]######:::######[][]
+	//[][]##           ##[][]
+	//[][]##           ##[][]
+	//::::::           ::::::
+	//[][]##           ##[][]
+	//[][]##           ##[][]
+	//[][]######:::######[][]
+	//[][][][][]:::[][][][][]
+	//[][][][][]:::[][][][][]
 }

@@ -28,7 +28,7 @@ $(junkdir)/%.mk: $(srcdir)/%.c
 
 # Compile
 $(junkdir)/%.o: $(srcdir)/%.c
-	$(cc) $(CFLAGS) -c $< -o $@
+	$(cc) $(CFLAGS) $(cflags2) $(addprefix -I,$(includes)) -c $< -o $@
 
 #fast-$(output): $(srcs:%=$(srcdir)/%.c)
 #	$(cc) $(CFLAGS) -O3 $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@

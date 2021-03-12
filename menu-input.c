@@ -5,6 +5,7 @@
 #include "menu.h"
 #include "reset.h"
 #include "save.h"
+#include "platform.h"
 #include "render/bg.h"
 
 int wa; //this is the state when navigating the upload menu
@@ -115,14 +116,18 @@ void Menu_input(void) {
 		when(Menu_START):;
 			Menu_paused=wrap((Menu_paused?1:0)+Mouse_fallingDirection,1)==1;
 		when(Menu_UPLOAD):;
-			if (Mouse_fallingDirection)
-				wa=1;
+			if (Mouse_fallingDirection) {
+				Save_save1();
+				char* s = Save_string(Save_data);
+				Platform_saveAs(s);
+				free(s);
+			}
+				//wa=1;
 		when(Menu_SAVE):;
 			if (mouse.right.gotPress || mouse.left.gotPress) {
 				Save_save1();
 				char* s = Save_string(Save_data);
 				if (s) {
-					printf("%s\n", s);
 					free(s);
 				}
 				//save1();

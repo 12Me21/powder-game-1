@@ -49,6 +49,26 @@ void gcopy(HDC hdc, void* grp, int sw, int sh, int dx, int dy, int sx, int sy, i
 	);
 }
 
+void Platform_saveAs(char* text) {
+	OPENFILENAME ofn = {
+		.lStructSize = sizeof(OPENFILENAME),
+		.hwndOwner = win,
+		.lpstrFile = (char[PATH_MAX]){0},
+		.nMaxFile = PATH_MAX,
+		.lpstrFilter = "All\0*.*\0Text\0*.TXT\0",
+		.nFilterIndex = 1,
+		.lpstrFileTitle = NULL,
+		.lpstrInitialDir = NULL,
+		.lpstrDefExt = "txt",
+		.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST,
+	};
+	if (GetSaveFileName(&ofn)==TRUE) {
+		FILE* n = fopen(ofn.lpstrFile, "w+");
+		fputs(text, n);
+		fclose(n);
+	}
+}
+
 void DrawPixels(HDC hdc) {
 	gcopy(hdc, grp,WIDTH,HEIGHT, 0,0, 8,8, W,H);
 	// draw menu
@@ -56,6 +76,38 @@ void DrawPixels(HDC hdc) {
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	void keyPress(int num, bool state) {
+		int code = -1;
+		switch(num) {
+		when('W'): case 'w': code = 'W';
+		when('A'): case 'a': code = 'A';
+		when('S'): case 's': code = 'S';
+		when('D'): case 'd': code = 'D';
+		when(VK_LEFT):; code = 37;
+		when(VK_UP):; code = 38;
+		when(VK_RIGHT):; code = 39;
+		when(VK_DOWN):; code = 40;
+		when(VK_RETURN):; code = '\r';
+		when(' '):; code = ' ';
+		}
+		if (code>=0) {
+			Keys[code].heldNow = state;
+			if (state)
+				Keys[code].gotPress = true;
+			else
+				Keys[code].gotRelease = true;	
+		}
+	}
+	
+	void mouseButton(int num, bool state) {
+		ButtonState* btn = &mouse.buttons[num];
+		btn->heldNow = state;
+		if (state)
+			btn->gotPress = true;
+		else
+			btn->gotRelease = true;	
+	}
+	
 	switch(msg) {
 	case WM_PAINT:;
 		PAINTSTRUCT ps;
@@ -73,20 +125,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		mouse.pos = (Point){GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
 		break;
 	case WM_LBUTTONDOWN:;
-		mouse.left.heldNow = true;
-		mouse.left.gotPress = true;
+		mouseButton(0, true);
 		break;
 	case WM_LBUTTONUP:;
-		mouse.left.heldNow = false;
-		mouse.left.gotRelease = true;
+		mouseButton(0, false);
 		break;
 	case WM_RBUTTONDOWN:;
-		mouse.right.heldNow = true;
-		mouse.right.gotPress = true;
+		mouseButton(2, true);
 		break;
 	case WM_RBUTTONUP:;
-		mouse.right.heldNow = false;
-		mouse.right.gotRelease = true;
+		mouseButton(2, false);	
+		break;
+	case WM_KEYDOWN:;
+		keyPress(wParam, true);
+		break;
+	case WM_KEYUP:;
+		keyPress(wParam, false);
 		break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -134,16 +188,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			DispatchMessage(&msg);
 		}
 
-		POINT p;
-		GetCursorPos(&p);
-		ScreenToClient(win, &p);
-		mouse.pos = (Point){p.x, p.y};
-		
-		SHORT b = GetAsyncKeyState(VK_LBUTTON);
-		//Platform_mouseLeft = !!(b & 1<<15);
-		b = GetAsyncKeyState(VK_RBUTTON);
-		//Platform_mouseRight = !!(b & 1<<15);
-		
 		Platform_frame();
 		
 		DrawPixels(hdc);
