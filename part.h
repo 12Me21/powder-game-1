@@ -6,7 +6,8 @@
 
 #define Part_MAX (WIDTH*HEIGHT+1000)
 
-extern int Part_limit;
+#define Part_limit (Part_LIMITS[Menu_dotLimit])
+//extern int Part_limit;
 
 #define Part_FOR(var) for (Part* var=Part_0; var<Part_next; var++)
 //#define Part_EACH(var) Part* var=Part_0; var<Part_next; var++
@@ -97,7 +98,6 @@ void Part_shuffle(void);
 void Part_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis));
 bool Part_checkPump(Part* part, Part* pump, int dir);
 void Part_liquidUpdate(Part* part, Block* cell, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc);
-void Part_reset(int a);
 
 void Part_print(Part* p); //for debug
 

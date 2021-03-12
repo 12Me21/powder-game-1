@@ -86,21 +86,20 @@ void loadSaveFile(FILE* stream) {
 	
 	ep = e;
 	for (int d=0; d<W*H; ) {
-		int b = *ep++;
-		if (b==Elem_FAN || b==Elem_FIREWORKS || b==Elem_BOX || b==Elem_SAVE_BALL) {
-			Save_data[0][d++] = (SavePixel){b, *ep++};
-		} else if (b==Elem_PLAYER2) {
+		int type = *ep++;
+		if (type==Elem_FAN || type==Elem_FIREWORKS || type==Elem_BOX || type==Elem_SAVE_BALL) {
+			Save_data[0][d++] = (SavePixel){type, *ep++};
+		} else if (type==Elem_PLAYER2) {
 			Save_data[0][d++] = (SavePixel){Elem_PLAYER, *ep++};
 		} else if (*ep<48) {
-			Save_data[0][d++].type = b;
-		} else {
-			//1 or 2 digits in hexadecimal
-			int w = *ep++ - 48; //low nibble
-			if (*ep>=48) //if next digit
-				w += (*ep++ - 48)<<4; //get high nibble
-			// run length encoding
+			Save_data[0][d++].type = type;
+		} else { // run length encoded
+			// 012345789:;<=>?
+			int w = *ep++ - '0'; //low nibble
+			if (*ep>='0') //if next digit
+				w += (*ep++ - '0')<<4; //get high nibble
 			for (int i=0; i<w; i++)
-				Save_data[0][d++].type = b;
+				Save_data[0][d++].type = type;
 		}
 	}
 }

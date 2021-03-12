@@ -10,8 +10,8 @@
 #include "cell.h"
 #include "save.h"
 
-int Part_limit = 0;
 const int Part_LIMITS[] = {20000, 30000, 40000, Part_MAX};
+//int Part_limit = Part_LIMITS[0]; //todo
 
 static Part parts_2[Part_MAX+6] = {{.type=-5},{.type=-4},{.type=-3},{.type=-2},{.type=-1}};
 static Part* const parts = parts_2+5;
@@ -77,7 +77,7 @@ void Part_swap(Part* part1, Part* part2) {
 }
 
 void Part_blow(Part* part, Point airvel) {
-	airvel.c *= 3.8/(Vec_fastDist(airvel)+1);
+	airvel.xy *= 3.8/(Vec_fastDist(airvel)+1);
 	if (*Part_pos(part->pos.x+airvel.x, part->pos.y)<=Part_BGFAN)
 		part->pos.x += airvel.x;
 	if (*Part_pos(part->pos.x, part->pos.y+airvel.y)<=Part_BGFAN)
@@ -112,11 +112,7 @@ void Part_update(void) {
 						p->held = true;
 				}
 			} else if (Menu_dragging) {
-				/*				Point d = {.z=(Point){Pen_x, Pen_y}.z - p->pos.z};
-				Point d = Vec_sub2((Point){Pen_x, Pen_y}, p->pos);
-				Vec_mul(&d, 0.1);
-				Vec_add(&p->vel, d);*/
-				p->vel.c += ((Point){Pen_x, Pen_y}.c - p->pos.c)*0.1;
+				p->vel.xy += (Menu_pen.xy - p->pos.xy)*0.1;
 			} else {
 				p->held = false;
 			}
@@ -309,4 +305,19 @@ void Part_save(SavePixel save[H][W]) {
 			save[y][x].type = type;
 		}
 	}
+}
+
+void Part_reset(void) {
+	for (axis y=0; y<HEIGHT; y++) {
+		for (axis x=0; x<WIDTH; x++) {
+			if (Part_blocks[y/4][x/4].block==1)
+				*Part_pos(x,y) = Part_BLOCK;
+			else
+				*Part_pos(x,y) = Part_EMPTY;
+		}
+	}
+	Part_FOR (p) { //probably unnecessary
+		p->held = false;
+	}
+	Part_next = Part_0;
 }

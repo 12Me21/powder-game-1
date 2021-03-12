@@ -149,7 +149,7 @@ void Menu_input(void) {
 				Bg_reset();
 		when(Menu_DOT):;
 			Menu_dotLimit = wrap(Menu_dotLimit+Mouse_fallingDirection, 3);
-			Part_limit = Part_LIMITS[Menu_dotLimit];
+			//Part_limit = Part_LIMITS[Menu_dotLimit];
 		when(Menu_RESET):;
 			if (Mouse_fallingDirection)
 				Sim_reset(false);

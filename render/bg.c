@@ -14,7 +14,7 @@ BgPixel* const Bg_pixels_end = &Bg_pixels[HEIGHT-1][WIDTH-1]+1;
 
 void Bg_reset(void) {
 	for (BgPixel* px=Bg_pixels[0]; px<Bg_pixels_end; px++)
-		*px = (BgPixel){0};
+		*px = (BgPixel){0,0,0};
 }
 
 // render background (this is the first render function to run)
@@ -44,7 +44,7 @@ void Bg_render(void) {
 			}
 		}
 		if (Menu_bgMode==Bg_LINE) {
-			for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++) {
+			Cell_FOR (c) {
 				if (c->block==0) {
 					Point e = c->vel;
 					real r = Vec_fastNormalize(&e);
@@ -296,8 +296,9 @@ void Bg_render(void) {
 		}
 		break;
 	case Bg_TG:
-		for(Part* p=Part_0; p<Part_next; p++)
+		Part_FOR (p) {
 			Bg_pixels[(int)p->pos.y][(int)p->pos.x].light = p->type[ELEMENTS].temperature;
+		}
 		inline void blend(axis x,axis y, axis x2,axis y2) {
 			Bg_pixels[y][x].light = Bg_pixels[y+y2][x+x2].light = (Bg_pixels[y][x].light+Bg_pixels[y+y2][x+x2].light)/2;
 		}

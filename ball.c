@@ -357,3 +357,9 @@ void Ball_save(SavePixel save[H][W]) {
 		}
 	}
 }
+
+void Ball_reset(void) {
+	Ball_FOR (ball) {
+		ball->used = false;
+	}
+}

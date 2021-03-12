@@ -8,7 +8,7 @@
 void Dot_render(void) {
 	if (Menu_bgMode==Bg_TOON)
 		return;
-	for (Part* i=Part_0; i<Part_next; i++) {
+	Part_FOR (i) {
 		Elem type = i->type;
 		if (type==Elem_PUMP && i->pumpType!=0)
 			type = i->pumpType;

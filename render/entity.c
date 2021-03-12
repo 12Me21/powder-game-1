@@ -18,7 +18,7 @@ void Entity_render(void) {
 	Color tan = 0xFFE0AE, white=0xFFFFFF;
 	if (Menu_bgMode==Bg_SILUET)
 		white=tan=0;
-	for (Entity* e=entitys; e<Entity_next; e++) {
+	Entity_FOR (e) {
 		switch (e->type) {
 		when(Entity_FIGHTER):
 		case Entity_FIGHTER+1:

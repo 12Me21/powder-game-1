@@ -5,7 +5,7 @@
 #include "draw.h"
 
 void Ball_render(void) {
-	for (Ball* ball=balls; ball<Ball_END; ball++) {
+	Ball_FOR (ball) {
 		if (!ball->used)
 			continue;
 		int type = ball->type;

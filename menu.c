@@ -271,20 +271,20 @@ void Menu_update(void) {
 						n = (n<<8)/w;
 						r = (r<<8)/w;
 						for (int y=(Pen_oldx<<8)+127,z=(Pen_oldy<<8)+127,b=0;b<=w;b++,y+=n,z+=r) {
-							for (Part* e=Part_0; e<Part_next; e++)
+							Part_FOR (e) {
 								if (y>>8==(int)e->pos.x && z>>8==(int)e->pos.y)
 									Part_remove(e--);
+							}
 						}
 					}
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
-						//todo: make macros for this!
-						for (Part* p=Part_0; p<Part_next; p++)
+						Part_FOR (p) {
 							if (Part_blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
 								Part_remove(p--);
-
+						}
 					}
 					if (selection==Menu_ERASE || selection==Menu_CLEAR) {
-						for (Block* cell=Part_blocks[0]; cell<Part_blocks_end; cell++) {
+						Cell_FOR(cell) {
 							if (cell->block==-2)
 								cell->block = 0;
 						}
@@ -349,3 +349,10 @@ MenuButtonDef Menu_BUTTONS[] = {
 	{0,0,0,0},
 	// rest is 0
 };
+
+void Menu_reset(void) {
+	Pen_oldx = Pen_oldy = Pen_x = Pen_y = 8;
+	Menu_pen = (Point){8,8};
+	Menu_penOld = (Point){8,8};
+	Pen_dir = (Point){0,0};
+}

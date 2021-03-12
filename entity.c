@@ -710,3 +710,7 @@ void Entity_save(SavePixel save[H][W]) {
 			save[y-8][x-8] = (SavePixel){type, meta};
 	}
 }
+
+void Entity_reset(void) {
+	Entity_next = entitys;
+}

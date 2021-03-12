@@ -7,7 +7,7 @@ typedef struct Wheel {
 	real vel;  // ne[]
 } Wheel;
 
-#define Wheel_FOREACH(var) for (Wheel* var=Wheel_wheels; var<Wheel_next; var++)
+#define Wheel_FOR(var) for (Wheel* var=Wheel_wheels; var<Wheel_next; var++)
 
 // Nd
 #define Wheel_MAX 100

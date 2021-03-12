@@ -13,22 +13,25 @@ Block* const Part_blocks_end = &Part_blocks[HEIGHT/4-1][WIDTH/4-1]+1;
 void Cell_update1(void) {
 	if (pd!=0) {
 		int open = 0;
-		for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++)
+		Cell_FOR (c) {
 			if (!c->block)
 				open++;
+		}
 		if (open>0) {
 			pd /= open;
-			for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++)
+			Cell_FOR (c) {
 				if (!c->block)
 					c->pres += pd;
+			}
 			pd = 0;
 		}
 	}
 }
 
 void Cell_update(void) {
-	for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++)
+	Cell_FOR (c) {
 		c->vel2 = c->vel;
+	}
 	for (int b=2; b<(HEIGHT)/4-2; b++) {
 		for (int d=2; d<(WIDTH)/4-2; d++) {
 			Block* cell = &Part_blocks[b][d];
@@ -88,8 +91,9 @@ void Cell_update(void) {
 			}
 		}
 	} //
-	for (Block* cell=Part_blocks[0]; cell<Part_blocks_end; cell++)
+	Cell_FOR (cell) {
 		cell->pres2 = cell->pres;
+	}
 	
 	for (int b=2; b<(HEIGHT)/4-2; b++) {
 		for (int d=2; d<(WIDTH)/4-2; d++) {
@@ -114,7 +118,7 @@ void Cell_update(void) {
 			pcheck( 1, 1,0.044194173);
 		}
 	}
-	for (Block* c=Part_blocks[0]; c<Part_blocks_end; c++) {
+	Cell_FOR (c) {
 		if (c->block != -1) { //woah -1??
 			c->vel = c->vel2;
 			c->pres = c->pres2;
@@ -140,4 +144,11 @@ void Cell_save(SavePixel save[H][W]) {
 		for (axis x=0; x<W; x++)
 			if (Part_blocks[y/4+2][x/4+2].block==1)
 				save[y][x].type = Elem_BLOCK;
+}
+
+void Cell_reset(void) {
+	Cell_FOR (cell) {
+		*cell = (Cell){.vel={0,0}, .vel2={0,0}, .pres=0, .pres2=0, .block=0};
+	}
+	// todo: fill edges with -1
 }

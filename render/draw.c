@@ -83,7 +83,7 @@ void Draw_line(int x1, int y1, int x2, int y2, Color color) {
 	dy = (dy<<8)/n;
 	x1 = (x1<<8)+127;
 	y1 = (y1<<8)+127;
-	for(int i=0; i<=n; i++) {
+	for (int i=0; i<=n; i++) {
 		x2 = x1>>8;
 		y2 = y1>>8;
 		if (x2>=0 && x2<WIDTH && y2>=0 && y2<HEIGHT)

@@ -162,3 +162,8 @@ void Bubble_create(axis x, axis y) {
 		Bubble_next++;
 	}
 }
+
+void Bubble_reset(void) {
+	Bubble_next = Bubble_bubbles;
+	Qd = 0;
+}
