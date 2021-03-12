@@ -3,7 +3,7 @@
 #include "vector.h"
 #include "input.h"
 #include "elements.h"
-#include "part.h"
+#include "dot.h"
 #include "wheel.h"
 #include "save.h"
 
@@ -26,12 +26,12 @@ void Wheel_update(void) {
 		for (axis y=0; y<32; y++) {
 			for (axis x=0; x<32; x++) {
 				if (frame[y][x]=='.') {
-					Block* cell = &Part_blocks[(w->y+y-16)>>2][(w->x+x-16)];
+					Block* cell = &Dot_blocks[(w->y+y-16)>>2][(w->x+x-16)];
 					real wind = cell->vel.x*(y-15.5) - cell->vel.y*(x-15.5);
 					w->vel += 0.0001*wind;
 				}
-				Part* p = Part_at[w->y+y-16][w->x+x-16];
-				if (p>=Part_0 && frame[y][x]==' ' && y!=31 && frame[y+1][x]=='.') {
+				Dot* p = Dot_at[w->y+y-16][w->x+x-16];
+				if (p>=Dot_0 && frame[y][x]==' ' && y!=31 && frame[y+1][x]=='.') {
 					real weight = 0*(y-15.5)-1*(x-15.5);
 					w->vel += weight*ELEMENTS[p->type].wheelWeight*0.0001;
 				}
@@ -47,34 +47,34 @@ void Wheel_update(void) {
 		if (w->angle>=16)
 			w->angle -= 16;
 		if (g) {
-			typedef struct WheelPart {
-				Part* part;
+			typedef struct WheelDot {
+				Dot* part;
 				real x,y;
-			} WheelPart;
+			} WheelDot;
 
-			WheelPart parts[1024];
-			WheelPart* next = parts;
+			WheelDot parts[1024];
+			WheelDot* next = parts;
 
 			frame = Wheel_frames[(int)floor(w->angle)];
 			for (axis y=0; y<32; y++) {
 				for (axis x=0; x<32; x++) {
 					if (frame[y][x]==' ') {
-						Part* p = Part_at[w->y+y-16][w->x+x-16];
-						if (p>=Part_0)
-							*next++ = (WheelPart){p, (y-15.5)*g*0.1, -(x-15.5)*g*0.1};
+						Dot* p = Dot_at[w->y+y-16][w->x+x-16];
+						if (p>=Dot_0)
+							*next++ = (WheelDot){p, (y-15.5)*g*0.1, -(x-15.5)*g*0.1};
 					}
 				}
 			}
-			for (WheelPart* wp=parts; wp<next; wp++) {
-				Part* part = wp->part;
-				*Part_pos2(part->pos) = Part_EMPTY;
-				Part* p = *Part_pos(part->pos.x+wp->x, part->pos.y);
-				if (p<Part_BLOCK)
+			for (WheelDot* wp=parts; wp<next; wp++) {
+				Dot* part = wp->part;
+				*Dot_pos2(part->pos) = Dot_EMPTY;
+				Dot* p = *Dot_pos(part->pos.x+wp->x, part->pos.y);
+				if (p<Dot_BLOCK)
 					part->pos.x += wp->x;
-				p = *Part_pos(part->pos.x, part->pos.y+wp->y);
-				if (p<Part_BLOCK)
+				p = *Dot_pos(part->pos.x, part->pos.y+wp->y);
+				if (p<Dot_BLOCK)
 					part->pos.y += wp->y;
-				*Part_pos2(part->pos) = part;
+				*Dot_pos2(part->pos) = part;
 				switch (part->type) {
 				when(Elem_WOOD):;
 					if (Rnd_perchance(20))
@@ -122,9 +122,9 @@ void Wheel_update1(void) {
 	Wheel_FOR (w) {
 		for (axis y=0; y<32; y++)
 			for (axis x=0; x<32; x++) {
-				Part** p = Part_pos(w->x-16+x, w->y-16+y);
-				if (*p == Part_WHEEL)
-					*p = Part_EMPTY;
+				Dot** p = Dot_pos(w->x-16+x, w->y-16+y);
+				if (*p == Dot_WHEEL)
+					*p = Dot_EMPTY;
 			}
 	}
 	// add new ones
@@ -133,9 +133,9 @@ void Wheel_update1(void) {
 		for (axis y=0; y<32; y++)
 			for (axis x=0; x<32; x++) {
 				if (frame[y][x]=='.') {
-					Part** p = Part_pos(w->x-16+x, w->y-16+y);
-					if (*p <= Part_BGFAN)
-						*p = Part_WHEEL;
+					Dot** p = Dot_pos(w->x-16+x, w->y-16+y);
+					if (*p <= Dot_BGFAN)
+						*p = Dot_WHEEL;
 				}
 			}
 	}

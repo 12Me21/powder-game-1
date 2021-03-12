@@ -5,7 +5,7 @@ break; case Elem_POWDER:
 	airvel.y += Random_2(0.01, 0.1);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.7;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 
 #elif defined UPDATE_BALL
 	if (touched>=0) {

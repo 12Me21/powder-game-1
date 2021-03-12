@@ -4,7 +4,7 @@
 #include "../common.h"
 #include "../menu.h"
 #include "../elements.h"
-#include "../part.h"
+#include "../dot.h"
 #include "bg.h"
 #include "draw.h"
 #include "../entity.h"
@@ -164,7 +164,7 @@ void Menu_render(void) {
 
 	memcpy(Menu_grp, normalMenuImage, sizeof(normalMenuImage));
 	if (Menu_numberMenu) {
-		int* counts = Part_updateCounts();
+		int* counts = Dot_updateCounts();
 		void Draw_count(int i, int elem) {
 			if (!elem)
 				return;
@@ -232,7 +232,7 @@ void Menu_render(void) {
 	Draw_mrectangle(4+Menu_BUTTONWIDTH*(Menu_rightSelection/Menu_BUTTONROWS),11+Menu_rightSelection%Menu_BUTTONROWS*Menu_BUTTONHEIGHT,3,4,0x0000FF);
 	Draw_printf(56,rowLast,0x808080,0,-1," %d",Pen_x-8);
 	Draw_printf(56,rowLast,0x808080,0,-1,"      %d",Pen_y-8);
-	Draw_printf(141-8,rowLast,0x808080,0,-1,"   %d", Part_limit - (Part_next-Part_0));
+	Draw_printf(141-8,rowLast,0x808080,0,-1,"   %d", Dot_limit - (Dot_next-Dot_0));
 	if (Menu_fps<=999)
 		Draw_printf(0,rowLast,0x808080,0,0,"%3d",Menu_fps);
 	else {

@@ -30,7 +30,7 @@ extern axis Menu_zoomX; // ma
 extern axis Menu_zoomY; // na
 extern Point Pen_dir; // jd
 
-extern const int Part_LIMITS[4]; // ia
+extern const int Dot_LIMITS[4]; // ia
 extern Point Menu_pen;
 extern Point Menu_penOld;
 extern axis Pen_x, Pen_y; // Oc, Pc

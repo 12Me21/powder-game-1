@@ -4,7 +4,7 @@
 #include "../menu.h"
 #include "draw.h"
 #include "../elements.h"
-#include "../part.h"
+#include "../dot.h"
 #include "../cell.h"
 #include "bg.h"
 
@@ -25,12 +25,12 @@ void Bg_render(void) {
 	case Bg_NONE:
 	default:;
 		for (Offset i=0;i<WIDTH*HEIGHT;i++)
-			grp0[i] = Part_grid0[i]==Part_BLOCK ? 0x606060 : 0;
+			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? 0x606060 : 0;
 		break;
 	case Bg_AIR: case Bg_LINE:;
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* block = &Part_blocks[y][x];
+				Block* block = &Dot_blocks[y][x];
 				if (block->block == 1) {
 					Draw_rectangle(x*4, y*4, 4, 4, 0x606060);
 				} else {
@@ -51,7 +51,7 @@ void Bg_render(void) {
 					if (r>=0.2) {
 						r = atMost(r, 8);
 						int f = atMost(48*r, 96);
-						int d = c-Part_blocks[0];
+						int d = c-Dot_blocks[0];
 						int n = d/(WIDTH/4)*4;
 						d = d%(WIDTH/4)*4;
 						Draw_line(d+e.x*r*10, n+e.y*r*10, d, n, f<<16);
@@ -62,7 +62,7 @@ void Bg_render(void) {
 		break;
 	case Bg_BLUR:
 		for (i=(HEIGHT-8)*WIDTH; i>=8*400+128; i--) { //why 128
-			if (Part_grid0[i]==Part_BLOCK)
+			if (Dot_grid0[i]==Dot_BLOCK)
 				grp0[i] = 0x606060;
 			else {
 				int r = 230*RED(grp0[i])/256;
@@ -104,7 +104,7 @@ void Bg_render(void) {
 		}
 		for (y=0;y<H+8;y++) {
 			for (x=0;x<WIDTH;x++)
-				if (Part_at[y][x] == Part_BLOCK)
+				if (Dot_at[y][x] == Dot_BLOCK)
 					grp[y][x] = 0x606060;
 		}
 		break;
@@ -112,7 +112,7 @@ void Bg_render(void) {
 		memset(Bg_pixels, 0, sizeof(Bg_pixels));
 		for (y=2;y<(HEIGHT/4)-2;y++) {
 			for (x=2;x<(WIDTH/4)-2;x++) {
-				Cell* e = &Part_blocks[y][x];
+				Cell* e = &Dot_blocks[y][x];
 				real vx = fabs(e->vel.x);
 				real vy = fabs(e->vel.y);
 				if (vx!=0 || vy!=0) {
@@ -144,7 +144,7 @@ void Bg_render(void) {
 		for (y=8;y<H+8;y++) {
 			for (x=8;x<W+8;x++) {
 				BgPixel* p = &Bg_pixels[y][x];
-				grp[y][x] = Part_at[y][x]==Part_BLOCK ? 0x606060 : RGB(
+				grp[y][x] = Dot_at[y][x]==Dot_BLOCK ? 0x606060 : RGB(
 					atMost(p->auraR>>16, 255),
 					atMost(p->auraG>>16, 255),
 					atMost(p->auraB>>16, 255)
@@ -155,7 +155,7 @@ void Bg_render(void) {
 		break;
 	case Bg_LIGHT:;
 		for (i=(H+8)*WIDTH; i>=WIDTH*8; i--) {
-			if (Part_grid0[i]==Part_BLOCK)
+			if (Dot_grid0[i]==Dot_BLOCK)
 				grp0[i] = 0x606060;
 			else {
 				int r = 220*RED(grp0[i])/256;
@@ -167,32 +167,32 @@ void Bg_render(void) {
 		break;
 	case Bg_TOON:
 		for (i=(H+8)*WIDTH; i>=WIDTH*7; i--) {
-			Part* p = Part_grid0[i];
-			if (p==Part_BLOCK)
+			Dot* p = Dot_grid0[i];
+			if (p==Dot_BLOCK)
 				grp0[i] = 0x606060;
-			else if (p==Part_BALL)
+			else if (p==Dot_BALL)
 				grp0[i] = 0;
-			else if (p==Part_BGFAN)
+			else if (p==Dot_BGFAN)
 				grp0[i] = 0x8080FF;
-			else if (p==Part_EMPTY) {
-				grp0[i] = Part_grid0[i+1]>=Part_0 ?
-					ELEMENTS[Part_grid0[i+1]->type].color :
-					Part_grid0[i-1]>=Part_0 ?
-					ELEMENTS[Part_grid0[i-1]->type].color :
-					Part_at[1][i]>=Part_0 ?
-					ELEMENTS[Part_at[1][i]->type].color :
-					Part_at[-1][i]>=Part_0 ?
-					ELEMENTS[Part_at[-1][i]->type].color :
-					Part_at[1][i+1]>=Part_0 ?
-					ELEMENTS[Part_at[1][i+1]->type].color :
-					Part_at[1][i-1]>=Part_0 ?
-					ELEMENTS[Part_at[1][i-1]->type].color :
-					Part_at[-1][i+1]>=Part_0 ?
-					ELEMENTS[Part_at[-1][i+1]->type].color :
-					Part_at[-1][i-1]>=Part_0 ?
-					ELEMENTS[Part_at[-1][i-1]->type].color :
+			else if (p==Dot_EMPTY) {
+				grp0[i] = Dot_grid0[i+1]>=Dot_0 ?
+					ELEMENTS[Dot_grid0[i+1]->type].color :
+					Dot_grid0[i-1]>=Dot_0 ?
+					ELEMENTS[Dot_grid0[i-1]->type].color :
+					Dot_at[1][i]>=Dot_0 ?
+					ELEMENTS[Dot_at[1][i]->type].color :
+					Dot_at[-1][i]>=Dot_0 ?
+					ELEMENTS[Dot_at[-1][i]->type].color :
+					Dot_at[1][i+1]>=Dot_0 ?
+					ELEMENTS[Dot_at[1][i+1]->type].color :
+					Dot_at[1][i-1]>=Dot_0 ?
+					ELEMENTS[Dot_at[1][i-1]->type].color :
+					Dot_at[-1][i+1]>=Dot_0 ?
+					ELEMENTS[Dot_at[-1][i+1]->type].color :
+					Dot_at[-1][i-1]>=Dot_0 ?
+					ELEMENTS[Dot_at[-1][i-1]->type].color :
 					0x000000;
-			} else if (p>=Part_0) {
+			} else if (p>=Dot_0) {
 				grp0[i] = ELEMENTS[p->type].color;
 			}
 		}
@@ -211,10 +211,10 @@ void Bg_render(void) {
 		break;
 	case Bg_MESH:;
 		for (i=(HEIGHT-8)*WIDTH; i>=0; i--)
-			grp0[i] = Part_grid0[i]==Part_BLOCK ? 0x606060 : 0;
+			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? 0x606060 : 0;
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* cell = &Part_blocks[y][x];
+				Block* cell = &Dot_blocks[y][x];
 				if (cell->block!=0) continue;
 				real vel = Vec_fastDist(cell->vel);
 				if (vel<0.2) continue;
@@ -228,11 +228,11 @@ void Bg_render(void) {
 					b = atMost(-cell->pres*48*r, 96);
 				int d = x*4 + 5*cell->vel.x;
 				int n = y*4 + 5*cell->vel.y;
-				cell = &Part_blocks[y][x+1];
+				cell = &Dot_blocks[y][x+1];
 				int w = (x+1)*4 + 5*cell->vel.x;
 				int h = (y)*4 + 5*cell->vel.y;
 				Draw_line(d,n,w,h,RGB(r,g,b));
-				cell = &Part_blocks[y+1][x];
+				cell = &Dot_blocks[y+1][x];
 				w = (x)*4 + 5*cell->vel.x;
 				h = (y+1)*4 + 5*cell->vel.y;
 				Draw_line(d,n,w,h,RGB(r,g,b));
@@ -242,7 +242,7 @@ void Bg_render(void) {
 	case Bg_GRAY:
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* cell = &Part_blocks[y][x];
+				Block* cell = &Dot_blocks[y][x];
 				if (cell->block==1)
 					Draw_rectangle(x*4,y*4,4,4,0x606060);
 				else {
@@ -260,7 +260,7 @@ void Bg_render(void) {
 		const Offset blockOffsets[] = {0,1,2,3,WIDTH+0,WIDTH+1,WIDTH+2,WIDTH+3,2*WIDTH+0,2*WIDTH+1,2*WIDTH+2,2*WIDTH+3,3*WIDTH+0,3*WIDTH+1,3*WIDTH+2,3*WIDTH+3};
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* cell = &Part_blocks[y][x];
+				Block* cell = &Dot_blocks[y][x];
 				if (cell->block==1)
 					Draw_rectangle(x*4,y*4,4,4,0x606060);
 				else {
@@ -281,8 +281,8 @@ void Bg_render(void) {
 	case Bg_DARK:
 		for (Offset a=(HEIGHT-8)*WIDTH; a>=0; a--) {
 			BgPixel* px = &Bg_pixels0[a];
-			Part* p = Part_grid0[a];
-			if (p<Part_0)
+			Dot* p = Dot_grid0[a];
+			if (p<Dot_0)
 				px->light = 8*px->light/9;
 			else if (p->type==Elem_FIRE||p->type==Elem_MAGMA||p->type==Elem_LASER||p->type==Elem_SPARK)
 				px->light = 25500;
@@ -292,11 +292,11 @@ void Bg_render(void) {
 				px->light = 8*px->light/9;
 		}
 		for (Offset a=(HEIGHT-8)*WIDTH; a>=0; a--) {
-			grp0[a] = Part_grid0[a]==Part_BLOCK ? 0x606060 : 0;
+			grp0[a] = Dot_grid0[a]==Dot_BLOCK ? 0x606060 : 0;
 		}
 		break;
 	case Bg_TG:
-		Part_FOR (p) {
+		Dot_FOR (p) {
 			Bg_pixels[(int)p->pos.y][(int)p->pos.x].light = p->type[ELEMENTS].temperature;
 		}
 		inline void blend(axis x,axis y, axis x2,axis y2) {
@@ -347,14 +347,14 @@ void Bg_render(void) {
 			grp0[i] = RGB(r,g,b);
 		}
 		for (i=(HEIGHT-8)*WIDTH; i>=0; i--)
-			if (Part_grid0[i]==Part_BLOCK)
+			if (Dot_grid0[i]==Dot_BLOCK)
 				grp0[i] = 0x606060;;
 		break;
 	case Bg_SILUET:
 		for (Offset a=(HEIGHT-8)*WIDTH; a>=WIDTH*8+128; a--) { //128??
-			if (Part_grid0[a]==Part_BLOCK)
+			if (Dot_grid0[a]==Dot_BLOCK)
 				grp0[a] = 0;
-			else if (Part_grid0[a]==Part_EMPTY) {
+			else if (Dot_grid0[a]==Dot_EMPTY) {
 				int r = 0xFF- (0xFF-RED(grp0[a]))/2;
 				int g = 0xFF- (0xFF-GREEN(grp0[a]))/2;
 				int b = 0xFF- (0xFF-BLUE(grp0[a]))/2;

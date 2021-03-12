@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include "common.h"
-#include "part.h"
+#include "dot.h"
 
 enum State {State_NONE=0, State_POWDER, State_LIQUID, State_HOT, State_SOLID, State_GAS};
 

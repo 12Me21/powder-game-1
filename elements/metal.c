@@ -1,11 +1,11 @@
 break; case Elem_METAL:
 {
 #ifdef UPDATE_PART
-	Part_toGrid(p);
+	Dot_toGrid(p);
 	p->vel = (Point){0,0};
 	
-	Part* near = Part_rndNear(p->pos, 5);
-	if (near>=Part_0) {
+	Dot* near = Dot_rndNear(p->pos, 5);
+	if (near>=Dot_0) {
 		switch (near->type) {
 		when(Elem_WATER):;
 			if (Rnd_perchance(2))
@@ -36,11 +36,11 @@ break; case Elem_METAL:
 		if (++ball->meta>=20)
 			*newType = Elem_MAGMA;
 	when(Elem_METAL):;
-		if (Part_limit1000() && ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {
+		if (Dot_limit1000() && ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {
 			int x = floor(ball->pos.x) + floor(Random_(5))-2;
 			int y = floor(ball->pos.y) + floor(Random_(5))-2;
-			if (Part_pos(x, y)[0]<=Part_BGFAN)
-				Part_create(x, y, Elem_SPARK);
+			if (Dot_pos(x, y)[0]<=Dot_BGFAN)
+				Dot_create(x, y, Elem_SPARK);
 		}
 	when(Elem_THUNDER): case Elem_LASER: case Elem_SPARK:
 		return 1;

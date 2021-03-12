@@ -42,7 +42,7 @@ void Platform_frame(void) {
 			continue;
 		DEFCALL(Cell_update);
 		DEFCALL(Wheel_update1);
-		DEFCALL(Part_update);
+		DEFCALL(Dot_update);
 		DEFCALL(Wheel_update);
 		DEFCALL(Bubble_update);
 		DEFCALL(Entity_update);

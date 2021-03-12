@@ -5,13 +5,13 @@ break; case Elem_CLOUD:
 	airvel.y += Random_2(-0.01, -0.02);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.9;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 
 	int dir = Random_int(4);
-	Part* near = Part_dirNear(p->pos, dir);
-	if (near>=Part_0) {
+	Dot* near = Dot_dirNear(p->pos, dir);
+	if (near>=Dot_0) {
 		if (dir<3 && (ELEMENTS[near->type].state==State_POWDER || ELEMENTS[near->type].state==State_LIQUID)) {
-			Part_swap(p,near);
+			Dot_swap(p,near);
 		} else if (near->type==Elem_CLOUD) {
 			p->vel.xy += Rnd_point(-0.1,0.1, -0.1,0.1).xy;
 		} else if (near->type==Elem_WOOD || near->type==Elem_C4 || near->type==Elem_TORCH || near->type==Elem_VINE || near->type==Elem_FUSE) {
@@ -20,11 +20,11 @@ break; case Elem_CLOUD:
 			p->type = Elem_SNOW;
 		} else if (near->type==Elem_METAL) {
 			p->type = Elem_THUNDER;
-		} else if (Part_checkPump(p, near, dir)) {
+		} else if (Dot_checkPump(p, near, dir)) {
 			near->pumpType = Elem_WATER;
-			Part_KILL();
+			Dot_KILL();
 		}
-	} else if (near==Part_BLOCK)
+	} else if (near==Dot_BLOCK)
 		p->type = Elem_WATER;
 
 #elif defined UPDATE_BALL

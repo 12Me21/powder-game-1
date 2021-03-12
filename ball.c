@@ -29,7 +29,7 @@ void Ball_create(int x, int y, Elem type) {
 	}
 }
 
-#define XYOFS(x,y) x,y,Part_ofs(x,y)
+#define XYOFS(x,y) x,y,Dot_ofs(x,y)
 
 static const struct neighbor {
 	Point breakVel;
@@ -79,12 +79,12 @@ static const struct neighbor {
 };
 
 void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
-	Part** pc = Part_pos2(ball->pos);
+	Dot** pc = Dot_pos2(ball->pos);
 	if (mode==0) {
 		for (int i=9;i<21;i++) {
-			Part* near = pc[neighbors[i].offset];
-			if (near<=Part_BGFAN) {
-				near = Part_create(
+			Dot* near = pc[neighbors[i].offset];
+			if (near<=Dot_BGFAN) {
+				near = Dot_create(
 					(int)(ball->pos.x)+neighbors[i].breakX,
 					(int)(ball->pos.y)+neighbors[i].breakY,
 					createType
@@ -100,9 +100,9 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 		ball->used = false;
 	} else if (mode==1||mode==2) {
 		for (int i=mode==1?9:0; i<21; i++) {
-			Part* near = pc[neighbors[i].offset];
-			if (near<=Part_BGFAN) {
-				near = Part_create(
+			Dot* near = pc[neighbors[i].offset];
+			if (near<=Dot_BGFAN) {
+				near = Dot_create(
 					(int)(ball->pos.x)+neighbors[i].breakX,
 					(int)(ball->pos.y)+neighbors[i].breakY,
 					createType
@@ -111,7 +111,7 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
 					near->meta = meta;
 				}
-			} else if (near>=Part_0) {
+			} else if (near>=Dot_0) {
 				near->type = createType;
 				near->meta = 0;
 				near->pumpType = 0;
@@ -121,7 +121,7 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 	}
 }
 
-bool Ball_react(Ball* ball, Part* part, Elem* newType) {
+bool Ball_react(Ball* ball, Dot* part, Elem* newType) {
 	//return 0;
 	Elem partType = part->type; //this is stored now, incase the particle is deleted!
 	switch (ball->type) {
@@ -180,14 +180,14 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	// edge loop mode
 	if (Menu_edgeMode==1) {
 		if (nextx<8) {
-			if (Part_pos(nextx+W,nexty)[0]<=Part_BGFAN) {
+			if (Dot_pos(nextx+W,nexty)[0]<=Dot_BGFAN) {
 				i->pos.x += W;
 				i->vel.x *= 0.8;
 			} else
 				i->vel.x *= -0.8;
 			nextx = i->pos.x+i->vel.x*n;
 		} else if (nextx>=W+8) {
-			if (Part_pos(nextx-W,nexty)[0]<=Part_BGFAN) {
+			if (Dot_pos(nextx-W,nexty)[0]<=Dot_BGFAN) {
 				i->pos.x -= W;
 				i->vel.x *= 0.8;
 			} else
@@ -195,14 +195,14 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 			nextx = i->pos.x+i->vel.x*n;
 		}
 		if (nexty<8) {
-			if (Part_pos(nextx,nexty+H)[0]<=Part_BGFAN) {
+			if (Dot_pos(nextx,nexty+H)[0]<=Dot_BGFAN) {
 				i->pos.y += H;
 				i->vel.y *= 0.8;
 			} else
 				i->vel.y *= -0.8;
 			nexty = i->pos.y+i->vel.y*n;
 		} else if (nexty>=H+8) {
-			if (Part_pos(nextx,nexty-H)[0]<=Part_BGFAN) {
+			if (Dot_pos(nextx,nexty-H)[0]<=Dot_BGFAN) {
 				i->pos.y -= H;
 				i->vel.y *= 0.5; // this is not 0.8 like the others
 			} else
@@ -212,17 +212,17 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	}
 	// collision with parts
 	Point z = {0,0};
-	Part** pc = Part_pos(nextx,nexty);
+	Dot** pc = Dot_pos(nextx,nexty);
 	int touches=0;
 	for (int d=0;d<37;d++) {
-		Part* near = pc[neighbors[d].offset];
-		if (near<=Part_BGFAN) continue;
-		if (near>=Part_0) {
+		Dot* near = pc[neighbors[d].offset];
+		if (near<=Dot_BGFAN) continue;
+		if (near>=Dot_0) {
 			*touched = near->type;
 			if (Ball_react(i, near, newType))
 				continue;
 		} else {
-			*touched = near-Part_0;
+			*touched = near-Dot_0;
 		}
 		z.xy -= neighbors[d].breakVel.xy;
 		touches++;
@@ -244,13 +244,13 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 		i->pos.xy += i->vel.xy*n;
 		i->vel.y += weight;
 	}
-	pc = Part_pos2(i->pos);
+	pc = Dot_pos2(i->pos);
 	z = (Point){0,0};
 	touches = 0;
 	for (int d=0;d<21;d++) {
-		Part* near = pc[neighbors[d].offset];
-		if (near<Part_BGFAN) continue;
-		if (near>=Part_0) {
+		Dot* near = pc[neighbors[d].offset];
+		if (near<Dot_BGFAN) continue;
+		if (near>=Dot_0) {
 			int btype = i->type;
 			int ptype = near->type;
 			if (ELEMENTS[ptype].state==State_LIQUID && ELEMENTS[btype].state==State_LIQUID && btype!=ptype)
@@ -278,10 +278,10 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 
 static void undraw(Ball* i) {
 	// erase fake parts from grid
-	Part** p = Part_pos2(i->pos);
+	Dot** p = Dot_pos2(i->pos);
 	for (int d=0; d<21; d++)
-		if (p[neighbors[d].offset] == Part_BALL)
-			p[neighbors[d].offset] = Part_EMPTY;
+		if (p[neighbors[d].offset] == Dot_BALL)
+			p[neighbors[d].offset] = Dot_EMPTY;
 }
 
 void Ball_update(void) {
@@ -298,7 +298,7 @@ void Ball_update(void) {
 
 		real adv = ELEMENTS[i->type].ballAdvection;
 		if (adv) {
-			Block* cell = &Part_blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
+			Block* cell = &Dot_blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
 			i->vel.x += cell->vel.x*adv;
 			i->vel.y += cell->vel.y*adv;
 			if (Vec_fastDist(cell->vel)>0.3)
@@ -336,11 +336,11 @@ void Ball_update(void) {
 		
 		if (i->used) {
 			// draw new fake parts to grid
-			Part** pc = Part_pos2(i->pos);
+			Dot** pc = Dot_pos2(i->pos);
 			for (int d=0; d<21; d++) {
-				Part** p = &pc[neighbors[d].offset];
-				if (*p<=Part_BGFAN)
-					*p = Part_BALL;
+				Dot** p = &pc[neighbors[d].offset];
+				if (*p<=Dot_BGFAN)
+					*p = Dot_BALL;
 			}
 		}
 	}

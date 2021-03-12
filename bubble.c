@@ -4,7 +4,7 @@
 #include "vector.h"
 #include "input.h"
 #include "elements.h"
-#include "part.h"
+#include "dot.h"
 #include "bubble.h"
 
 Bubble Bubble_bubbles[2000];
@@ -35,8 +35,8 @@ static void partLine(real a, real d, real b, real c, int type) {
 	a += 0.5;
 	d += 0.5;
 	for (int g=0; g<=f; g++,a+=b,d+=c) {
-		if (onscreen(a,d) && *Part_pos(a, d)<=Part_BGFAN)
-			Part_create(a, d, type);
+		if (onscreen(a,d) && *Dot_pos(a, d)<=Dot_BGFAN)
+			Dot_create(a, d, type);
 	}
 }
 
@@ -54,7 +54,7 @@ static void pull(Bubble* a, Bubble* b) {
 
 void Bubble_update(void) {
 	Bubble_FOR (b) {
-		Block* cell = &Part_blocks[(int)b->y/4][(int)b->x/4];
+		Block* cell = &Dot_blocks[(int)b->y/4][(int)b->x/4];
 		Point vel = cell->vel;
 		Vec_mul(&vel, 3.8/(Vec_fastDist(vel)+1));
 		b->x += vel.x;
@@ -100,11 +100,11 @@ void Bubble_update(void) {
 		b+=e;
 	}
 	Bubble_FOR (b) {
-		Part* part = Part_EMPTY;
+		Dot* part = Dot_EMPTY;
 		if (b->x>=0 && b->x<WIDTH && b->y>=0 && b->y<H+16) {
-			part = *Part_pos(b->x, b->y);
-			if (part<=Part_BGFAN) continue;
-			if (part>=Part_0 && part->type==Elem_SOAPY) continue;
+			part = *Dot_pos(b->x, b->y);
+			if (part<=Dot_BGFAN) continue;
+			if (part>=Dot_0 && part->type==Elem_SOAPY) continue;
 		}
 		int c = b->ke;
 		Bubble *a, *e;
@@ -112,7 +112,7 @@ void Bubble_update(void) {
 		}
 		for (e=b; a>Bubble_bubbles && c==e->ke; e++) {
 		}
-		int type = part>=Part_0 ? part->type : Elem_STEAM;
+		int type = part>=Dot_0 ? part->type : Elem_STEAM;
 		Bubble* d;
 		for (d=a; d<e-1; d++)
 			partLine(d->x, d->y, (d+1)->x, (d+1)->y, type);
@@ -129,7 +129,7 @@ void Bubble_draw(axis x, axis y, bool rising, bool old) {
 		return;
 	x = x&~3;
 	y = y&~3;
-	Block* cell = &Part_blocks[y>>2][x>>2];
+	Block* cell = &Dot_blocks[y>>2][x>>2];
 	if (cell->block!=0)
 		Qd++;
 	else {

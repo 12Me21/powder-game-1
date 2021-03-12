@@ -1,10 +1,10 @@
 break; case Elem_MAGMA:
 {
 #ifdef UPDATE_PART
-	Part_liquidUpdate(p, c, 0.1, 0,0.1, 0.01, 0.01,0.1, 0.9);
+	Dot_liquidUpdate(p, c, 0.1, 0,0.1, 0.01, 0.01,0.1, 0.9);
 
-	Part* near = Part_rndNear5(p->pos);
-	if (near>=Part_0) {
+	Dot* near = Dot_rndNear5(p->pos);
+	if (near>=Dot_0) {
 		switch (near->type) {
 		case Elem_POWDER: case Elem_SEED: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
 			near->type = Elem_FIRE;
@@ -12,7 +12,7 @@ break; case Elem_MAGMA:
 			//magma+water/soapy = stone+steam
 		case Elem_WATER: case Elem_SOAPY:
 			if (Rnd_perchance(50))
-				Part_KILL();
+				Dot_KILL();
 			p->type = Elem_STONE;
 			near->type = Elem_STEAM;
 			break;
@@ -25,7 +25,7 @@ break; case Elem_MAGMA:
 			//magma+saltwater=stone+salt (no steam, note)
 		case Elem_SEAWATER:
 			if (Rnd_perchance(50))
-				Part_KILL();
+				Dot_KILL();
 			p->type = Elem_STONE;
 			near->type = Elem_SALT;
 			break;
@@ -41,10 +41,10 @@ break; case Elem_MAGMA:
 		}
 	}
 	int g = Random_int(4);
-	near = Part_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[g]];
+	near = Dot_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[g]];
 	//enter pump
-	if (near>=Part_0 && Part_checkPump(p, near, g))
-		Part_KILL();
+	if (near>=Dot_0 && Dot_checkPump(p, near, g))
+		Dot_KILL();
 #elif defined UPDATE_BALL
 	//nothing
 #elif defined UPDATE_BALL_PART

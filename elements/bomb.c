@@ -5,13 +5,13 @@ break; case Elem_BOMB:
 	Point getNearbyDir(Point pos) {
 		Point airvel = (Point){0,0};
 		void func1(axis x, axis y, axis sx, axis sy) {
-			Part* c = *Part_pos(x,y);
-			if (c>=Part_0 && c->type!=Elem_BOMB) {
+			Dot* c = *Dot_pos(x,y);
+			if (c>=Dot_0 && c->type!=Elem_BOMB) {
 				airvel.x += sx-x;
 				airvel.y += sy-y;	
 			}
 		}
-		Part_doRadius(pos.x, pos.y, 4, func1);
+		Dot_doRadius(pos.x, pos.y, 4, func1);
 		Vec_fastNormalize(&airvel);
 		return airvel;
 	}
@@ -23,12 +23,12 @@ break; case Elem_BOMB:
 	p->vel.xy *= 0.92;
 	Point airvel = c->vel;
 	airvel.xy += p->vel.xy;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 
 	// bomb particles produced by explosion
 	if (p->meta) {
 		if (p->meta==Elem_BOMB) {
-			Part_KILL();
+			Dot_KILL();
 		} else if (Random_(100)<=5) { // <=, not <
 			// turn shrapnel into destroyed versions of the source particle
 			switch (p->meta) {
@@ -54,7 +54,7 @@ break; case Elem_BOMB:
 				p->type = Elem_SPARK;
 				p->meta = 0;
 			otherwise:
-				Part_KILL();
+				Dot_KILL();
 			}
 		}
 		break;
@@ -62,17 +62,17 @@ break; case Elem_BOMB:
 	// otherwise, check if bomb should explode:
 	
 	// random part in 3x3 radius
-	Part* near = Part_rndNear(p->pos,3);
+	Dot* near = Dot_rndNear(p->pos,3);
 	// return if it hasn't hit anything explodable
-	if (near<Part_0 || near->type==Elem_BOMB || near->type==Elem_CLONE)
+	if (near<Dot_0 || near->type==Elem_BOMB || near->type==Elem_CLONE)
 		break;
 	// calculate average direction to nearby parts
 	airvel = getNearbyDir(p->pos);
 
 	// turn nearby parts into charged bomb, and push them away:
 	void func2(axis x, axis y, axis sx, axis sy) {
-		Part* c = *Part_pos(x,y);
-		if (c>=Part_0 && c->type!=Elem_CLONE) {
+		Dot* c = *Dot_pos(x,y);
+		if (c>=Dot_0 && c->type!=Elem_CLONE) {
 			c->vel.x += airvel.x+1*(p->pos.x-x);
 			c->vel.y += airvel.y+1*(p->pos.y-y);
 			if (c->type!=Elem_BOMB||c->meta==0) {
@@ -82,9 +82,9 @@ break; case Elem_BOMB:
 			}
 		}
 	}
-	Part_doRadius(p->pos.x, p->pos.y, 4, func2);
+	Dot_doRadius(p->pos.x, p->pos.y, 4, func2);
 
-	Part_KILL();
+	Dot_KILL();
 
 #elif defined UPDATE_BALL
 	// this is similar to the part update code
@@ -93,8 +93,8 @@ break; case Elem_BOMB:
 
 		// unlike normal bomb, bomb balls blow up all part types
 		void func2(axis x, axis y, axis sx, axis sy) {
-			Part* c = *Part_pos(x,y);
-			if (c>=Part_0) {
+			Dot* c = *Dot_pos(x,y);
+			if (c>=Dot_0) {
 				c->meta = c->type;
 				c->type = Elem_BOMB;
 				c->pumpType = 0;
@@ -102,7 +102,7 @@ break; case Elem_BOMB:
 				c->vel.y += 0.5*airvel.y+0.5*(ball->pos.y-y);
 			}
 		}
-		Part_doRadius(ball->pos.x, ball->pos.y, 10, func2);
+		Dot_doRadius(ball->pos.x, ball->pos.y, 10, func2);
 		ball->used = false;
 	}
 

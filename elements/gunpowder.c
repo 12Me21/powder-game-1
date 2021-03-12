@@ -5,19 +5,19 @@ break; case Elem_GUNPOWDER:
 	airvel.y += Random_2(0.01, 0.2);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.8;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
-	Part* g = Part_rndNear(p->pos,5);
-	if (g<Part_0 || ELEMENTS[g->type].state != State_HOT)
+	Dot* g = Dot_rndNear(p->pos,5);
+	if (g<Dot_0 || ELEMENTS[g->type].state != State_HOT)
 		break;
 	void func(axis x, axis y, axis sx, axis sy) {
-		Part* g = Part_at[y][x];
-		if (g>=Part_0 && g->type != Elem_GUNPOWDER) {
+		Dot* g = Dot_at[y][x];
+		if (g>=Dot_0 && g->type != Elem_GUNPOWDER) {
 			g->vel.x += 10*(x-sx);
 			g->vel.y += 10*(y-sy);
 		}
 		if ((y&3)+(x&3)==0) {
-			Block* cell = &Part_blocks[y>>2][x>>2];
+			Block* cell = &Dot_blocks[y>>2][x>>2];
 			if (cell->block<=0) {
 				if (x!=sx)
 					cell->vel.x += 10.0/(x-sx);
@@ -26,7 +26,7 @@ break; case Elem_GUNPOWDER:
 			}
 		}
 	}
-	Part_doRadius((int)p->pos.x & 0xFFF4, (int)p->pos.y & 0xFFF4, 10, func);
+	Dot_doRadius((int)p->pos.x & 0xFFF4, (int)p->pos.y & 0xFFF4, 10, func);
 	p->type = Elem_FIRE;
 
 #elif defined UPDATE_BALL
@@ -34,10 +34,10 @@ break; case Elem_GUNPOWDER:
 	// explode when touching a hot element AND meta is 0
 	if (ball->meta==0 && ELEMENTS[touched].state==State_HOT) {
 		for (int i=0;i<37;i++) {
-			Part* near = Part_pos2(ball->pos)[neighbors[i].offset];
-			if (near<=Part_BGFAN) {
-				Part* e = Part_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
-				if (e>=Part_0) {
+			Dot* near = Dot_pos2(ball->pos)[neighbors[i].offset];
+			if (near<=Dot_BGFAN) {
+				Dot* e = Dot_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
+				if (e>=Dot_0) {
 					real f = Random_(20);
 					e->vel.x += ball->vel.x*f+neighbors[i].breakVel.x*f/2;
 					e->vel.y += ball->vel.y*f+neighbors[i].breakVel.y*f/2;

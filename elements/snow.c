@@ -5,12 +5,12 @@ break; case Elem_SNOW: //❄
 	airvel.y += Random_2(0.01, 0.08);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.7;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
 	int x = p->pos.x + Random_int(3)-1;
 	int y = p->pos.y + Random_int(3)-1;
-	Part* g = Part_at[y][x];
-	if (g>=Part_0) {
+	Dot* g = Dot_at[y][x];
+	if (g>=Dot_0) {
 		if (g->type == Elem_ICE)
 			p->type = Elem_ICE;
 		// melt on contact with elements except for:

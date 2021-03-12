@@ -15,15 +15,15 @@ break; case Elem_FIRE:
 	} else if (p->meta==1) {
 		Cell_addPressure(c, -Random_2(-0.01, -0.05));
 	}
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
-	Part* g = Part_rndNear(p->pos,5);
-	if (g>=Part_0) {
+	Dot* g = Dot_rndNear(p->pos,5);
+	if (g>=Dot_0) {
 		switch (g->type) {
 		when(Elem_POWDER):; case Elem_ANT: case Elem_VINE:
 			g->type = Elem_FIRE;
 		when(Elem_WATER): case Elem_SEAWATER:
-			Part_KILL();
+			Dot_KILL();
 		when(Elem_SEED):;
 			if (Rnd_perchance(50))
 				g->type = Elem_FIRE;
@@ -32,7 +32,7 @@ break; case Elem_FIRE:
 		}
 	}
 	if (Rnd_perchance(p->meta==1 ? 20 : 5))
-		Part_KILL();
+		Dot_KILL();
 
 #elif defined UPDATE_BALL
 	if (touched==Elem_WATER||touched==Elem_SOAPY||touched==Elem_SEAWATER||touched==Elem_ACID)

@@ -1,8 +1,9 @@
 break; case Elem_THUNDER:
 {
 #ifdef UPDATE_PART
-	Part_toGrid(p);
+	Dot_toGrid(p);
 	p->vel = (Point){0,0};
+	
 	/////////////////////////
 	// thunder in the air: //
 	/////////////////////////
@@ -26,17 +27,17 @@ break; case Elem_THUNDER:
 			else        { vx=0; vy=1; c=0; } // -> down
 		}
 		// check part at next position
-		Part* near = Part_pos3(p->pos,vx,vy);
-		if (near<=Part_BGFAN) { // empty, move thunder
-			*Part_pos2(p->pos) = Part_EMPTY;
+		Dot* near = Dot_pos3(p->pos,vx,vy);
+		if (near<=Dot_BGFAN) { // empty, move thunder
+			*Dot_pos2(p->pos) = Dot_EMPTY;
 			p->pos.x += vx;
 			p->pos.y += vy;
-			Part_toGrid(p);
+			Dot_toGrid(p);
 			p->Cthunder1.prng = n;
 			p->Cthunder1.dir = c;
-		} else if (near>=Part_0) { // hit other particle
+		} else if (near>=Dot_0) { // hit other particle
 			if (near->type==Elem_THUNDER && (near->Cthunder1.prng!=n || near->Cthunder1.dir!=c)) {
-				Part_KILL();
+				Dot_KILL();
 			}
 			if (near->type!=Elem_THUNDER) {
 				Elem type = near->type;
@@ -44,16 +45,16 @@ break; case Elem_THUNDER:
 					near->meta = type==Elem_METAL ? 6000 : 6100;
 					near->Cthunder2.dir = c;
 					near->type = Elem_THUNDER;
-					Part_KILL();
+					Dot_KILL();
 				} else if (ELEMENTS[type].state==State_POWDER||ELEMENTS[type].state==State_LIQUID||type==Elem_MAGMA||type==Elem_WOOD||type==Elem_ICE||type==Elem_VINE||type==Elem_GLASS) { //powders, liquids, magma, wood, ice, vine, glass
 					p->meta = 5000; //set meta to 5000, will explode on next frame
 				} else if (type==Elem_CLOUD) {
-					Part_swap(p,near);
+					Dot_swap(p,near);
 				} else
-					Part_KILL();
+					Dot_KILL();
 			}
-		} else if (near>Part_BGFAN) { // hit a block or something
-			Part_KILL();
+		} else if (near>Dot_BGFAN) { // hit a block or something
+			Dot_KILL();
 		}
 
 		/////////////
@@ -61,8 +62,8 @@ break; case Elem_THUNDER:
 		/////////////
 	} else if (p->meta==5000) { //Air.vel forget
 		void func(axis x, axis y, axis sx, axis sy) {
-			Part* near = Part_at[y][x];
-			if (near>=Part_0 && near->type!=Elem_THUNDER) {
+			Dot* near = Dot_at[y][x];
+			if (near>=Dot_0 && near->type!=Elem_THUNDER) {
 				if (near->type==Elem_ICE)
 					near->type = Elem_SNOW; //❤️💚💙
 				else if (near->type==Elem_FIREWORKS && near->meta>0 && near->meta<5000)
@@ -71,8 +72,8 @@ break; case Elem_THUNDER:
 				near->vel.y -= 3*(y-p->pos.y);
 			}
 		}
-		Part_doRadius(p->pos.x, p->pos.y, 6, func);
-		Part_KILL();
+		Dot_doRadius(p->pos.x, p->pos.y, 6, func);
+		Dot_KILL();
 
 		///////////
 		// Glass //
@@ -81,8 +82,8 @@ break; case Elem_THUNDER:
 		// first frame, try to conduct to surrounding glass particles
 		if (p->meta==7000) {
 			void checkGlass(int x, int y) {
-				Part* near = Part_pos3(p->pos,x,y);
-				if (near>=Part_0 && near->type==Elem_GLASS) {
+				Dot* near = Dot_pos3(p->pos,x,y);
+				if (near>=Dot_0 && near->type==Elem_GLASS) {
 					near->type = Elem_THUNDER;
 					near->meta = 7000;
 				}
@@ -105,17 +106,17 @@ break; case Elem_THUNDER:
 	} else if (p->meta>=6000) {
 		int c = p->Cthunder2.dir;
 		int inside = p->Cthunder2.type==6000>>2 ? Elem_METAL : Elem_MERCURY;
-		Part* pdir(int dir) {
-			return Part_pos2(p->pos)[(Offset[]){WIDTH,-1,-WIDTH,1}[dir]];
+		Dot* pdir(int dir) {
+			return Dot_pos2(p->pos)[(Offset[]){WIDTH,-1,-WIDTH,1}[dir]];
 		}
 		//check locations in front/left/right, for places to conduct to
 		for (int b=0; b<4; b++) {
 			if (b==2) continue; //2 = behind
-			Part* near = pdir((c+b)&3);
-			if (near<Part_0) continue;
+			Dot* near = pdir((c+b)&3);
+			if (near<Dot_0) continue;
 			// hit metal/mercury
 			if (near->type==Elem_METAL||near->type==Elem_MERCURY) {
-				Part_swap(p, near);
+				Dot_swap(p, near);
 				p->Cthunder2.type = near->type==Elem_METAL ? 6000>>2 : 6100>>2; //todo: thinking about it, we could probably use pumptype for this...
 				p->Cthunder2.dir = c+b;
 				near->type = inside;
@@ -133,14 +134,14 @@ break; case Elem_THUNDER:
 			}
 		}
 		// did not conduct, send out into the air if possible
-		if (pdir(c)<=Part_BGFAN) {
+		if (pdir(c)<=Dot_BGFAN) {
 			axis x = p->pos.x;
 			axis y = p->pos.y;
 			if (c==0) y++;
 			else if (c==1) x--;
 			else if (c==2) y--;
 			else if (c==3) x++;
-			Part_create(x,y,Elem_THUNDER);
+			Dot_create(x,y,Elem_THUNDER);
 		}
 		// then turn back into the conductor element
 		p->type = inside;

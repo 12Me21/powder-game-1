@@ -5,34 +5,34 @@ break; case Elem_GAS:
 	airvel.y += Random_2(0, -0.02);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.9;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
 	int g = Random_int(4);
-	Part* near = Part_pos2(p->pos)[(Offset[]){Part_ofs(0,-1),-1,1,Part_ofs(0,-1)}[g]];
-	if (near>=Part_0) {
+	Dot* near = Dot_pos2(p->pos)[(Offset[]){Dot_ofs(0,-1),-1,1,Dot_ofs(0,-1)}[g]];
+	if (near>=Dot_0) {
 		if (g<3 && (near->type[ELEMENTS].state==State_POWDER || near->type[ELEMENTS].state==State_LIQUID)) {
-			Part_swap(p, near);
+			Dot_swap(p, near);
 		} else if (near->type==Elem_GAS) {
 			p->vel.xy += Rnd_point(-0.2,0.2, -0.2,0.2).xy;
-		} else if (Part_checkPump(p, near, g))
-			Part_KILL();
+		} else if (Dot_checkPump(p, near, g))
+			Dot_KILL();
 	}
 	if (p->meta==0) {
-		Part* near = Part_rndNear(p->pos, 5);
-		if (near<Part_0 || near->type[ELEMENTS].state!=State_HOT)
+		Dot* near = Dot_rndNear(p->pos, 5);
+		if (near<Dot_0 || near->type[ELEMENTS].state!=State_HOT)
 			break;
 	} else if (p->meta<2) {
 		p->meta++;
 		break;
 	}
 	void func(axis x, axis y, axis sx, axis sy) {
-		Part* near = Part_pos(x, y)[0];
-		if (near>=Part_0 && near->type==Elem_GAS)
+		Dot* near = Dot_pos(x, y)[0];
+		if (near>=Dot_0 && near->type==Elem_GAS)
 			near->meta = 1;
-		if (near<=Part_BGFAN && Rnd_perchance(1))
-			Part_create(x, y, Elem_FIRE);
+		if (near<=Dot_BGFAN && Rnd_perchance(1))
+			Dot_create(x, y, Elem_FIRE);
 	}
-	Part_doRadius(p->pos.x, p->pos.y, 10, func);
+	Dot_doRadius(p->pos.x, p->pos.y, 10, func);
 	Cell_addPressure(c,2);
 	p->type = Elem_FIRE;
 	p->meta = 0;

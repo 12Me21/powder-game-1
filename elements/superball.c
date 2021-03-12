@@ -9,16 +9,16 @@ break; case Elem_SUPERBALL:
 	airvel = p->vel;
 	Vec_mul(&airvel, 3.8/(Vec_fastDist(airvel)+1));
 
-	Part* f = *Part_pos(p->pos.x+airvel.x, p->pos.y);
+	Dot* f = *Dot_pos(p->pos.x+airvel.x, p->pos.y);
 	// empty
-	if (f <= Part_BGFAN)
+	if (f <= Dot_BGFAN)
 		p->pos.x += airvel.x;
 	// fake parts
-	else if (f < Part_0) {
+	else if (f < Dot_0) {
 		p->vel.x *= -0.9;
 		p->vel.y *= 0.9;
 		// real parts
-	} else if (f >= Part_0) {
+	} else if (f >= Dot_0) {
 		// liquids other than mercury
 		if (ELEMENTS[f->type].state == State_LIQUID && f->type != Elem_MERCURY) {
 			f->vel.x -= p->vel.x;
@@ -39,14 +39,14 @@ break; case Elem_SUPERBALL:
 			p->vel.y *= ELEMENTS[f->type].Ae;
 		}
 	}
-	*Part_pos2(p->pos) = Part_EMPTY;
-	f = *Part_pos(p->pos.x, p->pos.y+airvel.y);
-	if (f <= Part_BGFAN)
+	*Dot_pos2(p->pos) = Dot_EMPTY;
+	f = *Dot_pos(p->pos.x, p->pos.y+airvel.y);
+	if (f <= Dot_BGFAN)
 		p->pos.y += airvel.y;
-	else if (f < Part_0) {
+	else if (f < Dot_0) {
 		p->vel.x *= 0.9;
 		p->vel.y *= -0.9;
-	} else if (f >= Part_0) {
+	} else if (f >= Dot_0) {
 		// liquids other than mercury
 		if (ELEMENTS[f->type].state == State_LIQUID && f->type != Elem_MERCURY) {
 			f->vel.y -= p->vel.y;
@@ -75,11 +75,11 @@ break; case Elem_SUPERBALL:
 			p->vel.x *= ELEMENTS[f->type].Ae;
 		}
 	}
-	*Part_pos2(p->pos) = p;
+	*Dot_pos2(p->pos) = p;
 	if (p->pos.y < 0 || p->pos.x<0 || p->pos.x>=WIDTH || p->pos.y>=HEIGHT) {
 		//printf("out of bounds part! %s pos: %f %f, airvel: %f,%f\n", ELEMENTS[p->type].name, p->pos.x, p->pos.y, c->vel.x, c->vel.y);
-		Part_print(p);
-		Part_remove(p--);
+		Dot_print(p);
+		Dot_remove(p--);
 	}
 #endif
 }

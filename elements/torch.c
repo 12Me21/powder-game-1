@@ -1,15 +1,16 @@
 break; case Elem_TORCH:
 {
 #ifdef UPDATE_PART
-	Part_toGrid(p);
-	Part* near = Part_rndNear(p->pos, 5);
-	if (near>=Part_0) {
+	Dot_toGrid(p);
+	
+	Dot* near = Dot_rndNear(p->pos, 5);
+	if (near>=Dot_0) {
 		switch (near->type) {
 		case Elem_POWDER: case Elem_SEED: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
 			near->type = Elem_FIRE;
 			break;
 		case Elem_WATER: case Elem_SOAPY: case Elem_SEAWATER:
-			Part_KILL();
+			Dot_KILL();
 			break;
 		case Elem_WOOD:
 			near->type = Elem_TORCH;

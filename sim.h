@@ -7,6 +7,6 @@
 #include "ball.h"
 #include "wheel.h"
 #include "bubble.h"
-#include "part.h"
+#include "dot.h"
 #include "cell.h"
 #include "entity.h"

@@ -1,23 +1,23 @@
 break; case Elem_WATER:
 {
 #ifdef UPDATE_PART
-	Part_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
+	Dot_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	int dir = atLeast(Random_int(8)-4, 0); //0 to 3
 	
-	Part* g = Part_dirNear(p->pos, dir);
-	if (g>=Part_0) {
+	Dot* g = Dot_dirNear(p->pos, dir);
+	if (g>=Dot_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int type = g->type;
 		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE && type!=Elem_CONCRETE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
-				Part_swap(p, g);
+				Dot_swap(p, g);
 		//freeze water
 		} else if (type==Elem_ICE) {
 			if (Rnd_perchance(50))
 				p->type = Elem_ICE;
 		//put water into pump
-		} else if (Part_checkPump(p, g, dir))
-			Part_KILL();
+		} else if (Dot_checkPump(p, g, dir))
+			Dot_KILL();
 	}
 
 #elif defined UPDATE_BALL
@@ -27,7 +27,7 @@ break; case Elem_WATER:
 #elif defined UPDATE_BALL_PART
 	switch(part->type) {
 	case Elem_FIRE:;
-		Part_remove(part);
+		Dot_remove(part);
 		return 1;
 		break;
 	case Elem_WOOD:;
@@ -45,7 +45,7 @@ break; case Elem_WATER:
 		return 1;
 		break;
 	case Elem_TORCH:;
-		Part_remove(part);
+		Dot_remove(part);
 		break;
 	case Elem_METAL:;
 		if (Rnd_perchance(10)) {

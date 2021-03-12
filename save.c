@@ -113,10 +113,10 @@ void load1(void) {
 			int sx=x+8, sy=y+8;
 			switch (t) {
 			when(0):;
-				Part_at[sy][sx] = Part_EMPTY;
+				Dot_at[sy][sx] = Dot_EMPTY;
 			when(Elem_BLOCK):;
-				Part_blocks[y/4+2][x/4+2].block = 1;
-				Part_at[sy][sx] = Part_BLOCK;
+				Dot_blocks[y/4+2][x/4+2].block = 1;
+				Dot_at[sy][sx] = Dot_BLOCK;
 			when(Elem_FIGHTER):;
 				//Wheels.create(sx,sy);
 			when(Elem_WHEEL):;
@@ -129,21 +129,21 @@ void load1(void) {
 				Ball_create(sx, sy, Save_data[y][x].meta);
 			otherwise:
 				total++;
-				if (Menu_dotLimit<=0 && Part_LIMITS[0]<total)
+				if (Menu_dotLimit<=0 && Dot_LIMITS[0]<total)
 					Menu_dotLimit=1;
-				if(Menu_dotLimit<=1 && Part_LIMITS[1]<total)
+				if(Menu_dotLimit<=1 && Dot_LIMITS[1]<total)
 					Menu_dotLimit=2;
-				Part* a = Part_create(sx, sy, t);
+				Dot* a = Dot_create(sx, sy, t);
 				int meta = Save_data[y][x].meta;
 				if (t == Elem_FAN) {
 					a->vel = (Point){0.1*(real)cos(meta*PI/32), 0.1*-(real)sin(meta*PI/32)};
-					Part_at[sy][sx] = Part_BGFAN;
+					Dot_at[sy][sx] = Dot_BGFAN;
 				} else if (t == Elem_FIREWORKS)
 					a->meta = meta;
 			}
 		}
 	}
-	Part_shuffle();
+	Dot_shuffle();
 }
 
 void Save_Load_test(void* filename) {
@@ -171,7 +171,7 @@ void Save_save1(void) {
 	
 	memset(Save_data, 0, sizeof(Save_data));
 	DEFCALL(Cell);
-	DEFCALL(Part);
+	DEFCALL(Dot);
 	DEFCALL(Wheel);
 	DEFCALL(Entity);
 	DEFCALL(Ball);

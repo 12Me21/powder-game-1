@@ -14,19 +14,19 @@ break; case Elem_GLASS:
 		if (mag<1) mag=1;
 		// spread cracks
 		for (int b=1; b<6; b++) {
-			Part* near = *Part_pos(
+			Dot* near = *Dot_pos(
 				p->pos.x+0.5+airvel.x*b,
 				p->pos.y+0.5+airvel.y*b
 			);
-			if (near>=Part_0 && near->type==Elem_GLASS) {
+			if (near>=Dot_0 && near->type==Elem_GLASS) {
 				near->meta = 1;
 				near->vel.xy = p->vel.xy*0.98;
 			} else
 				break;
 		}
 		void nb(int x, int y) {
-			Part* near = Part_pos3(p->pos, x, y);
-			if (near>=Part_0 && near->type==Elem_GLASS && near->meta==0) {
+			Dot* near = Dot_pos3(p->pos, x, y);
+			if (near>=Dot_0 && near->type==Elem_GLASS && near->meta==0) {
 				near->meta = 1;
 				near->vel.xy = Vec_unit[Random_int(512)].xy * mag;
 			}
@@ -38,7 +38,7 @@ break; case Elem_GLASS:
 		p->type = Elem_STONE;
 		p->meta = 0;
 	}
-	Part_toGrid(p);
+	Dot_toGrid(p);
 
 #elif defined UPDATE_BALL
 	real dist = Vec_dist(vel);

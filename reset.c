@@ -6,7 +6,7 @@ void Sim_reset(bool drawBorder) {
 	Cell_reset(drawBorder);
 #define DEFCALL(type) void type##_reset(void); type##_reset();
 	DEFCALL(Menu);
-	DEFCALL(Part);
+	DEFCALL(Dot);
 	DEFCALL(Wheel);
 	DEFCALL(Bubble);
 	DEFCALL(Entity);

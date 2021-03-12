@@ -4,11 +4,11 @@ break; case Elem_ICE:
 	// if air velocity>1, 50% chance to turn into snow
 	if (Vec_fastDist(c->vel)>1 && Rnd_perchance(50))
 		p->type = Elem_SNOW;
-	Part_toGrid(p);
+	Dot_toGrid(p);
 
 	// pick a random particle within 9x9, melt self if it's hot
-	Part* near = Part_rndNear(p->pos, 9);
-	if (near>=Part_0 && near->type[ELEMENTS].state==State_HOT)
+	Dot* near = Dot_rndNear(p->pos, 9);
+	if (near>=Dot_0 && near->type[ELEMENTS].state==State_HOT)
 		p->type = Elem_WATER;
 
 #elif defined UPDATE_BALL

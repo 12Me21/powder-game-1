@@ -1,14 +1,14 @@
 #include "../common.h"
 #include "../elements.h"
 #include "draw.h"
-#include "../part.h"
+#include "../dot.h"
 #include "bg.h"
 #include "../menu.h"
 
 void Dot_render(void) {
 	if (Menu_bgMode==Bg_TOON)
 		return;
-	Part_FOR (i) {
+	Dot_FOR (i) {
 		Elem type = i->type;
 		if (type==Elem_PUMP && i->pumpType!=0)
 			type = i->pumpType;

@@ -1,12 +1,13 @@
 break; case Elem_FUSE:
 {
 #ifdef UPDATE_PART
-	Part_blow(p, (Point){0,0});
+	Dot_toGrid(p);
+	
 	if (!p->Cfuse.burning) {
 		axis x = Random_int(3)-1;
 		axis y = Random_int(3)-1;
-		Part* near = Part_pos3(p->pos, x, y);
-		if (near>=Part_0) {
+		Dot* near = Dot_pos3(p->pos, x, y);
+		if (near>=Dot_0) {
 			if (ELEMENTS[near->type].state==State_HOT && near->type!=Elem_SPARK)
 				p->Cfuse.burning = 1;
 			else if (near->type==Elem_WATER || near->type==Elem_SEAWATER)
@@ -26,34 +27,34 @@ break; case Elem_FUSE:
 			otherwise:
 				g=Elem_SPARK;
 			}
-			Part** at = Part_pos2(p->pos);
+			Dot** at = Dot_pos2(p->pos);
 			void create(axis x, axis y) {
-				if (at[Part_ofs(x,y)]<=Part_BGFAN)
-					Part_create(p->pos.x+x, p->pos.y+y, g);
+				if (at[Dot_ofs(x,y)]<=Dot_BGFAN)
+					Dot_create(p->pos.x+x, p->pos.y+y, g);
 			}
-			if (at[1]>=Part_0) {
+			if (at[1]>=Dot_0) {
 				create(-1, 0);
 				create(-1, -1);	
 				create(-1, 1);
 			}
-			if (at[-1]>=Part_0) {
+			if (at[-1]>=Dot_0) {
 				create(1, 0);
 				create(1, -1);	
 				create(1, 1);
 			}
-			if (at[Part_ofs(0,1)]>=Part_0) {
+			if (at[Dot_ofs(0,1)]>=Dot_0) {
 				create(0, -1);
 				create(-1, -1);	
 				create(1, -1);
 			}
-			if (at[Part_ofs(0,-1)]>=Part_0) {
+			if (at[Dot_ofs(0,-1)]>=Dot_0) {
 				create(0, 1);
 				create(-1, 1);	
 				create(1, 1);
 			}
 			for (int b=0; b<8; b++) {
-				Part* near = Part_pos2(p->pos)[(Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
-				if (near>=Part_0) {
+				Dot* near = Dot_pos2(p->pos)[(Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
+				if (near>=Dot_0) {
 					if (near->type==Elem_FUSE && !near->Cfuse.burning)
 						near->Cfuse.burning = 1;
 					else if (near->type==Elem_FIREWORKS) {

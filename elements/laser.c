@@ -6,7 +6,7 @@ break; case Elem_LASER:
 	const axis nearsX[] = {1,1,0,-1,-1,-1,0,1};
 	const axis nearsY[] = {0,-1,-1,-1,0,1,1,1};
 
-	Part_toGrid(p);
+	Dot_toGrid(p);
 	p->vel = (Point){0,0};
 	int v = p->Claser.dir; // this is a number 1-8, or 0 if the laser has no direction.
 	int age = p->Claser.age;
@@ -21,7 +21,7 @@ break; case Elem_LASER:
 			p--; //bug?
 			break;
 		} else
-			Part_KILL();
+			Dot_KILL();
 	} else if (age>8) { // also do nothing
 		p->Claser.age = age;
 		break;
@@ -34,10 +34,10 @@ break; case Elem_LASER:
 		// laser was placed by clone or something
 		// or initially when a save is loaded.
 		// it tries to make the laser shoot away from adjacent walls.
-		Part** at = Part_pos2(p->pos);
+		Dot** at = Dot_pos2(p->pos);
 		inline bool check(int n) {
-			Part* w = at[nears[n]];
-			return w>=Part_0 && w->type!=Elem_LASER;
+			Dot* w = at[nears[n]];
+			return w>=Dot_0 && w->type!=Elem_LASER;
 		}
 		// b   c
 		//   *  
@@ -64,8 +64,8 @@ break; case Elem_LASER:
 	
 	v--; // convert direction from 1-8 to 0-7
 	// check part in front of the laser
-	Part* near = Part_pos2(p->pos)[nears[v]]; 
-	if (near>=Part_0) {
+	Dot* near = Dot_pos2(p->pos)[nears[v]]; 
+	if (near>=Dot_0) {
 		switch (near->type) {
 
 			// burn flammable elements:
@@ -93,18 +93,18 @@ break; case Elem_LASER:
 		case Elem_LASER:
 			// [→p→] [near] [ 2 ] [ 3 ] [ 4 ]
 			for (int dist=2; dist<=4; dist++) {
-				near = Part_pos2(p->pos)[nears[v]*dist];
-				if (near<=Part_BGFAN) {
-					if (!Part_limit1000())
+				near = Dot_pos2(p->pos)[nears[v]*dist];
+				if (near<=Dot_BGFAN) {
+					if (!Dot_limit1000())
 						break;
-					Part* f = Part_create(
+					Dot* f = Dot_create(
 						(int)p->pos.x+nearsX[v]*dist,
 						(int)p->pos.y+nearsY[v]*dist,
 						Elem_LASER
 					);
 					if (f)
 						f->Claser.dir = v+1;
-				} else if (near>=Part_0 && near->type==Elem_LASER)
+				} else if (near>=Dot_0 && near->type==Elem_LASER)
 					// if there is laser particle, we keep checking
 					continue;
 				break; // otherwise,
@@ -114,10 +114,10 @@ break; case Elem_LASER:
 			// laser reflects off of metal/mercury:
 		case Elem_METAL: case Elem_MERCURY:;
 			// this is big and complicated
-			Part** at = Part_pos2(p->pos);
+			Dot** at = Dot_pos2(p->pos);
 			inline bool check(Offset n) {
-				Part* c = at[n];
-				return (c>=Part_0 && (c->type==Elem_METAL || c->type==Elem_MERCURY));
+				Dot* c = at[n];
+				return (c>=Dot_0 && (c->type==Elem_METAL || c->type==Elem_MERCURY));
 			}
 			bool fl = check(nears[v+1 & 7]);
 			bool l = check(nears[v+2 & 7]);
@@ -222,8 +222,8 @@ break; case Elem_LASER:
 			}
 			break;
 		}
-	} else if (near<=Part_BGFAN && Part_limit1000()) {
-		Part* f = Part_create(
+	} else if (near<=Dot_BGFAN && Dot_limit1000()) {
+		Dot* f = Dot_create(
 			p->pos.x+nearsX[v],
 			p->pos.y+nearsY[v],
 			Elem_LASER

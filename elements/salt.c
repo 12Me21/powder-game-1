@@ -5,16 +5,16 @@ break; case Elem_SALT:
 	airvel.y += Random_2(0.01, 0.1);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.75;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
-	Part* near = Part_rndNear(p->pos, 3);
-	if (near>=Part_0) {
+	Dot* near = Dot_rndNear(p->pos, 3);
+	if (near>=Dot_0) {
 		if (near->type==Elem_WATER) {
 			near->type = Elem_SEAWATER;
 			near->meta = 0;
-			Part_KILL();
+			Dot_KILL();
 		} else if (near->type==Elem_MAGMA && Rnd_perchance(50)) {
-			Part_KILL();
+			Dot_KILL();
 		}
 	}
 

@@ -5,17 +5,17 @@ break; case Elem_VIRUS:
 	airvel.y += Random_2(0, 0.1);
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.7;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
 	if (p->meta==0) {
-		Part* f = Part_rndNear(p->pos,3);
-		if (f>=Part_0 && f->type!=Elem_VIRUS)
+		Dot* f = Dot_rndNear(p->pos,3);
+		if (f>=Dot_0 && f->type!=Elem_VIRUS)
 			p->Cvirus.type = f->type;
 	} else if (p->meta<=0x800) { //this should've been <
 		int x = Random_int(3)-1;
 		int y = Random_int(3)-1;
-		Part* f = Part_pos3(p->pos, x, y);
-		if (x&&y && f>=Part_0 && (f->type!=Elem_VIRUS || f->meta==0)) {
+		Dot* f = Dot_pos3(p->pos, x, y);
+		if (x&&y && f>=Dot_0 && (f->type!=Elem_VIRUS || f->meta==0)) {
 			f->type = Elem_VIRUS;
 			f->meta = 0;
 			f->Cvirus.type = p->Cvirus.type;

@@ -1,34 +1,33 @@
 break; case Elem_SEED:
 {
 #ifdef UPDATE_PART
-	Point airvel;
 	if (p->meta==0) {
-		airvel = c->vel;
+		Point airvel = c->vel;
 		airvel.y += Random_2(0.01, 0.09);
 		airvel.xy += p->vel.xy;
 		p->vel.xy *= 0.8;
+		Dot_blow(p, airvel);
 	} else
-		airvel = (Point){0,0};
-	Part_blow(p, airvel);
-
+		Dot_toGrid(p);
+	
 	if (p->meta==0) {
-		Part* below = Part_pos3(p->pos, 0, 1);
-		if (below<Part_0 || (below->type!=Elem_POWDER && below->type!=Elem_WOOD && below->type!=Elem_VINE)) //TODO: !IMPORTANT! check part limit here
+		Dot* below = Dot_pos3(p->pos, 0, 1);
+		if (below<Dot_0 || (below->type!=Elem_POWDER && below->type!=Elem_WOOD && below->type!=Elem_VINE)) //TODO: !IMPORTANT! check part limit here
 			break;
 	}
 	
 	p->meta=1;
 	int x = p->pos.x + Random_int(3)-1;
 	int y = p->pos.y - Random_int(1.5); //yes
-	if (Part_at[y][x] <= Part_BGFAN) {
-		if (Part_at[y+1][x] <= Part_BGFAN) {
-			*Part_pos2(p->pos) = Part_EMPTY;
+	if (Dot_at[y][x] <= Dot_BGFAN) {
+		if (Dot_at[y+1][x] <= Dot_BGFAN) {
+			*Dot_pos2(p->pos) = Dot_EMPTY;
 			p->pos = (Point){x,y};
-			Part_at[y][x] = p;
-			Part_create(x, y+1, Elem_WOOD);
+			Dot_at[y][x] = p;
+			Dot_create(x, y+1, Elem_WOOD);
 		}
 		if (Rnd_perchance(5))
-			Part_KILL();
+			Dot_KILL();
 	}
 
 #elif defined UPDATE_BALL

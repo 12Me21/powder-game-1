@@ -3,7 +3,7 @@
 #include <math.h>
 #include "common.h"
 #include "input.h"
-#include "part.h"
+#include "dot.h"
 #include "menu.h"
 //#include "bg.h"
 #include "platform.h"
@@ -113,7 +113,7 @@ void Menu_update(void) {
 								axis dx = f-(x2>>8);
 								axis dy = g-(y2>>8);
 								if (Menu_penSize*Menu_penSize+1 < dx*dx+dy*dy) continue;
-								Part* p = Part_at[g][f];
+								Dot* p = Dot_at[g][f];
 								if (Menu_penMode == Pen_PAINT) {
 									Elem e = Menu_BUTTONS[selection].element ?: Elem_POWDER;
 									int meta = 0;
@@ -126,22 +126,22 @@ void Menu_update(void) {
 												meta = 0;
 											meta = meta+1;
 										}
-										if (p>=Part_0 && p->type!=e)
-											Part_paint(f, g, p->type, e, meta);
+										if (p>=Dot_0 && p->type!=e)
+											Dot_paint(f, g, p->type, e, meta);
 									}
 								} else {
 									if (selection==Menu_CLEAR) {
-										if (p>=Part_0) {
-											Part_remove(p);
-											Part_at[g][f] = Part_EMPTY;
+										if (p>=Dot_0) {
+											Dot_remove(p);
+											Dot_at[g][f] = Dot_EMPTY;
 										}
-									} else if (p == Part_EMPTY) {
+									} else if (p == Dot_EMPTY) {
 										Elem pa = Menu_BUTTONS[selection].element;
 										if (otherBtn->wasHeld && selection<Menu_ELEMENTS)
 											pa = Menu_BUTTONS[otherSel].element;
 										
-										Part* e = Part_create(f, g, pa);
-										if (e>=Part_0) {
+										Dot* e = Dot_create(f, g, pa);
+										if (e>=Dot_0) {
 											if (pa==Elem_FAN) {
 												e->vel = Vec_mul2(Pen_dir, 0.1);
 											} else if (pa==Elem_FIREWORKS) {
@@ -164,7 +164,7 @@ void Menu_update(void) {
 			switch (selection) {
 			when(Menu_WIND):;
 				Point b = Vec_mul2(Pen_dir, 10);
-				Block* e = &Part_blocks[Pen_y>>2][Pen_x>>2];
+				Block* e = &Dot_blocks[Pen_y>>2][Pen_x>>2];
 				if (old && e->block == 0) {
 					Vec_add(&e->vel, b);
 					if (Vec_fastDist(e->vel)>10 && Menu_paused) {
@@ -174,7 +174,7 @@ void Menu_update(void) {
 				}
 			when(Menu_AIR):;
 				void addPressure(axis x, axis y, real amount) {
-					Block* cell = &Part_blocks[Pen_y/4+y][Pen_x/4+x];
+					Block* cell = &Dot_blocks[Pen_y/4+y][Pen_x/4+x];
 					if (!cell->block)
 						Cell_addPressure(cell, amount);
 				}
@@ -192,7 +192,7 @@ void Menu_update(void) {
 				if (!gotPress) break;
 				axis f = Pen_x>>2<<2;
 				axis g = Pen_y>>2<<2;
-				Block* cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
+				Block* cell = &Dot_blocks[Pen_y>>2][Pen_x>>2];
 				if (!cell->block) {
 					switch (selection) {
 					when(Menu_FIGHTER):;
@@ -207,7 +207,7 @@ void Menu_update(void) {
 					}
 				}
 			when(Menu_BALL):;
-				cell = &Part_blocks[Pen_y>>2][Pen_x>>2];
+				cell = &Dot_blocks[Pen_y>>2][Pen_x>>2];
 				if (cell->block==0 && gotPress) {
 					Elem type = Menu_BUTTONS[otherSel].ball;
 					if (type)
@@ -241,7 +241,7 @@ void Menu_update(void) {
 						for (axis g=v; g<=v+Menu_penSize; g++) {
 							for (axis f=c; f<=c+Menu_penSize; f++) {
 								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
-									Block* cell = &Part_blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
+									Block* cell = &Dot_blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
 									switch(selection) {
 									when(Menu_BLOCK):;
 										cell->block = 1;
@@ -271,16 +271,16 @@ void Menu_update(void) {
 						n = (n<<8)/w;
 						r = (r<<8)/w;
 						for (int y=(Pen_oldx<<8)+127,z=(Pen_oldy<<8)+127,b=0;b<=w;b++,y+=n,z+=r) {
-							Part_FOR (e) {
+							Dot_FOR (e) {
 								if (y>>8==(int)e->pos.x && z>>8==(int)e->pos.y)
-									Part_remove(e--);
+									Dot_remove(e--);
 							}
 						}
 					}
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
-						Part_FOR (p) {
-							if (Part_blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
-								Part_remove(p--);
+						Dot_FOR (p) {
+							if (Dot_blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
+								Dot_remove(p--);
 						}
 					}
 					if (selection==Menu_ERASE || selection==Menu_CLEAR) {
@@ -291,12 +291,12 @@ void Menu_update(void) {
 					}
 					for (int y=8;y<H+8;y++) {
 						for (int x=8;x<W+8;x++) {
-							Block* cell = &Part_blocks[y>>2][x>>2];
-							Part** part = &Part_at[y][x];
-							if (cell->block==0 && *part == Part_BLOCK)
-								*part = Part_EMPTY;
-							else if (cell->block==1 && *part < Part_BLOCK)
-								*part = Part_BLOCK;
+							Block* cell = &Dot_blocks[y>>2][x>>2];
+							Dot** part = &Dot_at[y][x];
+							if (cell->block==0 && *part == Dot_BLOCK)
+								*part = Dot_EMPTY;
+							else if (cell->block==1 && *part < Dot_BLOCK)
+								*part = Dot_BLOCK;
 						}
 					}
 				}

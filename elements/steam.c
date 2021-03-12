@@ -4,10 +4,10 @@ break; case Elem_STEAM:
 	Point airvel = c->vel;
 	airvel.xy += p->vel.xy;
 	p->vel.xy *= 0.7;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	
 	if (Rnd_perchance(10))
-		Part_KILL();
+		Dot_KILL();
 
 #elif defined UPDATE_BALL
 	// if touch anything, break into that type

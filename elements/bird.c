@@ -12,7 +12,7 @@ break; case Elem_BIRD:
 			p->meta = 1;
 			p->vel.xy *= -1;
 		} else { //otherwise stay put
-			Part_toGrid(p);
+			Dot_toGrid(p);
 			break;
 		}
 	}
@@ -21,7 +21,7 @@ break; case Elem_BIRD:
 
 	Point airvel = c->vel;
 	airvel.xy += 0.5*p->vel.xy;
-	Part_blow(p, airvel);
+	Dot_blow(p, airvel);
 	//bad
 	//if we didn't move
 	if ((int)p->pos.x==ox && (int)p->pos.y==oy) {
@@ -34,18 +34,18 @@ break; case Elem_BIRD:
 	// check a nearby particle
 	int x = Random_int(5)-2;
 	int y = Random_int(5)-2;
-	Part* near = Part_pos3(p->pos, x, y);
-	if (near>=Part_0) {
+	Dot* near = Dot_pos3(p->pos, x, y);
+	if (near>=Dot_0) {
 		// if it's a liquid particle, and below the bird:
 		if (y<=0 && near->type[ELEMENTS].state==State_LIQUID) {
 			// splash the liquid I guess?
-			Part_swap(p, near);
+			Dot_swap(p, near);
 		// eat seed/ant:
 		} else if (near->type==Elem_SEED || near->type==Elem_ANT) {
 			near->type = Elem_BIRD;
 			near->vel = p->vel;
 			near->meta = 1;
-			Part_KILL();
+			Dot_KILL();
 		// land on wood:
 		} else if (near->type==Elem_WOOD) {
 			p->meta = 2;
@@ -62,8 +62,8 @@ break; case Elem_BIRD:
 	int nearOthers = 0;
 	Point nearOtherDir = {0,0};
 	inline void func(axis x, axis y, axis sx, axis sy) {
-		Part* near = *Part_pos(x,y);
-		if (near>=Part_0) {
+		Dot* near = *Dot_pos(x,y);
+		if (near>=Dot_0) {
 			if (near->type==Elem_BIRD) {
 				nearBirdDir.xy += near->vel.xy;
 				nearBirds++;
@@ -71,12 +71,12 @@ break; case Elem_BIRD:
 				nearOtherDir.xy += (Point){x,y}.xy;
 				nearOthers++;
 			}
-		} else if (near>Part_BGFAN) {
+		} else if (near>Dot_BGFAN) {
 			nearOtherDir.xy += (Point){x,y}.xy;
 			nearOthers++;
 		}
 	}
-	Part_doRadius(p->pos.x+4*p->vel.x, p->pos.y+4*p->vel.y, 9, func);
+	Dot_doRadius(p->pos.x+4*p->vel.x, p->pos.y+4*p->vel.y, 9, func);
 	// yes, these are different:
 	if (nearBirds>0)
 		nearBirdDir.xy *= 1/nearBirds;
@@ -114,7 +114,7 @@ break; case Elem_BIRD:
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
 	case Elem_SEED: case Elem_ANT:
-		Part_remove(part);
+		Dot_remove(part);
 		break;
 	case Elem_WOOD:
 		ball->vel.xy *= 0.9;

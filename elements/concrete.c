@@ -15,10 +15,10 @@ break; case Elem_CONCRETE:
 	//if (mag>10 && Rnd_perchance(50))
 	//	p->type = Elem_POWDER;
 	bool check(axis x, axis y) {
-		Part* b = Part_pos3(p->pos, x, y);
-		if (b<=Part_BGFAN)
+		Dot* b = Dot_pos3(p->pos, x, y);
+		if (b<=Dot_BGFAN)
 			return 0;
-		if (b<=Part_0)
+		if (b<=Dot_0)
 			return 1;
 		if (b->type[ELEMENTS].state != State_SOLID)
 			return 0;
@@ -26,18 +26,18 @@ break; case Elem_CONCRETE:
 	}
 	if (mag<2 && Vec_fastDist(p->vel)<1) {
 		if (check(0,1) || check(-1,1) || check(1,1)) {
-			Part_toGrid(p);
+			Dot_toGrid(p);
 			break;
 		}
 	}
 	Vec_mul(&airvel, 3.8/(mag+1));
 	
-	Part* near = *Part_pos(p->pos.x+airvel.x, p->pos.y);
-	if (near <= Part_BGFAN) {
+	Dot* near = *Dot_pos(p->pos.x+airvel.x, p->pos.y);
+	if (near <= Dot_BGFAN) {
 		p->pos.x += airvel.x;
 	} else {
 		// act like stone is heavier than some things
-		if (near >= Part_0) {
+		if (near >= Dot_0) {
 			// magma, and liquids other than mercury
 			if ((ELEMENTS[near->type].state == State_LIQUID && near->type!=Elem_MERCURY) || near->type==Elem_MAGMA) {
 				near->vel.x -= p->vel.x;
@@ -46,21 +46,21 @@ break; case Elem_CONCRETE:
 				p->pos.x = near->pos.x;
 				near->pos.x = temp;
 				
-				*Part_pos2(p->pos) = near;
+				*Dot_pos2(p->pos) = near;
 				//powder seed gunpowder fireworks ant
 			} else if (near->type==Elem_POWDER||near->type==Elem_SEED||near->type==Elem_GUNPOWDER||near->type==Elem_FIREWORKS||near->type==Elem_ANT)
 				near->vel.x += Random_(p->vel.x);
 		}
 		p->vel.x *= 0.5;
 	}
-	*Part_pos2(p->pos) = Part_EMPTY;
+	*Dot_pos2(p->pos) = Dot_EMPTY;
 
 	// this is a copy of the code above, but with the other axis
-	near = *Part_pos(p->pos.x, p->pos.y+airvel.y);
-	if (near<=Part_BGFAN) {
+	near = *Dot_pos(p->pos.x, p->pos.y+airvel.y);
+	if (near<=Dot_BGFAN) {
 		p->pos.y += airvel.y;
 	} else {
-		if (near>=Part_0) {
+		if (near>=Dot_0) {
 			// magma, and liquids other than mercury
 			if ((ELEMENTS[near->type].state == State_LIQUID && near->type!=Elem_MERCURY) || near->type==Elem_MAGMA) {
 				near->vel.y -= p->vel.y;
@@ -69,14 +69,14 @@ break; case Elem_CONCRETE:
 				p->pos.y = near->pos.y;
 				near->pos.y = temp;
 				
-				*Part_pos2(p->pos) = near;
+				*Dot_pos2(p->pos) = near;
 				//powder seed gunpowder fireworks ant
 			} else if (near->type==Elem_POWDER||near->type==Elem_SEED||near->type==Elem_GUNPOWDER||near->type==Elem_FIREWORKS||near->type==Elem_ANT)
 				near->vel.y += Random_(p->vel.y);
 		}
 		p->vel.y *= 0.5;
 	}
-	Part_toGrid(p);
+	Dot_toGrid(p);
 
 #elif defined UPDATE_BALL
 	real dist = Vec_dist(vel);
@@ -93,11 +93,11 @@ break; case Elem_CONCRETE:
 		if (++ball->meta>=20)
 			*newType = Elem_MAGMA;
 	when(Elem_STONE):;
-		if (Part_limit1000() && ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {//so, radius is sqrt(10)
+		if (Dot_limit1000() && ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {//so, radius is sqrt(10)
 			int x = floor(ball->pos.x) + floor(Random_(5))-2;
 			int y = floor(ball->pos.y) + floor(Random_(5))-2;
-			if (*Part_pos(x, y)<=Part_BGFAN)
-				Part_create(x, y, Elem_SPARK);
+			if (*Dot_pos(x, y)<=Dot_BGFAN)
+				Dot_create(x, y, Elem_SPARK);
 		}
 	when(Elem_SPARK):;
 		return 1;

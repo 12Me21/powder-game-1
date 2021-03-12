@@ -7,7 +7,7 @@
 #include "elements.h"
 #include "menu.h" //todo: split this into sim properties (edge mode etc.) and others
 #include "render/bg.h"
-#include "part.h"
+#include "dot.h"
 #include "input.h"
 #include "entity.h"
 #include "cell.h"
@@ -185,7 +185,7 @@ static void updateNode(EntityNode* node, real dd, bool noCollide, bool held) {
 	Point e = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
 	if (dd!=0) {
-		Block* cell = &Part_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
+		Block* cell = &Dot_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
 		e.xy += cell->vel.xy*dd;
 	}
 	int d;
@@ -221,11 +221,11 @@ static void updateNode(EntityNode* node, real dd, bool noCollide, bool held) {
 			//	node->touching = Elem_EMPTY;
 			//	break;
 			//}
-			Part* part = *Part_pos(node->pos.x, b);
+			Dot* part = *Dot_pos(node->pos.x, b);
 			int type = part->type;
-			if (part <= Part_BGFAN) {
+			if (part <= Dot_BGFAN) {
 				node->pos.y = b;
-			} else if (part <= Part_BLOCK) {
+			} else if (part <= Dot_BLOCK) {
 				e.x *= 0.5;
 				e.y = -e.y;
 				node->touching = type; //hhh
@@ -244,11 +244,11 @@ static void updateNode(EntityNode* node, real dd, bool noCollide, bool held) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			part = *Part_pos(b, node->pos.y);
+			part = *Dot_pos(b, node->pos.y);
 			type = part->type;
-			if (part <= Part_BGFAN) {
+			if (part <= Dot_BGFAN) {
 				node->pos.x = b;
-			} else if (part <= Part_BLOCK) {
+			} else if (part <= Dot_BLOCK) {
 				e.y *= 0.5;
 				e.x = -e.x;
 				node->touching = type;
@@ -305,11 +305,11 @@ void Entity_update(void) {
 			Player* player = &players[a->isPlayer2];
 			a->age++;
 			bool w =
-				Part_pos2(a->parts[4].pos)[Part_ofs(0,1)]>Part_BGFAN ||
-				Part_pos2(a->parts[4].pos)[0]>Part_BGFAN;
+				Dot_pos2(a->parts[4].pos)[Dot_ofs(0,1)]>Dot_BGFAN ||
+				Dot_pos2(a->parts[4].pos)[0]>Dot_BGFAN;
 			bool rightFoot =
-				Part_pos2(a->parts[5].pos)[Part_ofs(0,1)]>Part_BGFAN ||
-				Part_pos2(a->parts[5].pos)[0]>Part_BGFAN;
+				Dot_pos2(a->parts[5].pos)[Dot_ofs(0,1)]>Dot_BGFAN ||
+				Dot_pos2(a->parts[5].pos)[0]>Dot_BGFAN;
 			if (down && a->meta == Elem_BIRD) {
 				for (int b=0;b<6;b++)
 					moveNode(&a->parts[b], 0.01, 0.997);
@@ -381,10 +381,10 @@ void Entity_update(void) {
 				updateNode(&a->parts[i], 0.1, (i<4), a->held>0);
 			for (int y=0;y<3;y++) {
 				for (int x=-1;x<2;x++) {
-					Part* p = Part_pos2(a->parts[0].oldPos)[Part_ofs(x,y)];
-					if (p == Part_BGFAN)
+					Dot* p = Dot_pos2(a->parts[0].oldPos)[Dot_ofs(x,y)];
+					if (p == Dot_BGFAN)
 						a->meta = Elem_FAN;
-					else if (p >= Part_0 && ELEMENTS[p->type].playerValid==1)
+					else if (p >= Dot_0 && ELEMENTS[p->type].playerValid==1)
 						a->meta = p->type;
 				}
 			}
@@ -400,13 +400,13 @@ void Entity_update(void) {
 				b=clamp(b,8,H+8-1);
 				// fan blow air
 				if (a->meta == Elem_FAN) {
-					Block* cell = &Part_blocks[b>>2][w>>2];
+					Block* cell = &Dot_blocks[b>>2][w>>2];
 					if (cell->block == 0)
 						cell->vel.x += player->facing ? 1 : -1;
 					//spit
-				} else if (a->meta != Elem_BIRD && Part_at[b][w] == Part_EMPTY) {
-					Part* f = Part_create(w, b, a->meta);
-					if (f>=Part_0) {
+				} else if (a->meta != Elem_BIRD && Dot_at[b][w] == Dot_EMPTY) {
+					Dot* f = Dot_create(w, b, a->meta);
+					if (f>=Dot_0) {
 						if (player->facing==0)
 							f->vel.x -= 20;
 						if (player->facing==1)
@@ -443,9 +443,9 @@ void Entity_update(void) {
 					}
 					if (w+b!=0) {
 						a->type = Entity_PLAYER;
-						Part* part = Part_at[b][w];
-						if (part > Part_BGFAN) {
-							if (part < Part_0) {
+						Dot* part = Dot_at[b][w];
+						if (part > Dot_BGFAN) {
+							if (part < Dot_0) {
 								a->parts[r].pos = a->parts[r].oldPos;
 								continue;
 							} else if (ELEMENTS[part->type].state != State_LIQUID) {
@@ -555,9 +555,9 @@ void Entity_update(void) {
 					if (w+b!=0) {
 						a->type = Entity_FIGHTER;
 						a->age = 0;
-						Part* part = Part_at[b][w];
-						if (part > Part_BGFAN) {
-							if (part < Part_0) {
+						Dot* part = Dot_at[b][w];
+						if (part > Dot_BGFAN) {
+							if (part < Dot_0) {
 								a->parts[r].pos = a->parts[r].oldPos;
 								continue;
 							} else if (ELEMENTS[part->type].state != State_LIQUID) {
@@ -665,13 +665,13 @@ void Entity_update(void) {
 			pullNodes(a, 2, 3, r, 0.5, 0.5);
 			pullNodes(a, 4, 5, r, 0.5, 0.5);
 			pullNodes(a, 6, 7, r, 0.5, 0.5);
-			if (a->type==Entity_BOX+2 && Part_limit1000()) {
+			if (a->type==Entity_BOX+2 && Dot_limit1000()) {
 				for (int b=0;b<5;b+=2) {
 					Point e = {.c=
 						(a->parts[b+1].oldPos.c - a->parts[b].oldPos.c) * Random_(1) + a->parts[b].oldPos.c
 					};
-					if (*Part_pos2(e)<=Part_BGFAN)
-						Part_create(e.x, e.y, Elem_FIRE);
+					if (*Dot_pos2(e)<=Dot_BGFAN)
+						Dot_create(e.x, e.y, Elem_FIRE);
 				}
 			}
 			for (int b=0;b<8;b++)
