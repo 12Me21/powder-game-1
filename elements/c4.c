@@ -22,7 +22,7 @@ break; case Elem_C4:
 				near->vel.y += 10*(y-sy);
 			}
 			if ((y&3)+(x&3)==0) {
-				Block* cell = &Dot_blocks[y>>2][x>>2];
+				Block* cell = &Blocks[y>>2][x>>2];
 				if (cell->block<=0) {
 					if (x!=sx)
 						cell->vel.x += 1/(x-sx);
@@ -45,7 +45,7 @@ break; case Elem_C4:
 				d->vel.y += 10*(y-sy);
 			}
 			if ((y&3)+(x&3)==0){
-				Block* cell = &Dot_blocks[y>>2][x>>2];
+				Block* cell = &Blocks[y>>2][x>>2];
 				if (cell->block<=0) {
 					if (x!=sx)
 						cell->vel.x += 100/(x-sx);

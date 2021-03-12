@@ -164,7 +164,7 @@ void Menu_update(void) {
 			switch (selection) {
 			when(Menu_WIND):;
 				Point b = Vec_mul2(Pen_dir, 10);
-				Block* e = &Dot_blocks[Pen_y>>2][Pen_x>>2];
+				Block* e = &Blocks[Pen_y>>2][Pen_x>>2];
 				if (old && e->block == 0) {
 					Vec_add(&e->vel, b);
 					if (Vec_fastDist(e->vel)>10 && Menu_paused) {
@@ -174,7 +174,7 @@ void Menu_update(void) {
 				}
 			when(Menu_AIR):;
 				void addPressure(axis x, axis y, real amount) {
-					Block* cell = &Dot_blocks[Pen_y/4+y][Pen_x/4+x];
+					Block* cell = &Blocks[Pen_y/4+y][Pen_x/4+x];
 					if (!cell->block)
 						Block_addPressure(cell, amount);
 				}
@@ -192,7 +192,7 @@ void Menu_update(void) {
 				if (!gotPress) break;
 				axis f = Pen_x>>2<<2;
 				axis g = Pen_y>>2<<2;
-				Block* cell = &Dot_blocks[Pen_y>>2][Pen_x>>2];
+				Block* cell = &Blocks[Pen_y>>2][Pen_x>>2];
 				if (!cell->block) {
 					switch (selection) {
 					when(Menu_FIGHTER):;
@@ -207,7 +207,7 @@ void Menu_update(void) {
 					}
 				}
 			when(Menu_BALL):;
-				cell = &Dot_blocks[Pen_y>>2][Pen_x>>2];
+				cell = &Blocks[Pen_y>>2][Pen_x>>2];
 				if (cell->block==0 && gotPress) {
 					Elem type = Menu_BUTTONS[otherSel].ball;
 					if (type)
@@ -241,7 +241,7 @@ void Menu_update(void) {
 						for (axis g=v; g<=v+Menu_penSize; g++) {
 							for (axis f=c; f<=c+Menu_penSize; f++) {
 								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
-									Block* cell = &Dot_blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
+									Block* cell = &Blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
 									switch(selection) {
 									when(Menu_BLOCK):;
 										cell->block = 1;
@@ -279,7 +279,7 @@ void Menu_update(void) {
 					}
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
 						Dot_FOR (p) {
-							if (Dot_blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
+							if (Blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
 								Dot_remove(p--);
 						}
 					}
@@ -291,7 +291,7 @@ void Menu_update(void) {
 					}
 					for (int y=8;y<H+8;y++) {
 						for (int x=8;x<W+8;x++) {
-							Block* cell = &Dot_blocks[y>>2][x>>2];
+							Block* cell = &Blocks[y>>2][x>>2];
 							Dot** part = &Dot_at[y][x];
 							if (cell->block==0 && *part == Dot_BLOCK)
 								*part = Dot_EMPTY;

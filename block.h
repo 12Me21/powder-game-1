@@ -18,7 +18,7 @@ typedef struct Block {
 void Block_clearPressure(Block* c);
 void Block_addPressure(Block* c, real p);
 
-#define Block_FOR(var) for (Block* var=Dot_blocks[0]; var<Dot_blocks_end; var++)
+#define Block_FOR(var) for (Block* var=Blocks[0]; var<Blocks_END; var++)
 
-extern Block Dot_blocks[HEIGHT/4][WIDTH/4];
-extern Block* const Dot_blocks_end;
+extern Block Blocks[HEIGHT/4][WIDTH/4];
+extern Block* const Blocks_END;

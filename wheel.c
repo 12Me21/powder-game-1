@@ -27,7 +27,7 @@ void Wheel_update(void) {
 		for (axis y=0; y<32; y++) {
 			for (axis x=0; x<32; x++) {
 				if (frame[y][x]=='.') {
-					Block* cell = &Dot_blocks[(w->y+y-16)>>2][(w->x+x-16)];
+					Block* cell = &Blocks[(w->y+y-16)>>2][(w->x+x-16)];
 					real wind = cell->vel.x*(y-15.5) - cell->vel.y*(x-15.5);
 					w->vel += 0.0001*wind;
 				}

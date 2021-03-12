@@ -31,7 +31,7 @@ break; case Elem_NITRO:
 			d->vel.y += 10*(y-sy);
 		}
 		if ((y&3)+(x&3)==0){
-			Block* cell = &Dot_blocks[y>>2][x>>2];
+			Block* cell = &Blocks[y>>2][x>>2];
 			if (cell->block<=0) {
 				if (x!=sx)
 					cell->vel.x += 10/(x-sx);
@@ -55,7 +55,7 @@ break; case Elem_NITRO:
 			if (d<=Dot_BGFAN)
 				Dot_create(x,y,Elem_FIRE);
 			if ((y&3)+(x&3)==0){
-				Block* cell = &Dot_blocks[y>>2][x>>2];
+				Block* cell = &Blocks[y>>2][x>>2];
 				if (cell->block<=0) {
 					if (x!=sx)
 						cell->vel.x += 100/(x-sx);

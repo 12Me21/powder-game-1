@@ -299,7 +299,7 @@ void Ball_update(void) {
 
 		real adv = ELEMENTS[i->type].ballAdvection;
 		if (adv) {
-			Block* cell = &Dot_blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
+			Block* cell = &Blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
 			i->vel.x += cell->vel.x*adv;
 			i->vel.y += cell->vel.y*adv;
 			if (Vec_fastDist(cell->vel)>0.3)

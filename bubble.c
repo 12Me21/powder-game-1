@@ -9,7 +9,7 @@
 #include "bubble.h"
 
 Bubble Bubble_bubbles[2000];
-Bubble* const Bubble_end = &Bubble_bubbles[2000];
+Bubble* const Bubble_END = &Bubble_bubbles[2000];
 Bubble* Bubble_next = Bubble_bubbles;
 
 int Qd = 0;
@@ -55,7 +55,7 @@ static void pull(Bubble* a, Bubble* b) {
 
 void Bubble_update(void) {
 	Bubble_FOR (b) {
-		Block* cell = &Dot_blocks[(int)b->y/4][(int)b->x/4];
+		Block* cell = &Blocks[(int)b->y/4][(int)b->x/4];
 		Point vel = cell->vel;
 		Vec_mul(&vel, 3.8/(Vec_fastDist(vel)+1));
 		b->x += vel.x;
@@ -125,12 +125,16 @@ void Bubble_update(void) {
 	}
 }
 
+void Bubble_nextId(void) {
+	Qd++;
+}
+
 void Bubble_draw(axis x, axis y, bool rising, bool old) {
-	if (Bubble_next > Bubble_end-5) //todo: END should be uppercase
+	if (Bubble_next > Bubble_END-5)
 		return;
 	x = x&~3;
 	y = y&~3;
-	Block* cell = &Dot_blocks[y>>2][x>>2];
+	Block* cell = &Blocks[y>>2][x>>2];
 	if (cell->block!=0)
 		Qd++;
 	else {
@@ -153,7 +157,7 @@ void Bubble_draw(axis x, axis y, bool rising, bool old) {
 }
 
 void Bubble_create(axis x, axis y) {
-	if (Bubble_next < Bubble_end) {
+	if (Bubble_next < Bubble_END) {
 		*Bubble_next = (Bubble){
 			.x = x,
 			.y = y,

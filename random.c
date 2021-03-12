@@ -8,7 +8,7 @@ static real randomFloats[1024];
 static int randomIndex = 0, randomStep = 0;
 static real randomFloat(void) {
 	randomIndex += randomStep;
-	randomIndex &= 0x3FF;
+	randomIndex %= 1024;
 	return randomFloats[randomIndex];
 }
 
@@ -29,12 +29,12 @@ bool Rnd_perchance(int chance) {
 }
 
 Point Rnd_point(real x1, real x2, real y1, real y2) {
-	real x = Random_2(x1,x2);
+	real x = Random_2(x1,x2); //this is done separately to preserve the order
 	return (Point){x, Random_2(y1,y2)};
 }
 
 void Random_update(void) {
-	randomIndex += rand() % 1024 & 0x3FF;
+	randomIndex += rand() % 1024;
 	randomStep = rand() % 512 | 1;
 }
 

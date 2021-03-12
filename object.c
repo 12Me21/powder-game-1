@@ -186,7 +186,7 @@ static void updateNode(ObjectNode* node, real dd, bool noCollide, bool held) {
 	Point e = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
 	if (dd!=0) {
-		Block* cell = &Dot_blocks[(int)node->pos.y/4][(int)node->pos.x/4];
+		Block* cell = &Blocks[(int)node->pos.y/4][(int)node->pos.x/4];
 		e.xy += cell->vel.xy*dd;
 	}
 	int d;
@@ -401,7 +401,7 @@ void Object_update(void) {
 				b=clamp(b,8,H+8-1);
 				// fan blow air
 				if (a->meta == Elem_FAN) {
-					Block* cell = &Dot_blocks[b>>2][w>>2];
+					Block* cell = &Blocks[b>>2][w>>2];
 					if (cell->block == 0)
 						cell->vel.x += player->facing ? 1 : -1;
 					//spit

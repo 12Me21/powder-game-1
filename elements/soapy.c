@@ -32,19 +32,35 @@ break; case Elem_SOAPY:
 					Dot_swap(p, g);
 		}
 	}
+	// if air vel > 2, turn into bubbles
 	if (Vec_fastDist(p->vel)>2) {
+		// find nearby soapy particles
 		int f = 0;
 		void func(axis x, axis y, axis sx, axis sy) {
 			Dot* near = *Dot_pos(x, y);
 			if (near>=Dot_0 && near->type==Elem_SOAPY && near->meta==0) {
-				near->meta = 1;
+				near->meta = 1; //make them disappear next frame
 				f++;
 			}
 		}
 		Dot_doRadius(p->pos.x, p->pos.y, 4, func);
-		// todo: make sure f isn't > amount of free bubble nodes
+		// 
+		f = atLeast(f, 5);
+		f = atMost(f, Bubble_END - Bubble_next);
 		if (f<5) break;
-		// todo: create bubble
+		// make bubble
+		Point bb = {
+			((int)between(p->pos.x, 8, WIDTH-8-1) & ~3) + 2,
+			((int)between(p->pos.y, 8, HEIGHT-8-1) & ~3) + 2
+		};
+		Bubble_nextId();
+		for (int i=0;i<f;i++) {
+			Point offset = bb;
+			offset.xy += 1.9*Vec_unit[(int)(512*i/f)].xy;
+			Bubble_create(offset.x, offset.y);
+		}
+		Bubble_nextId();
+		//
 		Dot_KILL();
 	}
 

@@ -17,7 +17,7 @@ break; case Elem_GUNPOWDER:
 			g->vel.y += 10*(y-sy);
 		}
 		if ((y&3)+(x&3)==0) {
-			Block* cell = &Dot_blocks[y>>2][x>>2];
+			Block* cell = &Blocks[y>>2][x>>2];
 			if (cell->block<=0) {
 				if (x!=sx)
 					cell->vel.x += 10.0/(x-sx);

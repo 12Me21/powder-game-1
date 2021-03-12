@@ -30,7 +30,7 @@ void Bg_render(void) {
 	case Bg_AIR: case Bg_LINE:;
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* block = &Dot_blocks[y][x];
+				Block* block = &Blocks[y][x];
 				if (block->block == 1) {
 					Draw_rectangle(x*4, y*4, 4, 4, 0x606060);
 				} else {
@@ -51,8 +51,8 @@ void Bg_render(void) {
 					if (r>=0.2) {
 						r = atMost(r, 8);
 						int f = atMost(48*r, 96);
-						int d = c-Dot_blocks[0];
-						int n = d/(WIDTH/4)*4;
+						int d = c-Blocks[0];
+						int n = d/(WIDTH/4)*4; //bad
 						d = d%(WIDTH/4)*4;
 						Draw_line(d+e.x*r*10, n+e.y*r*10, d, n, f<<16);
 					}
@@ -112,7 +112,7 @@ void Bg_render(void) {
 		memset(Bg_pixels, 0, sizeof(Bg_pixels));
 		for (y=2;y<(HEIGHT/4)-2;y++) {
 			for (x=2;x<(WIDTH/4)-2;x++) {
-				Block* e = &Dot_blocks[y][x];
+				Block* e = &Blocks[y][x];
 				real vx = fabs(e->vel.x);
 				real vy = fabs(e->vel.y);
 				if (vx!=0 || vy!=0) {
@@ -214,7 +214,7 @@ void Bg_render(void) {
 			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? 0x606060 : 0;
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* cell = &Dot_blocks[y][x];
+				Block* cell = &Blocks[y][x];
 				if (cell->block!=0) continue;
 				real vel = Vec_fastDist(cell->vel);
 				if (vel<0.2) continue;
@@ -228,11 +228,11 @@ void Bg_render(void) {
 					b = atMost(-cell->pres*48*r, 96);
 				int d = x*4 + 5*cell->vel.x;
 				int n = y*4 + 5*cell->vel.y;
-				cell = &Dot_blocks[y][x+1];
+				cell = &Blocks[y][x+1];
 				int w = (x+1)*4 + 5*cell->vel.x;
 				int h = (y)*4 + 5*cell->vel.y;
 				Draw_line(d,n,w,h,RGB(r,g,b));
-				cell = &Dot_blocks[y+1][x];
+				cell = &Blocks[y+1][x];
 				w = (x)*4 + 5*cell->vel.x;
 				h = (y+1)*4 + 5*cell->vel.y;
 				Draw_line(d,n,w,h,RGB(r,g,b));
@@ -242,7 +242,7 @@ void Bg_render(void) {
 	case Bg_GRAY:
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* cell = &Dot_blocks[y][x];
+				Block* cell = &Blocks[y][x];
 				if (cell->block==1)
 					Draw_rectangle(x*4,y*4,4,4,0x606060);
 				else {
@@ -260,7 +260,7 @@ void Bg_render(void) {
 		const Offset blockOffsets[] = {0,1,2,3,WIDTH+0,WIDTH+1,WIDTH+2,WIDTH+3,2*WIDTH+0,2*WIDTH+1,2*WIDTH+2,2*WIDTH+3,3*WIDTH+0,3*WIDTH+1,3*WIDTH+2,3*WIDTH+3};
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
-				Block* cell = &Dot_blocks[y][x];
+				Block* cell = &Blocks[y][x];
 				if (cell->block==1)
 					Draw_rectangle(x*4,y*4,4,4,0x606060);
 				else {

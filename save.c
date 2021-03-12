@@ -115,7 +115,7 @@ void load1(void) {
 			when(0):;
 				Dot_at[sy][sx] = Dot_EMPTY;
 			when(Elem_BLOCK):;
-				Dot_blocks[y/4+2][x/4+2].block = 1;
+				Blocks[y/4+2][x/4+2].block = 1;
 				Dot_at[sy][sx] = Dot_BLOCK;
 			when(Elem_FIGHTER):;
 				//Wheels.create(sx,sy);

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "common.h"
 
+void Bubble_nextId(void);
 extern int Qd; // Qd
 
 typedef struct Bubble {
@@ -14,7 +15,7 @@ typedef struct Bubble {
 #define Bubble_MAX 2000
 
 extern Bubble Bubble_bubbles[Bubble_MAX];
-extern Bubble* const Bubble_end;
+extern Bubble* const Bubble_END;
 extern Bubble* Bubble_next; // Od (roughly)
 
 #define Bubble_FOR(b) for (Bubble* b=Bubble_bubbles; b<Bubble_next; b++)

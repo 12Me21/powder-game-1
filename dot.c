@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "random.h"
 #include "elements.h"
+#include "bubble.h"
 #include "dot.h"
 #include "menu.h"
 #include "input.h"
@@ -118,7 +119,7 @@ void Dot_update(void) {
 				p->held = false;
 			}
 		}
-		Block* c = &Dot_blocks[(axis)p->pos.y/4][(axis)p->pos.x/4];
+		Block* c = &Blocks[(axis)p->pos.y/4][(axis)p->pos.x/4];
 		if (p->type != Elem_FAN)
 			*Dot_pos2(p->pos) = Dot_EMPTY;
 		switch (p->type) {
@@ -311,7 +312,7 @@ void Dot_save(SavePixel save[H][W]) {
 void Dot_reset(void) {
 	for (axis y=0; y<HEIGHT; y++) {
 		for (axis x=0; x<WIDTH; x++) {
-			if (Dot_blocks[y/4][x/4].block==1)
+			if (Blocks[y/4][x/4].block==1)
 				*Dot_pos(x,y) = Dot_BLOCK;
 			else
 				*Dot_pos(x,y) = Dot_EMPTY;

@@ -4,11 +4,6 @@
 #include "menu.h"
 #include "common.h"
 
-// todo:
-// we need to buffer mouse clicks,
-// so that a click which starts and end within one frame
-// is still counted
-
 ButtonState Keys[256] = {
 	{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0},{0}, //0-12
 	{13,13},{0},{0},{0}, // 13-15
