@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include <windowsx.h>
 #include <dwmapi.h>
 #undef RGB
 #endif
@@ -9,7 +10,7 @@
 #include "input.h"
 #include "save.h"
 #include "vector.h"
-#include "draw.h"
+#include "render/draw.h"
 #include "platform.h"
 #ifndef HDEPS
 //extern int Platform_mouseX, Platform_mouseY;
@@ -67,6 +68,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		break;
+	case WM_MOUSEMOVE:;
+		mouse.pos = (Point){GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+		break;
+	case WM_LBUTTONDOWN:;
+		mouse.left.heldNow = true;
+		mouse.left.gotPress = true;
+		break;
+	case WM_LBUTTONUP:;
+		mouse.left.heldNow = false;
+		mouse.left.gotRelease = true;
+		break;
+	case WM_RBUTTONDOWN:;
+		mouse.right.heldNow = true;
+		mouse.right.gotPress = true;
+		break;
+	case WM_RBUTTONUP:;
+		mouse.right.heldNow = false;
+		mouse.right.gotRelease = true;
 		break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
