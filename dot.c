@@ -3,6 +3,7 @@
 #include <math.h>
 #include "common.h"
 #include "vector.h"
+#include "random.h"
 #include "elements.h"
 #include "dot.h"
 #include "menu.h"

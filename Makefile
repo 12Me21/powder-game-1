@@ -1,4 +1,4 @@
-srcs:= elements input main dot vector render/draw menu save render/bg object render/dot render/menu render/object ball render/ball block wheel wheel-frames font bubble reset render/scale menu-input render/bubble render/wheel
+srcs:= elements input main dot vector render/draw menu save render/bg object render/dot render/menu render/object ball render/ball block wheel wheel-frames font bubble reset render/scale menu-input render/bubble render/wheel random
 
 # this is VERY IMPORTANT!
 # causes number literals to be treated as float instead of double

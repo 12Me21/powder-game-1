@@ -1,7 +1,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <complex.h>
 #include "ball.h"
 #include "menu.h"
 #include "input.h"
@@ -9,6 +8,8 @@
 #include "elements.h"
 #include "block.h"
 #include "save.h"
+#include "vector.h"
+#include "random.h"
 
 Ball balls[Ball_MAX];
 Ball* const Ball_END = &balls[Ball_MAX];

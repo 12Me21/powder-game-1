@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "menu.h"
 #include "vector.h"
+#include "random.h"
 #include "input.h"
 #include "elements.h"
 #include "dot.h"
