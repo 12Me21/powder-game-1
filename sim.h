@@ -8,5 +8,5 @@
 #include "wheel.h"
 #include "bubble.h"
 #include "dot.h"
-#include "cell.h"
+#include "block.h"
 #include "entity.h"

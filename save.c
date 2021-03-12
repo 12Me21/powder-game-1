@@ -170,7 +170,7 @@ void Save_save1(void) {
 #define DEFCALL(type) void type##_save(SavePixel save[H][W]); type##_save(Save_data);
 	
 	memset(Save_data, 0, sizeof(Save_data));
-	DEFCALL(Cell);
+	DEFCALL(Block);
 	DEFCALL(Dot);
 	DEFCALL(Wheel);
 	DEFCALL(Entity);

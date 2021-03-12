@@ -7,7 +7,7 @@
 #include "input.h"
 #include "entity.h"
 #include "elements.h"
-#include "cell.h"
+#include "block.h"
 #include "save.h"
 
 Ball balls[Ball_MAX];

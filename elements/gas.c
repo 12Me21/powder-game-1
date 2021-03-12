@@ -33,7 +33,7 @@ break; case Elem_GAS:
 			Dot_create(x, y, Elem_FIRE);
 	}
 	Dot_doRadius(p->pos.x, p->pos.y, 10, func);
-	Cell_addPressure(c,2);
+	Block_addPressure(c,2);
 	p->type = Elem_FIRE;
 	p->meta = 0;
 

@@ -10,7 +10,7 @@
 #include "dot.h"
 #include "input.h"
 #include "entity.h"
-#include "cell.h"
+#include "block.h"
 #include "save.h"
 
 Entity entitys[Entity_MAX];

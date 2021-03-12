@@ -11,9 +11,9 @@ break; case Elem_FIRE:
 		real q = Random_2(-0.01, -0.05);
 		c->vel.x += Random_2(-0.02, 0.02);
 		c->vel.y += q;
-		Cell_addPressure(c,-q);
+		Block_addPressure(c,-q);
 	} else if (p->meta==1) {
-		Cell_addPressure(c, -Random_2(-0.01, -0.05));
+		Block_addPressure(c, -Random_2(-0.01, -0.05));
 	}
 	Dot_blow(p, airvel);
 	

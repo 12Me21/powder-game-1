@@ -15,12 +15,10 @@ typedef struct Block {
 	// -2: (temporary) when erasing block
 } Block;
 
-typedef struct Block Cell;
+void Block_clearPressure(Block* c);
+void Block_addPressure(Block* c, real p);
 
-void Cell_clearPressure(Cell* c);
-void Cell_addPressure(Cell* c, real p);
-
-#define Cell_FOR(var) for (Cell* var=Dot_blocks[0]; var<Dot_blocks_end; var++)
+#define Block_FOR(var) for (Block* var=Dot_blocks[0]; var<Dot_blocks_end; var++)
 
 extern Block Dot_blocks[HEIGHT/4][WIDTH/4];
 extern Block* const Dot_blocks_end;

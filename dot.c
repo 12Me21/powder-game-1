@@ -7,7 +7,7 @@
 #include "dot.h"
 #include "menu.h"
 #include "input.h"
-#include "cell.h"
+#include "block.h"
 #include "save.h"
 
 const int Dot_LIMITS[] = {20000, 30000, 40000, Dot_MAX};

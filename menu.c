@@ -176,7 +176,7 @@ void Menu_update(void) {
 				void addPressure(axis x, axis y, real amount) {
 					Block* cell = &Dot_blocks[Pen_y/4+y][Pen_x/4+x];
 					if (!cell->block)
-						Cell_addPressure(cell, amount);
+						Block_addPressure(cell, amount);
 				}
 				if (old) {
 					int v=(Menu_penSize+1)*(Menu_penSize+1)*0.25;
@@ -246,14 +246,14 @@ void Menu_update(void) {
 									when(Menu_BLOCK):;
 										cell->block = 1;
 										cell->vel = (Point){0,0};
-										Cell_clearPressure(cell);
+										Block_clearPressure(cell);
 									when(Menu_ERASE):;
 										cell->block = -2;
 									when(Menu_CLEAR):;
 										if (cell->block == 0) {
 											cell->block = -2;
 											cell->vel = (Point){0,0};
-											Cell_clearPressure(cell);
+											Block_clearPressure(cell);
 										}
 									}
 								}
@@ -284,7 +284,7 @@ void Menu_update(void) {
 						}
 					}
 					if (selection==Menu_ERASE || selection==Menu_CLEAR) {
-						Cell_FOR(cell) {
+						Block_FOR(cell) {
 							if (cell->block==-2)
 								cell->block = 0;
 						}

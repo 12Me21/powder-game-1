@@ -5,7 +5,7 @@
 #include "draw.h"
 #include "../elements.h"
 #include "../dot.h"
-#include "../cell.h"
+#include "../block.h"
 #include "bg.h"
 
 BgPixel Bg_pixels[HEIGHT][WIDTH] = {0};
@@ -44,7 +44,7 @@ void Bg_render(void) {
 			}
 		}
 		if (Menu_bgMode==Bg_LINE) {
-			Cell_FOR (c) {
+			Block_FOR (c) {
 				if (c->block==0) {
 					Point e = c->vel;
 					real r = Vec_fastNormalize(&e);
@@ -112,7 +112,7 @@ void Bg_render(void) {
 		memset(Bg_pixels, 0, sizeof(Bg_pixels));
 		for (y=2;y<(HEIGHT/4)-2;y++) {
 			for (x=2;x<(WIDTH/4)-2;x++) {
-				Cell* e = &Dot_blocks[y][x];
+				Block* e = &Dot_blocks[y][x];
 				real vx = fabs(e->vel.x);
 				real vy = fabs(e->vel.y);
 				if (vx!=0 || vy!=0) {

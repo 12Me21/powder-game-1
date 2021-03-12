@@ -37,10 +37,10 @@ void Platform_frame(void) {
 	DEFCALL(Menu_update);
 	
 	for (int i=0; i<1<<Menu_gameSpeed; i++) {
-		DEFCALL(Cell_update1);
+		DEFCALL(Block_update1);
 		if (Menu_paused)
 			continue;
-		DEFCALL(Cell_update);
+		DEFCALL(Block_update);
 		DEFCALL(Wheel_update1);
 		DEFCALL(Dot_update);
 		DEFCALL(Wheel_update);

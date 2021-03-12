@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "common.h"
 #include "vector.h"
-#include "cell.h"
+#include "block.h"
 
 #define Dot_MAX (WIDTH*HEIGHT+1000)
 
