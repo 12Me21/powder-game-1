@@ -5,7 +5,7 @@
 #include "ball.h"
 #include "menu.h"
 #include "input.h"
-#include "entity.h"
+#include "object.h"
 #include "elements.h"
 #include "block.h"
 #include "save.h"
@@ -156,8 +156,8 @@ static void checkDragging(Ball* i) {
 }
 
 static void checkEntities(Ball* ball) {
-	Entity_FOR (en) {
-		if (en->type==Entity_FIGHTER||en->type==Entity_FIGHTER+1||en->type==Entity_PLAYER) {
+	Object_FOR (en) {
+		if (en->type==Object_FIGHTER||en->type==Object_FIGHTER+1||en->type==Object_PLAYER) {
 			for (int f=4; f<=5; f++) {
 				real dx = abs(en->parts[f].pos.x - ball->pos.x);
 				real dy = abs(en->parts[f].pos.y - ball->pos.y);

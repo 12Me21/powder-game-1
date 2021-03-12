@@ -7,7 +7,7 @@
 #include "../dot.h"
 #include "bg.h"
 #include "draw.h"
-#include "../entity.h"
+#include "../object.h"
 #include "../save.h"
 #include "../input.h"
 

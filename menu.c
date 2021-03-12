@@ -196,14 +196,14 @@ void Menu_update(void) {
 				if (!cell->block) {
 					switch (selection) {
 					when(Menu_FIGHTER):;
-						Entity_create(f, g, 0, 0);
+						Object_create(f, g, 0, 0);
 					when(Menu_BOX):;
-						Entity_create(f, g, Elem_BOX, Menu_penSize);
+						Object_create(f, g, Elem_BOX, Menu_penSize);
 					when(Menu_PLAYER):;
 						Elem type = Menu_BUTTONS[otherSel].player;
-						Entity_create(f, g, Elem_PLAYER, type);
+						Object_create(f, g, Elem_PLAYER, type);
 					when(Menu_CREATE):;
-						Entity_create(f, g, Elem_BOX, 10);
+						Object_create(f, g, Elem_BOX, 10);
 					}
 				}
 			when(Menu_BALL):;

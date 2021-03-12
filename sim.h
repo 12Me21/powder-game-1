@@ -9,4 +9,4 @@
 #include "bubble.h"
 #include "dot.h"
 #include "block.h"
-#include "entity.h"
+#include "object.h"

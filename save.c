@@ -122,9 +122,9 @@ void load1(void) {
 			when(Elem_WHEEL):;
 				//Wheels.create(sx,sy);
 			when(Elem_BOX):;
-				Entity_create(sx,sy,Elem_BOX, Save_data[y][x].meta);
+				Object_create(sx,sy,Elem_BOX, Save_data[y][x].meta);
 			when(Elem_PLAYER):;
-				Entity_create(sx,sy,Elem_PLAYER2, Save_data[y][x].meta);
+				Object_create(sx,sy,Elem_PLAYER2, Save_data[y][x].meta);
 			when(Elem_SAVE_BALL):;
 				Ball_create(sx, sy, Save_data[y][x].meta);
 			otherwise:
@@ -173,7 +173,7 @@ void Save_save1(void) {
 	DEFCALL(Block);
 	DEFCALL(Dot);
 	DEFCALL(Wheel);
-	DEFCALL(Entity);
+	DEFCALL(Object);
 	DEFCALL(Ball);
 	//carefullycreated2=clamp(carefullycreated+100,0,4095);
 }

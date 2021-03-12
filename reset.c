@@ -9,7 +9,7 @@ void Sim_reset(bool drawBorder) {
 	DEFCALL(Dot);
 	DEFCALL(Wheel);
 	DEFCALL(Bubble);
-	DEFCALL(Entity);
+	DEFCALL(Object);
 	DEFCALL(Ball);
 	DEFCALL(Bg);
 }

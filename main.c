@@ -19,7 +19,7 @@ void render() {
 	DEFCALL(Dot_render);
 	DEFCALL(Wheel_render);
 	DEFCALL(Bubble_render);
-	DEFCALL(Entity_render);
+	DEFCALL(Object_render);
 	DEFCALL(Ball_render);
 
 	DEFCALL(Bg_render2);
@@ -45,7 +45,7 @@ void Platform_frame(void) {
 		DEFCALL(Dot_update);
 		DEFCALL(Wheel_update);
 		DEFCALL(Bubble_update);
-		DEFCALL(Entity_update);
+		DEFCALL(Object_update);
 		DEFCALL(Ball_update);
 	}
 	render();
