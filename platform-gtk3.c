@@ -7,20 +7,15 @@
 #include "render/draw.h"
 #include "vector.h"
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/xpm.h>
-#include <X11/keysym.h>
-
 #include <gtk/gtk.h>
 
 void Platform_frame(void);
 void Platform_main(int argc, char** argv);
 
-Display* D;
+/*Display* D;
 Window win;
 XImage* simImage;
-XImage* menuImage;
+XImage* menuImage;*/
 
 long Platform_nanosec(void) {
 	struct timespec ts;
@@ -29,13 +24,13 @@ long Platform_nanosec(void) {
 }
 
 void redraw(void) {
-	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
-	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
+	//	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
+	//	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
 }
 
-Atom wmDeleteMessage;
+//Atom wmDeleteMessage;
 
-static bool processEvent(void) {
+/*static bool processEvent(void) {
 	while (1) {
 		static union {
 			XEvent event;
@@ -104,60 +99,47 @@ static bool processEvent(void) {
 			}
 		}
 	}
+	}*/
+
+GtkApplication* app;
+GtkWidget* window;
+
+static gboolean on_window_draw(GtkWidget* da, GdkEvent* event, gpointer data) {
+	GError *err = NULL;
+	GdkPixbuf *pix = gdk_pixbuf_new_from_file("/home/twelve/Pictures/1614117539516.png", &err);
+	if (err) {
+		printf("Error: %s\n", err->message);
+		g_error_free(err);
+		return FALSE;
+	}
+	cairo_t* cr = gdk_cairo_create(gtk_widget_get_window(da));
+	gdk_cairo_set_source_pixbuf(cr, pix, 0, 0);
+	cairo_paint(cr);
+	cairo_destroy(cr);
 }
 
 int main(int argc, char** argv) {
-	srand(time(NULL));///todo put this in windows
-	D = XOpenDisplay(NULL);
-	Visual* visual = DefaultVisual(D, 0);
-	if (visual->class!=TrueColor) {
-		fprintf(stderr, "Cannot handle non true color visual ...\n");
-		XCloseDisplay(D);
-		exit(1);
-	}
-
-	//XFontStruct* font = XLoadQueryFont(D, "serif")
-
-	// Create window
-	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0);
-	XSelectInput(D, win, ButtonPressMask|ButtonReleaseMask|ExposureMask|KeyPressMask|KeyReleaseMask|PointerMotionMask);
-	XMapWindow(D, win);
+	GtkWidget* canvas;
+	gtk_init(&argc, &argv);
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_widget_set_size_request(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	canvas = gtk_drawing_area_new();
+	gtk_container_add(GTK_CONTAINER(window), canvas);
+	g_signal_connect(canvas, "draw", (GCallback)on_window_draw, NULL);
+	gtk_widget_set_app_paintable(canvas, TRUE);
+	gtk_widget_show_all(window);
+	gtk_main();
+	return 0;
 	
-	// Lock window size
-	XSizeHints* shints = XAllocSizeHints();
-	shints->flags = PMinSize|PMaxSize;
-	shints->min_width = shints->max_width = WINDOW_WIDTH;
-	shints->min_height = shints->max_height = WINDOW_HEIGHT;
-	XSetWMNormalHints(D, win, shints);
-	XFree(shints);
-
-	// Set icon
-	Pixmap pixmap = 0;
-	Pixmap mask = 0;
-#include "icon.xpm"
-	XpmCreatePixmapFromData(D, DefaultRootWindow(D), icon, &pixmap, &mask, 0);
-	XWMHints* hints = XGetWMHints(D, win) ?: XAllocWMHints();
-	hints->flags |= IconPixmapHint;
-	hints->icon_pixmap = pixmap;
-	XSetWMHints(D, win, hints);
-	XFree(hints);
-
-	// this refers to center portion of grp (without the 8px edge regions)
-	simImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)&grp[8][8], W,H, 32, WIDTH*4);
-	// menu
-	menuImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W,MENU_HEIGHT, 32, 0);
-
-	//wmDeleteMessage = XInternAtom(D, "WM_DELETE_WINDOW", False);
-	//XSetWMProtocols(D, win, &wmDeleteMessage, 1);
-	
-	// start
+	/*	// start
 	Platform_main(argc, argv);
 	Platform_frame();
 	redraw();
 	while (processEvent()) {
 		Platform_frame();
 		redraw();
-	}
+		}*/
 }
 
 FILE* Platform_fopen(const void* name) {

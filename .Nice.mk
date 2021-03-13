@@ -27,11 +27,11 @@ $(junkdir)/%.mk: $(srcdir)/%.c
 	$(cc) $(CFLAGS) -DHDEPS -MM $< -MP -MQ$@ -MQ$(<:%.c=$(junkdir)/%.o) -MF$@
 
 # Compile
-$(junkdir)/%.o: $(srcdir)/%.c
+$(junkdir)/%.o: $(srcdir)/%.c $(gch)
 	$(cc) $(CFLAGS) $(cflags2) $(addprefix -I,$(includes)) -c $< -o $@
 
-#fast-$(output): $(srcs:%=$(srcdir)/%.c)
-#	$(cc) $(CFLAGS) -O3 $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
+%.h.gch: %.h
+	$(cc) $(CFLAGS) $(cflags2) $^ -o $@
 
 .PHONY: clean
 clean:
