@@ -32,16 +32,16 @@ break; case Elem_TORCH:
 	switch (part->type) {
 	case Elem_POWDER:case Elem_SEED:case Elem_GUNPOWDER:case Elem_SUPERBALL:case Elem_OIL:case Elem_C4:case Elem_NITRO:case Elem_ANT:case Elem_GAS:case Elem_VINE:case Elem_BIRD:case Elem_FUSE:
 		part->type = Elem_FIRE;
-		part->meta = 0;
+		part->charge = 0;
 		break;
 	case Elem_ICE: case Elem_SNOW: case Elem_CLOUD:
 		part->type = Elem_WATER;
-		part->meta = 0;
+		part->charge = 0;
 		break;
 	case Elem_FIREWORKS:
-		if (part->meta>0 && part->meta<100) {
+		if (part->charge>0 && part->charge<100) {
 			part->vel.y -= 50;
-			part->meta += 100;
+			part->charge += 100;
 		}
 	}
 #endif

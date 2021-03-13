@@ -9,7 +9,7 @@
 #include "save.h"
 
 Wheel Wheel_wheels[Wheel_MAX];
-Wheel* const Wheel_end = &Wheel_wheels[Wheel_MAX];
+Wheel* const Wheel_END = &Wheel_wheels[Wheel_MAX];
 Wheel* Wheel_next = Wheel_wheels;
 
 extern const char Wheel_frames[16][32][32];
@@ -27,7 +27,7 @@ void Wheel_update(void) {
 		for (axis y=0; y<32; y++) {
 			for (axis x=0; x<32; x++) {
 				if (frame[y][x]=='.') {
-					Block* cell = &Blocks[(w->y+y-16)>>2][(w->x+x-16)];
+					Block* cell = Block_at(w->x+x-16, w->y+y-16);
 					real wind = cell->vel.x*(y-15.5) - cell->vel.y*(x-15.5);
 					w->vel += 0.0001*wind;
 				}
@@ -107,15 +107,14 @@ void Wheel_create(axis x, axis y) {
 		if (x==w->x && y==w->y)
 			return;
 	}
-	if (Wheel_next < Wheel_end) {
-		*Wheel_next = (Wheel){
-			.x = x,
-			.y = y,
-			.angle = 0.5,
-			.vel = 0,
-		};
-		Wheel_next++;
-	}
+	if (Wheel_next >= Wheel_END) return;
+	*Wheel_next = (Wheel){
+		.x = x,
+		.y = y,
+		.angle = 0.5,
+		.vel = 0,
+	};
+	Wheel_next++;
 }
 
 void Wheel_update1(void) {

@@ -1,7 +1,7 @@
 break; case Elem_SOAPY:
 {
 #ifdef UPDATE_PART
-	if (p->meta==1)
+	if (p->charge==1)
 		Dot_KILL();
 	Dot_liquidUpdate(p, c, 0.3, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	int dir = Random_int(8)-4;
@@ -16,7 +16,7 @@ break; case Elem_SOAPY:
 				p->type = Elem_ICE;
 		when(Elem_OIL):;
 			g->type = Elem_SOAPY;
-			g->meta = p->meta = 1; //both particles promise to die
+			g->charge = p->charge = 1; //both particles promise to die
 		when(Elem_FUSE):;
 			if (!g->Cfuse.burning) {
 				g->Cfuse.type = Elem_SOAPY;
@@ -38,8 +38,8 @@ break; case Elem_SOAPY:
 		int f = 0;
 		void func(axis x, axis y, axis sx, axis sy) {
 			Dot* near = *Dot_pos(x, y);
-			if (near>=Dot_0 && near->type==Elem_SOAPY && near->meta==0) {
-				near->meta = 1; //make them disappear next frame
+			if (near>=Dot_0 && near->type==Elem_SOAPY && near->charge==0) {
+				near->charge = 1; //make them disappear next frame
 				f++;
 			}
 		}

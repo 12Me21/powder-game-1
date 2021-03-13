@@ -1,7 +1,7 @@
 break; case Elem_ACID:
 {
 #ifdef UPDATE_PART
-	if (p->meta>=100)
+	if (p->charge>=100)
 		Dot_KILL();
 	Dot_liquidUpdate(p, c, 0.2, 0,0.1, 0.01, 0.02,0.05, 0.9);
 	int dir = atLeast(Random_int(8)-4, 0); //0 to 3
@@ -11,10 +11,10 @@ break; case Elem_ACID:
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
 		int rate = ELEMENTS[g->type].dissolveRate;
 		if (rate) {
-			if (Random_(200)<200-p->meta) {
-				p->meta = clamp(p->meta+rate,0,100);
+			if (Random_(200)<200-p->charge) {
+				p->charge = clamp(p->charge+rate,0,100);
 				g->type = Elem_ACID;
-				g->meta = 100; //will die instantly next update
+				g->charge = 100; //will die instantly next update
 			}
 		} else if (Dot_checkPump(p, g, dir))
 			Dot_KILL();

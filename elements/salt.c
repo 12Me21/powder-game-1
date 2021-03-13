@@ -11,7 +11,7 @@ break; case Elem_SALT:
 	if (near>=Dot_0) {
 		if (near->type==Elem_WATER) {
 			near->type = Elem_SEAWATER;
-			near->meta = 0;
+			near->charge = 0;
 			Dot_KILL();
 		} else if (near->type==Elem_MAGMA && Rnd_perchance(50)) {
 			Dot_KILL();

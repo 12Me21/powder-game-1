@@ -6,7 +6,7 @@ break; case Elem_WOOD:
 	Dot_blow(p, airvel);
 	
 	//not burning
-	if (p->meta==0) {
+	if (p->charge==0) {
 		int x = p->pos.x + Random_int(5)-2;
 		int y = p->pos.y + Random_int(7)-3;
 		Dot* near = Dot_at[y][x];
@@ -14,7 +14,7 @@ break; case Elem_WOOD:
 			switch (near->type) {
 			when(Elem_FIRE): case Elem_MAGMA:
 				if (Rnd_perchance(50))
-					p->meta = 1;
+					p->charge = 1;
 				//wood creates seed when near water
 			when(Elem_WATER):;
 				if (Dot_limit1000()) {
@@ -26,7 +26,7 @@ break; case Elem_WOOD:
 			}
 		}
 		//burning
-	} else if (p->meta==1) {
+	} else if (p->charge==1) {
 		axis x = p->pos.x + Random_int(3)-1;
 		axis y = p->pos.y + Random_int(3)-1;
 		Dot* near = *Dot_pos(x,y);
@@ -35,11 +35,11 @@ break; case Elem_WOOD:
 			if (Rnd_perchance(30)) {
 				Dot* g = Dot_create(x, y, Elem_FIRE);
 				if (g>=Dot_0)
-					g->meta = 1;
+					g->charge = 1;
 			}
 			//water puts out the fire and breaks the wood into powder
 		} else if (near->type==Elem_WATER) {
-			p->meta = 0;
+			p->charge = 0;
 			p->type = Elem_POWDER;
 		}
 		//generate powder sometimes
@@ -55,7 +55,7 @@ break; case Elem_WOOD:
 	else if (touched==Elem_THUNDER)
 		Ball_break(ball, 0, Elem_POWDER, 0, 0, 0, 1);
 	else if (touched>=0 && ELEMENTS[touched].state==State_HOT) {
-		if (ball->meta==1) //if oiled
+		if (ball->charge==1) //if oiled
 			Ball_break(ball, 0, Elem_WOOD, 1, 0, 0, 0);
 		else
 			Ball_break(ball, 0, Elem_FIRE, 1, 0, 0, 0);
@@ -63,8 +63,8 @@ break; case Elem_WOOD:
 
 #elif defined UPDATE_BALL_PART
 	if (part->type==Elem_SEED)
-		part->meta = 1; // make seed grow
+		part->charge = 1; // make seed grow
 	else if (part->type==Elem_OIL)
-		ball->meta = 1; // make ball burn longer
+		ball->charge = 1; // make ball burn longer
 #endif
 }

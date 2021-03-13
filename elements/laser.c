@@ -17,7 +17,7 @@ break; case Elem_LASER:
 	} else if (age>12) { // remove old laser
 		if (p->Claser.inside==Elem_GLASS) {
 			p->type = Elem_GLASS;
-			p->meta = 0;
+			p->charge = 0;
 			p--; //bug?
 			break;
 		} else
@@ -71,20 +71,20 @@ break; case Elem_LASER:
 			// burn flammable elements:
 		case Elem_POWDER: case Elem_SEED: case Elem_WOOD: case Elem_SUPERBALL: case Elem_ANT: case Elem_VINE:
 			near->type = Elem_FIRE;
-			near->meta = 0;
+			near->charge = 0;
 			break;
 
 			// destroy liquids:
 		case Elem_WATER: case Elem_OIL: case Elem_SOAPY: case Elem_ACID: case Elem_SEAWATER: case Elem_CLOUD:
 			near->type = Elem_LASER;
-			near->meta = 0;
+			near->charge = 0;
 			near->Claser.dir = v+1;
 			break;
 
 			// pass through glass:
 		case Elem_GLASS:
 			near->type = Elem_LASER;
-			near->meta = 0;
+			near->charge = 0;
 			near->Claser.dir = v+1;
 			near->Claser.inside = Elem_GLASS;
 			break;

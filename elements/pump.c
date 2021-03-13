@@ -16,7 +16,7 @@ break; case Elem_PUMP:
 				p->Cpump.dir += b*r;
 			} else if (p->pumpType == f->pumpType) {
 				f->Cpump.amount += p->Cpump.amount;
-				p->meta = 0;
+				p->charge = 0;
 				p->pumpType = 0;
 			} else {
 				p->Cpump.dir += 2;
@@ -37,7 +37,7 @@ break; case Elem_PUMP:
 		Dot_create(x,y,p->pumpType);
 	}
 	if (p->Cpump.amount<=1) {
-		p->meta = 0;
+		p->charge = 0;
 		p->pumpType = 0;
 	} else {
 		p->Cpump.amount--;
@@ -45,30 +45,30 @@ break; case Elem_PUMP:
  pumped:;
 
 #elif defined UPDATE_BALL
-	if (ball->meta!=0 && Dot_limit1000()) {
+	if (ball->charge!=0 && Dot_limit1000()) {
 		Point c = ball->vel;
 		Vec_fastNormalize(&c);
 		Vec_mul(&c, 4);
 		axis x = ball->pos.x-c.x;
 		axis y = ball->pos.y-c.y;
 		if (*Dot_pos(x,y)<=Dot_BGFAN) {
-			Elem elem = ball->meta & 0xFF;
-			int fill = ball->meta>>8;
+			Elem elem = ball->charge & 0xFF;
+			int fill = ball->charge>>8;
 			if (fill>0) {
 				Dot_create(x,y,elem);
-				ball->meta = (fill-1)<<8 | elem;
+				ball->charge = (fill-1)<<8 | elem;
 			}
 		}
 	}
 #elif defined UPDATE_BALL_PART
-	if (!ball->meta) {
+	if (!ball->charge) {
 		if (part->type==Elem_WATER||part->type==Elem_OIL||part->type==Elem_MAGMA||part->type==Elem_NITRO||part->type==Elem_GAS||part->type==Elem_SOAPY||part->type==Elem_ACID||part->type==Elem_SEAWATER||part->type==Elem_MERCURY||part->type==Elem_CLOUD)
-			ball->meta = part->type;
+			ball->charge = part->type;
 	} else {
-		int type = ball->meta & 0xFF; //what if we used field size uh
-		int amount = ball->meta>>8;
+		int type = ball->charge & 0xFF; //what if we used field size uh
+		int amount = ball->charge>>8;
 		if (part->type == type) {
-			ball->meta = (amount+1)<<8 | type;
+			ball->charge = (amount+1)<<8 | type;
 			Dot_remove(part);
 		}
 	}

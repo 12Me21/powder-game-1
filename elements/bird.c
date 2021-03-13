@@ -1,15 +1,15 @@
 break; case Elem_BIRD:
 {
 #ifdef UPDATE_PART
-	if (p->meta==0) {
+	if (p->charge==0) {
 		// when particle is initially created, set random velocity
-		p->meta = 1;
+		p->charge = 1;
 		p->vel.xy = Rnd_point(-1,1, -1,1).xy;
-	} else if (p->meta==2) {
-		// meta = 2: bird is sitting on wood
+	} else if (p->charge==2) {
+		// charge = 2: bird is sitting on wood
 		if (Rnd_perchance(2)) {
 			// 2% chance of flying away
-			p->meta = 1;
+			p->charge = 1;
 			p->vel.xy *= -1;
 		} else { //otherwise stay put
 			Dot_toGrid(p);
@@ -44,11 +44,11 @@ break; case Elem_BIRD:
 		} else if (near->type==Elem_SEED || near->type==Elem_ANT) {
 			near->type = Elem_BIRD;
 			near->vel = p->vel;
-			near->meta = 1;
+			near->charge = 1;
 			Dot_KILL();
 		// land on wood:
 		} else if (near->type==Elem_WOOD) {
-			p->meta = 2;
+			p->charge = 2;
 		// burn
 		} else if (near->type[ELEMENTS].state==State_HOT) {
 			p->type = Elem_FIRE;

@@ -51,7 +51,7 @@ Dot* Dot_create(real x, real y, Elem element) {
 		{x,y},
 		{0,0},
 		.type=element,
-		.meta=0,
+		.charge=0,
 		.pumpType=0,
 		.held=false,
 	};
@@ -119,7 +119,7 @@ void Dot_update(void) {
 				p->held = false;
 			}
 		}
-		Block* c = &Blocks[(axis)p->pos.y/4][(axis)p->pos.x/4];
+		Block* c = Block_at(p->pos.x, p->pos.y);
 		if (p->type != Elem_FAN)
 			*Dot_pos2(p->pos) = Dot_EMPTY;
 		switch (p->type) {
@@ -217,13 +217,13 @@ void Dot_liquidUpdate(Dot* p, Block* c, real adv, real x1, real x2, real xr1, re
 }
 
 // flood fill
-void Dot_paint(axis x, axis y, Elem replace, Elem type, int meta) {
+void Dot_paint(axis x, axis y, Elem replace, Elem type, int charge) {
 	axis x1 = x;
 	while (1) {
 		Dot* f = *Dot_pos(x1,y);
 		if (f>=Dot_0 && f->type==replace) {
 			f->type = type;
-			f->meta = meta;
+			f->charge = charge;
 			f->pumpType = 0;
 			x1--;
 		} else
@@ -235,7 +235,7 @@ void Dot_paint(axis x, axis y, Elem replace, Elem type, int meta) {
 		Dot* f = *Dot_pos(x2,y);
 		if (f>=Dot_0 && f->type==replace) {
 			f->type = type;
-			f->meta = meta;
+			f->charge = charge;
 			f->pumpType = 0;
 			x2++;
 		} else
@@ -245,10 +245,10 @@ void Dot_paint(axis x, axis y, Elem replace, Elem type, int meta) {
 	for (x=x1; x<=x2; x++) {
 		Dot* p = *Dot_pos(x,y-1);
 		if (p>=Dot_0 && p->type==replace)
-			Dot_paint(x,y-1,replace,type,meta);
+			Dot_paint(x,y-1,replace,type,charge);
 		p = *Dot_pos(x,y+1);
 		if (p>=Dot_0 && p->type==replace)
-			Dot_paint(x,y+1,replace,type,meta);
+			Dot_paint(x,y+1,replace,type,charge);
 	}
 }
 
@@ -267,7 +267,7 @@ Dot* Dot_rndNear(Point pos, axis diam) {
 }
 
 void Dot_print(Dot* p) {
-	printf("%s\npos: %f,%f\nvel: %f,%f\nmeta: %d\npumpType: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->meta, p->pumpType);
+	printf("%s\npos: %f,%f\nvel: %f,%f\ncharge: %d\npumpType: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->charge, p->pumpType);
 }
 
 void Dot_toGrid(Dot* p) {
@@ -291,13 +291,13 @@ void Dot_save(SavePixel save[H][W]) {
 			y -= 8;
 			Elem type = p->type;
 			if (type==Elem_FAN)
-				save[y][x].meta = (int)(64*Vec_angle(p->vel)/TAU);// does this need to be wrapped?
+				save[y][x].charge = (int)(64*Vec_angle(p->vel)/TAU);// does this need to be wrapped?
 			else if (type==Elem_FIREWORKS)
-				save[y][x].meta = p->meta%100;
+				save[y][x].charge = p->charge%100;
 			else if (type==Elem_THUNDER) {//my addition
-				if (p->meta>=7000)
+				if (p->charge>=7000)
 					type = Elem_GLASS;
-				else if (p->meta>=6000) {
+				else if (p->charge>=6000) {
 					if (p->Cthunder2.type==6000>>2)
 						type = Elem_METAL;
 					else
@@ -312,7 +312,7 @@ void Dot_save(SavePixel save[H][W]) {
 void Dot_reset(void) {
 	for (axis y=0; y<HEIGHT; y++) {
 		for (axis x=0; x<WIDTH; x++) {
-			if (Blocks[y/4][x/4].block==1)
+			if (Block_at(x,y)->block==1)
 				*Dot_pos(x,y) = Dot_BLOCK;
 			else
 				*Dot_pos(x,y) = Dot_EMPTY;

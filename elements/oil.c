@@ -12,7 +12,7 @@ break; case Elem_OIL:
 				Dot_swap(p, g);
 		//burn
 		} else if (ELEMENTS[g->type].state==State_HOT) {
-			p->meta = 1;
+			p->charge = 1;
 		//oil is absorbed by FUSE
 		} else if (g->type==Elem_FUSE && !g->Cfuse.burning) {
 			g->Cfuse.type = Elem_OIL;
@@ -21,7 +21,7 @@ break; case Elem_OIL:
 		} else if (Dot_checkPump(p,g,dir))
 			Dot_KILL();
 	}
-	if (p->meta==1) {
+	if (p->charge==1) {
 		int x = p->pos.x+Random_int(3)-1;
 		int y = p->pos.y+Random_int(3)-1;
 		Dot* near = Dot_at[y][x];
@@ -52,7 +52,7 @@ break; case Elem_OIL:
 		Dot_remove(part);
 	when(Elem_FUSE):;
 		if (!part->Cfuse.burning)
-			part->meta = Elem_OIL;
+			part->charge = Elem_OIL;
 	}
 #endif
 }

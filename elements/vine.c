@@ -10,11 +10,11 @@ break; case Elem_VINE:
 		if (Dot_pos3(p->pos, 0, 1)<=Dot_BGFAN && Dot_pos3(p->pos, 0, 2)<=Dot_BGFAN && Dot_pos3(p->pos, -1, 1)<=Dot_BGFAN && Dot_pos3(p->pos, 1, 1)<=Dot_BGFAN && Rnd_perchance(20)) {
 			Dot* f = Dot_create(p->pos.x, p->pos.y+1, Elem_VINE);
 			if (f)
-				f->meta = 1;
+				f->charge = 1;
 		}
 	}
 	
-	if (p->meta==0) {
+	if (p->charge==0) {
 		axis x = p->pos.x + Random_int(3)-1;
 		axis y = p->pos.y + Random_int(2);
 		Dot* near = Dot_at[y][x];
@@ -29,10 +29,10 @@ break; case Elem_VINE:
 			}
 		}
 		tryGrow();
-	} else if (p->meta==1) {
+	} else if (p->charge==1) {
 		tryGrow();
 		if (Rnd_perchance(4))
-			p->meta = 2;
+			p->charge = 2;
 	}
 #endif
 }

@@ -13,7 +13,7 @@ typedef struct Wheel {
 #define Wheel_MAX 100
 
 extern Wheel Wheel_wheels[Wheel_MAX];
-extern Wheel* const Wheel_end;
+extern Wheel* const Wheel_END;
 extern Wheel* Wheel_next; // Ac (roughly)
 
 void Wheel_create(axis x, axis y); // Fd()

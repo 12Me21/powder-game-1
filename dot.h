@@ -21,7 +21,7 @@ typedef struct Dot {
 		// so I created a union that allows differently named/sized fields
 		// to use the same memory
 		// the total size is always 32 (with usually only 16 used) bits
-		int meta;  // M[]
+		int charge;  // M[]
 		struct {
 			uint8_t dir: 2;
 			uint32_t amount: 32-2;
@@ -91,7 +91,7 @@ Dot* Dot_create(real x, real y, Elem element); // id()
 void Dot_blow(Dot* part, Point airvel); // ye()
 void Dot_swap(Dot* part1, Dot* part2); // xe()
 void Dot_remove(Dot* part); // U()
-void Dot_paint(axis x, axis y, Elem replace, Elem type, int meta); // Zd()
+void Dot_paint(axis x, axis y, Elem replace, Elem type, int charge); // Zd()
 
 int* Dot_updateCounts(void);
 void Dot_shuffle(void);

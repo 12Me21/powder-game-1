@@ -32,13 +32,13 @@ break; case Elem_WATER:
 		break;
 	case Elem_WOOD:;
 		part->type = Elem_SEED;
-		part->meta = 0;
+		part->charge = 0;
 		break;
 	case Elem_ICE:;
 		*newType = Elem_ICE;
 		break;
 	case Elem_SNOW:;
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_ICE;
 		break;
 	case Elem_MAGMA: case Elem_THUNDER: case Elem_LASER:;
@@ -50,14 +50,14 @@ break; case Elem_WATER:
 	case Elem_METAL:;
 		if (Rnd_perchance(10)) {
 			part->type = Elem_POWDER;
-			part->meta = 0;
+			part->charge = 0;
 		}
-		if (++ball->meta>=20) //hmm this is the same as for snow
+		if (++ball->charge>=20) //hmm this is the same as for snow
 			*newType = Elem_SEAWATER;
 		break;
 	case Elem_FUSE:;
 		part->type = Elem_GUNPOWDER;
-		part->meta = 0;
+		part->charge = 0;
 	}
 #endif
 }

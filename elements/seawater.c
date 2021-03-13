@@ -7,7 +7,7 @@ break; case Elem_SEAWATER:
 	if (near>=Dot_0) {
 		if (near->type==Elem_SEED||near->type==Elem_WOOD||near->type==Elem_METAL) {
 			near->type = Elem_POWDER;
-			near->meta = 0;
+			near->charge = 0;
 		}
 	}
 	int dir = atLeast(Random_int(8)-4, 0); //0 to 3, usually 0
@@ -21,11 +21,11 @@ break; case Elem_SEAWATER:
 		// destroy vine AGAIN
 		} else if (type==Elem_VINE) {
 			g->type = Elem_POWDER;
-			g->meta = 0;
+			g->charge = 0;
 		} else if (type==Elem_CONCRETE) {
 			if (Rnd_perchance(1)) {
 				g->type = Elem_STONE;
-				g->meta = 0;
+				g->charge = 0;
 				Dot_swap(p, g);
 			}
 		//put water into pump
@@ -40,38 +40,38 @@ break; case Elem_SEAWATER:
 #elif defined UPDATE_BALL_PART
 	switch(part->type) {
 	when(Elem_WATER):;
-		ball->meta = 0;
+		ball->charge = 0;
 	when(Elem_FIRE):;
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_SALT;
 		Dot_remove(part);
 		return 1;
 	when(Elem_WOOD): case Elem_SEED: case Elem_METAL: case Elem_VINE:
 		part->type = Elem_POWDER;
-		part->meta = 0;
+		part->charge = 0;
 	when(Elem_ICE):;
 		*newType = Elem_ICE;
 	when(Elem_SNOW):;
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_ICE;
 	when(Elem_MAGMA):;
 		*newType = Elem_SALT;
 	when(Elem_TORCH): case Elem_SPARK:
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_SALT;
 		Dot_remove(part);
 	when(Elem_THUNDER):;
 		return 1;
 	when(Elem_LASER):;
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_SALT;
 		return 1;
 	when(Elem_SALT):;
-		if (ball->meta++<20)
+		if (ball->charge++<20)
 			Dot_remove(part);
 	when(Elem_FUSE):;
 		part->type = Elem_GUNPOWDER;
-		part->meta = 0;
+		part->charge = 0;
 	}
 #endif
 }

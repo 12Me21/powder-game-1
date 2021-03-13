@@ -5,7 +5,7 @@ void Save_save1(void);
 
 typedef struct SavePixel {
 	Elem type; // bb[]
-	int meta; // cb[]
+	int charge; // cb[]
 } SavePixel;
 
 extern SavePixel Save_data[H][W];

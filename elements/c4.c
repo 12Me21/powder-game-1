@@ -4,16 +4,16 @@ break; case Elem_C4:
 	Dot_toGrid(p);
 	// note: we do not set velocity to 0 here
 	
-	if (p->meta==0) {
+	if (p->charge==0) {
 		Dot* near = Dot_rndNear(p->pos, 3);
 		if (near>=Dot_0 && near->type[ELEMENTS].state==State_HOT)
-			p->meta = 1;
+			p->charge = 1;
 	} else {
 		//spread explodeystate
 		for (int b=0; b<8; b++) {
 			Dot* near = Dot_pos2(p->pos)[(axis[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
 			if (near >= Dot_0 && near->type==Elem_C4)
-				near->meta = 1;
+				near->charge = 1;
 		}
 		void func(axis x, axis y, axis sx, axis sy) {
 			Dot* near = Dot_at[y][x];

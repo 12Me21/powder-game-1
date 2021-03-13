@@ -59,26 +59,26 @@ break; case Elem_FUSE:
 						near->Cfuse.burning = 1;
 					else if (near->type==Elem_FIREWORKS) {
 						near->vel.y -= 50;
-						near->meta += 100;
+						near->charge += 100;
 					} else if (near->type==Elem_OIL || near->type==Elem_C4 || near->type==Elem_GAS)
-						near->meta = 1;
+						near->charge = 1;
 					else if (near->type==Elem_NITRO)
 						near->vel.y -= 20;
 				}
 			}
 			p->type = g;
-			p->meta = 0;
+			p->charge = 0;
 		}
 	}
 
 #elif defined UPDATE_BALL
 	if (touched>=0) {
 		if (touched[ELEMENTS].state==State_HOT) {
-			if (ball->meta==Elem_OIL)
+			if (ball->charge==Elem_OIL)
 				Ball_break(i,2,Elem_FIRE,0,0,0,0);
-			else if (ball->meta==Elem_NITRO)
+			else if (ball->charge==Elem_NITRO)
 				Ball_break(i,0,Elem_NITRO,0,0,0,1);
-			else if (ball->meta==Elem_SOAPY)
+			else if (ball->charge==Elem_SOAPY)
 				Ball_break(i,0,Elem_STEAM,0,0,0,1);
 			else
 				Ball_break(i,0,Elem_SPARK,0,0,0,0);
@@ -90,6 +90,6 @@ break; case Elem_FUSE:
 
 #elif defined UPDATE_BALL_PART
 	if (part->type==Elem_OIL||part->type==Elem_NITRO||part->type==Elem_SOAPY)
-		ball->meta = part->type;
+		ball->charge = part->type;
 #endif
 }

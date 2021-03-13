@@ -7,7 +7,7 @@ break; case Elem_THUNDER:
 	/////////////////////////
 	// thunder in the air: //
 	/////////////////////////
-	if (p->meta<4096) {
+	if (p->charge<4096) {
 		// update the random number generator
 		if (!p->Cthunder1.prng)
 			p->Cthunder1.prng = ((int)p->pos.y/4*(WIDTH/4)+(int)p->pos.x/4)%1000;//yes
@@ -42,12 +42,12 @@ break; case Elem_THUNDER:
 			if (near->type!=Elem_THUNDER) {
 				Elem type = near->type;
 				if (type==Elem_METAL || type==Elem_MERCURY) {
-					near->meta = type==Elem_METAL ? 6000 : 6100;
+					near->charge = type==Elem_METAL ? 6000 : 6100;
 					near->Cthunder2.dir = c;
 					near->type = Elem_THUNDER;
 					Dot_KILL();
 				} else if (ELEMENTS[type].state==State_POWDER||ELEMENTS[type].state==State_LIQUID||type==Elem_MAGMA||type==Elem_WOOD||type==Elem_ICE||type==Elem_VINE||type==Elem_GLASS) { //powders, liquids, magma, wood, ice, vine, glass
-					p->meta = 5000; //set meta to 5000, will explode on next frame
+					p->charge = 5000; //set meta to 5000, will explode on next frame
 				} else if (type==Elem_CLOUD) {
 					Dot_swap(p,near);
 				} else
@@ -60,14 +60,14 @@ break; case Elem_THUNDER:
 		/////////////
 		// Explode //
 		/////////////
-	} else if (p->meta==5000) { //Air.vel forget
+	} else if (p->charge==5000) { //Air.vel forget
 		void func(axis x, axis y, axis sx, axis sy) {
 			Dot* near = Dot_at[y][x];
 			if (near>=Dot_0 && near->type!=Elem_THUNDER) {
 				if (near->type==Elem_ICE)
 					near->type = Elem_SNOW; //❤️💚💙
-				else if (near->type==Elem_FIREWORKS && near->meta>0 && near->meta<5000)
-					near->meta += 100;
+				else if (near->type==Elem_FIREWORKS && near->charge>0 && near->charge<5000)
+					near->charge += 100;
 				near->vel.x -= 3*(x-p->pos.x);
 				near->vel.y -= 3*(y-p->pos.y);
 			}
@@ -78,14 +78,14 @@ break; case Elem_THUNDER:
 		///////////
 		// Glass //
 		///////////
-	} else if (p->meta>=7000) {
+	} else if (p->charge>=7000) {
 		// first frame, try to conduct to surrounding glass particles
-		if (p->meta==7000) {
+		if (p->charge==7000) {
 			void checkGlass(int x, int y) {
 				Dot* near = Dot_pos3(p->pos,x,y);
 				if (near>=Dot_0 && near->type==Elem_GLASS) {
 					near->type = Elem_THUNDER;
-					near->meta = 7000;
+					near->charge = 7000;
 				}
 			}
 			checkGlass(0,1);
@@ -94,16 +94,16 @@ break; case Elem_THUNDER:
 			checkGlass(1,0);
 		}
 		// turn off after 20 frames
-		p->meta++;
-		if (p->meta>7020) {
+		p->charge++;
+		if (p->charge>7020) {
 			p->type = Elem_GLASS;
-			p->meta = 0;
+			p->charge = 0;
 		}
 
 		///////////////////
 		// Metal/Mercury //
 		///////////////////
-	} else if (p->meta>=6000) {
+	} else if (p->charge>=6000) {
 		int c = p->Cthunder2.dir;
 		int inside = p->Cthunder2.type==6000>>2 ? Elem_METAL : Elem_MERCURY;
 		Dot* pdir(int dir) {
@@ -120,17 +120,17 @@ break; case Elem_THUNDER:
 				p->Cthunder2.type = near->type==Elem_METAL ? 6000>>2 : 6100>>2; //todo: thinking about it, we could probably use pumptype for this...
 				p->Cthunder2.dir = c+b;
 				near->type = inside;
-				near->meta = 0;
+				near->charge = 0;
 				goto conducted;
 			// another thunder inside metal/mercury
-			} else if (near->type==Elem_THUNDER && near->meta>=6000 && near->meta<7000) {
+			} else if (near->type==Elem_THUNDER && near->charge>=6000 && near->charge<7000) {
 				p->type = inside;
-				p->meta = 0;
+				p->charge = 0;
 				goto conducted;
 			// glass
 			} else if (near->type==Elem_GLASS) {
 				near->type = Elem_THUNDER;
-				near->meta = 7000;
+				near->charge = 7000;
 			}
 		}
 		// did not conduct, send out into the air if possible
@@ -145,7 +145,7 @@ break; case Elem_THUNDER:
 		}
 		// then turn back into the conductor element
 		p->type = inside;
-		p->meta = 0;
+		p->charge = 0;
 	conducted:;
 	}
 
@@ -156,16 +156,16 @@ break; case Elem_THUNDER:
 	switch (part->type) {
 	when(Elem_SEAWATER):;
 		part->type = Elem_THUNDER;
-		part->meta = 0;
+		part->charge = 0;
 		return 0;
 	when(Elem_THUNDER):;
 		return 1;
 	when(Elem_METAL):;
 		part->type = Elem_THUNDER;
-		part->meta = 6000;
+		part->charge = 6000;
 	when(Elem_MERCURY):;
 		part->type = Elem_THUNDER;
-		part->meta = 6100;
+		part->charge = 6100;
 		return 1;
 	}
 #endif

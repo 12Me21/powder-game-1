@@ -1,7 +1,7 @@
 break; case Elem_SEED:
 {
 #ifdef UPDATE_PART
-	if (p->meta==0) {
+	if (p->charge==0) {
 		Point airvel = c->vel;
 		airvel.y += Random_2(0.01, 0.09);
 		airvel.xy += p->vel.xy;
@@ -10,13 +10,13 @@ break; case Elem_SEED:
 	} else
 		Dot_toGrid(p);
 	
-	if (p->meta==0) {
+	if (p->charge==0) {
 		Dot* below = Dot_pos3(p->pos, 0, 1);
 		if (below<Dot_0 || (below->type!=Elem_POWDER && below->type!=Elem_WOOD && below->type!=Elem_VINE)) //TODO: !IMPORTANT! check part limit here
 			break;
 	}
 	
-	p->meta=1;
+	p->charge=1;
 	int x = p->pos.x + Random_int(3)-1;
 	int y = p->pos.y - Random_int(1.5); //yes
 	if (Dot_at[y][x] <= Dot_BGFAN) {
@@ -42,21 +42,21 @@ break; case Elem_SEED:
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
 	when(Elem_POWDER):;
-		if (ball->meta==1)
+		if (ball->charge==1)
 			// when hydrated, turn into wood ball
 			*newType = Elem_WOOD;
 		else {
 			// otherwise, turn powder into seed
 			part->type = Elem_SEED;
-			part->meta = 0;
+			part->charge = 0;
 		}
 	when(Elem_WATER):;
 		// hydrated
-		ball->meta = 1;
+		ball->charge = 1;
 	when(Elem_VINE):;
 		// turn vine into wood
 		part->type = Elem_WOOD;
-		part->meta = 0;
+		part->charge = 0;
 	}
 #endif
 }

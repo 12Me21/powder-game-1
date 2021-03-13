@@ -65,8 +65,8 @@ void Object_create(real x, real y, int type, int meta) {
 			Object_next->isPlayer2 = false;
 		else {
 			Point pos = oldPlayer->parts[0].pos;
-			int b = (int)pos.x>>2<<2;
-			int c = (int)pos.y>>2<<2;
+			int b = (int)pos.x & ~3;
+			int c = (int)pos.y & ~3;
 			if (x<b)
 				Object_next->isPlayer2 = true;
 			else if (x>b)
@@ -186,7 +186,7 @@ static void updateNode(ObjectNode* node, real dd, bool noCollide, bool held) {
 	Point e = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
 	if (dd!=0) {
-		Block* cell = &Blocks[(int)node->pos.y/4][(int)node->pos.x/4];
+		Block* cell = Block_at(node->pos.x,node->pos.y);
 		e.xy += cell->vel.xy*dd;
 	}
 	int d;
@@ -401,7 +401,7 @@ void Object_update(void) {
 				b=clamp(b,8,H+8-1);
 				// fan blow air
 				if (a->meta == Elem_FAN) {
-					Block* cell = &Blocks[b>>2][w>>2];
+					Block* cell = Block_at(w, b);
 					if (cell->block == 0)
 						cell->vel.x += player->facing ? 1 : -1;
 					//spit
@@ -417,13 +417,13 @@ void Object_update(void) {
 						when(Elem_FIRE):;
 							f->vel.x *= 3;
 							f->vel.y += 18;
-							f->meta = 2;
+							f->charge = 2;
 						when(Elem_SUPERBALL):;
 							f->vel.y = 20;
 						when(Elem_STONE):;
 							f->vel.c *= 0.1;
 						when(Elem_LASER):;
-							f->meta = player->facing ? 1 : 5;
+							f->charge = player->facing ? 1 : 5;
 						}
 					}
 				}

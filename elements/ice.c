@@ -24,14 +24,14 @@ break; case Elem_ICE:
 	when(Elem_WATER):;
 		// turn water particles into ice
 		part->type = Elem_ICE;
-		part->meta = 0;
+		part->charge = 0;
 	when(Elem_FIRE): case Elem_SPARK: case Elem_LASER: case Elem_TORCH:;
 		// melt after touching 20 of these type particles
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_WATER;
 	when(Elem_ICE): case Elem_SNOW:
 		// reset melt counter
-		ball->meta = 0;
+		ball->charge = 0;
 	when(Elem_MAGMA):;
 		// melt instantly
 		*newType = Elem_WATER;

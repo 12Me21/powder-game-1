@@ -9,6 +9,16 @@ void Bubble_render(void) {
 	Bubble* first = &Bubble_bubbles[0];
 	Bubble_FOR (b) {
 		Bubble* next = (b+1);
+
+		/*int count=0;
+		for (Bubble* d=first; d<Bubble_next && d->group==first->group; d++)
+			count++;
+		Point center = {0,0};
+		for (Bubble* d=first; d<first+count; d++)
+			center.xy += d->pos.xy;
+		center.xy /= count;
+		Draw_ball(center.x,center.y,0xFF0000);*/
+
 		// if next part is in current group:
 		if (next<Bubble_next && next->group == first->group) {
 			Draw_vline(b->pos, next->pos, colors[ci]);

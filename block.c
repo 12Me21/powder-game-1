@@ -142,8 +142,12 @@ void Block_clearPressure(Block* c) {
 void Block_save(SavePixel save[H][W]) {
 	for (axis y=0; y<H; y++)
 		for (axis x=0; x<W; x++)
-			if (Blocks[y/4+2][x/4+2].block==1)
+			if (Block_at(x+8,y+8)->block==1)
 				save[y][x].type = Elem_BLOCK;
+}
+
+Block* Block_at(axis x, axis y) {
+	return &Blocks[y/4][x/4];
 }
 
 void Block_reset(bool drawBorder) {

@@ -20,6 +20,10 @@ static int number(char x) {
 
 SavePixel Save_data[H][W];
 
+static inline void* memdupa(void* source, size_t length) {
+	return memcpy(alloca(length), source, length);
+}
+
 void loadSaveFile(FILE* stream) {
 	const char base64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63,0,0,0,62,0,0,1,2,3,4,5,6,7,8,9,0,0,0,0,0,0,0,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,0,0,0,0,0,0,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,0,0,0,0,0};
 	int version = number(fgetc(stream));
@@ -50,39 +54,42 @@ void loadSaveFile(FILE* stream) {
 	else if (version>=1)
 		Menu_carefully = base64[data[8]] | base64[data[9]]<<6;
 
-	int* q[0x1000] = {0};
-	int qSize[0x1000] = {0};
-	int e[W*H];
-	int* ep = &e[0];
+	// Decompressor
+
+	struct {char* data; int length;} q[0x1000] = {0};
+	char e[W*H];
+	char* ep = &e[0];
 	char chrs[3];
-	for (int qIndex=1; !feof(stream); qIndex++) {
+	int qIndex = 1;
+	while (!feof(stream)) {
 		// read 3 chars.
 		if (fread(chrs, 1, 3, stream) != 3)
 			break;
+		// first 2 chars
 		int q_read = base64[chrs[0]]<<6 | base64[chrs[1]];
 
 		// copy items from `qSize[q_read]` to `e`
 		int length = 0;
 		if (q_read) {
-			length = qSize[q_read];
-			ep = mempcpy(ep, q[q_read], length*sizeof(int));
+			length = q[q_read].length;
+			memmove(ep, q[q_read].data, length*sizeof(char));
+			ep += length;
 		}
-		// push 1 char to `e`
+		// push last char to `e`
 		*ep++ = base64[chrs[2]];
 		length++;
 		
 		if (qIndex<0x1000) {
 			// copy the last `length` items from e to q[qindex]
-			q[qIndex] = memcpy(
-				alloca(sizeof(int)*length),
-				ep-length,
-				sizeof(int)*length
-			);
-			qSize[qIndex] = length;
+			q[qIndex].data = ep-length;
+			q[qIndex].length = length;
 		}
+		qIndex++;
 	}
 	*ep++ = 0;
 	*ep++ = 0;
+
+	// 
 	
 	ep = e;
 	for (int d=0; d<W*H; ) {
@@ -115,18 +122,18 @@ void load1(void) {
 			when(0):;
 				Dot_at[sy][sx] = Dot_EMPTY;
 			when(Elem_BLOCK):;
-				Blocks[y/4+2][x/4+2].block = 1;
+				Block_at(sx,sy)->block = 1;
 				Dot_at[sy][sx] = Dot_BLOCK;
 			when(Elem_FIGHTER):;
-				//Wheels.create(sx,sy);
+				Object_create(sx,sy,0,0);
 			when(Elem_WHEEL):;
-				//Wheels.create(sx,sy);
+				Wheel_create(sx,sy);
 			when(Elem_BOX):;
-				Object_create(sx,sy,Elem_BOX, Save_data[y][x].meta);
+				Object_create(sx,sy,Elem_BOX, Save_data[y][x].charge);
 			when(Elem_PLAYER):;
-				Object_create(sx,sy,Elem_PLAYER2, Save_data[y][x].meta);
+				Object_create(sx,sy,Elem_PLAYER2, Save_data[y][x].charge);
 			when(Elem_SAVE_BALL):;
-				Ball_create(sx, sy, Save_data[y][x].meta);
+				Ball_create(sx, sy, Save_data[y][x].charge);
 			otherwise:
 				total++;
 				if (Menu_dotLimit<=0 && Dot_LIMITS[0]<total)
@@ -134,12 +141,12 @@ void load1(void) {
 				if(Menu_dotLimit<=1 && Dot_LIMITS[1]<total)
 					Menu_dotLimit=2;
 				Dot* a = Dot_create(sx, sy, t);
-				int meta = Save_data[y][x].meta;
+				int charge = Save_data[y][x].charge;
 				if (t == Elem_FAN) {
-					a->vel = (Point){0.1*(real)cos(meta*PI/32), 0.1*-(real)sin(meta*PI/32)};
+					a->vel = (Point){0.1*(real)cos(charge*PI/32), 0.1*-(real)sin(charge*PI/32)};
 					Dot_at[sy][sx] = Dot_BGFAN;
 				} else if (t == Elem_FIREWORKS)
-					a->meta = meta;
+					a->charge = charge;
 			}
 		}
 	}
@@ -156,14 +163,6 @@ void Save_Load_test(void* filename) {
 
 bool Save_onscreen(axis x, axis y) {
 	return x>=8 && x<W+8 && y>=8 && y<H+8;
-}
-
-static int wrap(int a, int b) {
-	if (a<0)
-		return b;
-	if (a>b)
-		return 0;
-	return a;
 }
 
 void Save_save1(void) {
@@ -197,10 +196,10 @@ char* Save_string(SavePixel save[H][W]) {
 		int type = save[0][a].type;
 		if (type==Elem_FAN || type==Elem_FIREWORKS || type==Elem_BOX || type==Elem_SAVE_BALL) {
 			*d++ = type;
-			*d++ = save[0][a].meta;
+			*d++ = save[0][a].charge;
 		} else if (type==Elem_PLAYER) {
 			*d++ = Elem_PLAYER2;
-			*d++ = save[0][a].meta;
+			*d++ = save[0][a].charge;
 		} else {
 			int run=1;
 			*d++ = type;
@@ -222,8 +221,9 @@ char* Save_string(SavePixel save[H][W]) {
 	}
 	int dLen = d-data;
 	const char base64[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.*";
-	char* fd = malloc(20*dLen+4);
+	char* fd = malloc(2*dLen+4);
 	char* f = fd;
+	// write header
 	*f++ = '1';
 	*f++ = '0';
 	*f++ = "0123456789:;ABCDEF"[Menu_bgMode+1];
@@ -240,43 +240,42 @@ char* Save_string(SavePixel save[H][W]) {
 	*f++ = '0';
 	*f++ = '0';
 	*f++ = '0';
-	int* q[0x1000] = {0};
-	int qLen[0x1000] = {0};
-	int w=1;
-	int n=1;
-	for (int a=0; a<dLen; a+=w) {
+	// compress data
+	struct {char* data; int length;} q[0x1000] = {0};
+	int qNext=1;
+	for (char* a=data; a<d;) {
 		int r=0;
-		w=1;
-		for (int y=1; y<n; y++) {
-			if (qLen[y] == w) {
-				for (int c=0; c<w; c++) {
-					if (q[y][c]!=data[a+c])
-						goto fail;
+		int length=1;
+		for (int y=1; y<qNext; y++) {
+			if (q[y].length == length) {
+				if (0==memcmp(q[y].data, a, length*sizeof(char))) {
+					r = y;
+					length++;
+					if (a+length>=d)
+						break;
 				}
-				r = y;
-				w++;
-				if (a+w>=dLen)
-					break;
-			fail:;
 			}
 		}
 		*f++ = base64[r>>6];
 		*f++ = base64[r&0b111111];
-		*f++ = base64[data[a+w-1]];
-		if (n<0x1000) {
-			qLen[n] = w;
-			q[n] = alloca(sizeof(int)*w);
-			memcpy(q[n], &data[a], sizeof(int)*w);
-			n++;
+		*f++ = base64[a[length-1]];
+		if (qNext<0x1000) {
+			q[qNext].length = length;
+			q[qNext].data = a;
+			qNext++;
 		}
+		a+=length;
 	}
-	if (!f[-1]) //idk
+	if (!f[-1]) {//idk
 		f[-1] = base64[0];
+	}
 	*f = '\0'; //no inc
+	// add checksum
 	int cs = checksum(fd);
 	*f++ = 'a'+(cs & 0b1111);
 	*f++ = 'A'+(cs>>4 & 0b1111);
 	*f++ = '0'+(cs>>8 & 0b111);
 	*f++ = '\0';
+	
 	return fd;
 }

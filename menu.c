@@ -116,18 +116,18 @@ void Menu_update(void) {
 								Dot* p = Dot_at[g][f];
 								if (Menu_penMode == Pen_PAINT) {
 									Elem e = Menu_BUTTONS[selection].element ?: Elem_POWDER;
-									int meta = 0;
+									int charge = 0;
 									if (e!=Elem_FAN) {
 										if (e==Elem_FIREWORKS) {
-											meta = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
+											charge = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
 										} else if (e==Elem_LASER) {
-											meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
-											if (meta>=8)
-												meta = 0;
-											meta = meta+1;
+											charge = 8*Vec_angle(Pen_dir)/TAU+0.5;
+											if (charge>=8)
+												charge = 0;
+											charge = charge+1;
 										}
 										if (p>=Dot_0 && p->type!=e)
-											Dot_paint(f, g, p->type, e, meta);
+											Dot_paint(f, g, p->type, e, charge);
 									}
 								} else {
 									if (selection==Menu_CLEAR) {
@@ -145,12 +145,12 @@ void Menu_update(void) {
 											if (pa==Elem_FAN) {
 												e->vel = Vec_mul2(Pen_dir, 0.1);
 											} else if (pa==Elem_FIREWORKS) {
-												e->meta = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
+												e->charge = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
 											} else if (pa==Elem_LASER) {
-												int meta = 8*Vec_angle(Pen_dir)/TAU+0.5;
-												if (meta>=8)
-													meta = 0;
-												e->meta = meta+1;
+												int charge = 8*Vec_angle(Pen_dir)/TAU+0.5;
+												if (charge>=8)
+													charge = 0;
+												e->charge = charge+1;
 											}
 										}
 									}
@@ -164,7 +164,7 @@ void Menu_update(void) {
 			switch (selection) {
 			when(Menu_WIND):;
 				Point b = Vec_mul2(Pen_dir, 10);
-				Block* e = &Blocks[Pen_y>>2][Pen_x>>2];
+				Block* e = Block_at(Pen_x, Pen_y);
 				if (old && e->block == 0) {
 					Vec_add(&e->vel, b);
 					if (Vec_fastDist(e->vel)>10 && Menu_paused) {
@@ -192,7 +192,7 @@ void Menu_update(void) {
 				if (!gotPress) break;
 				axis f = Pen_x>>2<<2;
 				axis g = Pen_y>>2<<2;
-				Block* cell = &Blocks[Pen_y>>2][Pen_x>>2];
+				Block* cell = Block_at(Pen_x, Pen_y);
 				if (!cell->block) {
 					switch (selection) {
 					when(Menu_FIGHTER):;
@@ -207,7 +207,7 @@ void Menu_update(void) {
 					}
 				}
 			when(Menu_BALL):;
-				cell = &Blocks[Pen_y>>2][Pen_x>>2];
+				cell = Block_at(Pen_x, Pen_y);
 				if (cell->block==0 && gotPress) {
 					Elem type = Menu_BUTTONS[otherSel].ball;
 					if (type)
@@ -279,7 +279,7 @@ void Menu_update(void) {
 					}
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
 						Dot_FOR (p) {
-							if (Blocks[(int)p->pos.y>>2][(int)p->pos.x>>2].block != 0)
+							if (Block_at(p->pos.x,p->pos.y)->block != 0)
 								Dot_remove(p--);
 						}
 					}
@@ -291,7 +291,7 @@ void Menu_update(void) {
 					}
 					for (int y=8;y<H+8;y++) {
 						for (int x=8;x<W+8;x++) {
-							Block* cell = &Blocks[y>>2][x>>2];
+							Block* cell = Block_at(x,y);
 							Dot** part = &Dot_at[y][x];
 							if (cell->block==0 && *part == Dot_BLOCK)
 								*part = Dot_EMPTY;

@@ -31,8 +31,8 @@ break; case Elem_GUNPOWDER:
 
 #elif defined UPDATE_BALL
 	if (touched<0) break;
-	// explode when touching a hot element AND meta is 0
-	if (ball->meta==0 && ELEMENTS[touched].state==State_HOT) {
+	// explode when touching a hot element AND charge is 0
+	if (ball->charge==0 && ELEMENTS[touched].state==State_HOT) {
 		for (int i=0;i<37;i++) {
 			Dot* near = Dot_pos2(ball->pos)[neighbors[i].offset];
 			if (near<=Dot_BGFAN) {
@@ -41,7 +41,7 @@ break; case Elem_GUNPOWDER:
 					real f = Random_(20);
 					e->vel.x += ball->vel.x*f+neighbors[i].breakVel.x*f/2;
 					e->vel.y += ball->vel.y*f+neighbors[i].breakVel.y*f/2;
-					e->meta = 2;
+					e->charge = 2;
 				}
 			}
 		}
@@ -51,14 +51,14 @@ break; case Elem_GUNPOWDER:
 		Ball_break(ball, 0, Elem_GUNPOWDER, 0, 0, 0, 0);
 
 #elif defined UPDATE_BALL_PART
-	// meta is increased by water types and decreased by some hot elements
+	// charge is increased by water types and decreased by some hot elements
 	switch (part->type) {
 	case Elem_WATER: case Elem_SOAPY: case Elem_SEAWATER:
-		if (ball->meta<20)
-			ball->meta++;
+		if (ball->charge<20)
+			ball->charge++;
 	when(Elem_FIRE): case Elem_MAGMA: case Elem_TORCH: case Elem_LASER: case Elem_SPARK:
-		if (ball->meta>0)
-			ball->meta--;
+		if (ball->charge>0)
+			ball->charge--;
 	}
 #endif
 }

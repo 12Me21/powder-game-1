@@ -31,9 +31,9 @@ break; case Elem_METAL:
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
 	when(Elem_WATER):;
-		ball->meta = 0;
+		ball->charge = 0;
 	when(Elem_MAGMA):;
-		if (++ball->meta>=20)
+		if (++ball->charge>=20)
 			*newType = Elem_MAGMA;
 	when(Elem_METAL):;
 		if (Dot_limit1000() && ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {

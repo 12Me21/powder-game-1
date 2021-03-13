@@ -21,7 +21,7 @@ void Ball_create(int x, int y, Elem type) {
 				.pos={x+0.5, y+0.5},
 				.vel={0,0},
 				.used=true,
-				.meta=0,
+				.charge=0,
 				.held=false,
 				.type=type,
 			};
@@ -79,7 +79,7 @@ static const struct neighbor {
    {(Point){ 0.7 , 0.7 },XYOFS( 2, 2),},
 };
 
-void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy, real speed) {
+void Ball_break(Ball* ball, int mode, int createType, int charge, real vx, real vy, real speed) {
 	Dot** pc = Dot_pos2(ball->pos);
 	if (mode==0) {
 		for (int i=9;i<21;i++) {
@@ -94,7 +94,7 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
 					//near->vel.x += vx+neighbors[i].breakVel.x*speed;
 					//near->vel.y += vy+neighbors[i].breakVel.y*speed;
-					near->meta = meta;
+					near->charge = charge;
 				}
 			}
 		}
@@ -110,11 +110,11 @@ void Ball_break(Ball* ball, int mode, int createType, int meta, real vx, real vy
 				);
 				if (near) {
 					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
-					near->meta = meta;
+					near->charge = charge;
 				}
 			} else if (near>=Dot_0) {
 				near->type = createType;
-				near->meta = 0;
+				near->charge = 0;
 				near->pumpType = 0;
 			}
 		}
@@ -299,7 +299,7 @@ void Ball_update(void) {
 
 		real adv = ELEMENTS[i->type].ballAdvection;
 		if (adv) {
-			Block* cell = &Blocks[(int)i->pos.y>>2][(int)i->pos.x>>2];
+			Block* cell = Block_at(i->pos.x,i->pos.y);
 			i->vel.x += cell->vel.x*adv;
 			i->vel.y += cell->vel.y*adv;
 			if (Vec_fastDist(cell->vel)>0.3)
@@ -332,7 +332,7 @@ void Ball_update(void) {
 		}
 		if (newType) {
 			i->type = newType;
-			i->meta = 0;
+			i->charge = 0;
 		}
 		
 		if (i->used) {
