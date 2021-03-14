@@ -13,17 +13,21 @@
 #include "save.h"
 
 const int Dot_LIMITS[] = {20000, 30000, 40000, Dot_MAX};
-//int Part_limit = Part_LIMITS[0]; //todo
+//int Part_limit = Part_LIMITS[0];
 
-static Dot parts_2[Dot_MAX+6] = {{.type=-5},{.type=-4},{.type=-3},{.type=-2},{.type=-1}};
-static Dot* const parts = parts_2+5;
-Dot* const Dot_EMPTY = parts-5;
-Dot* const Dot_BGFAN = parts-4;
-Dot* const Dot_WHEEL = parts-3;
-Dot* const Dot_BALL = parts-2;
-Dot* const Dot_BLOCK = parts-1;
-Dot* const Dot_0 = parts;
-Dot* Dot_next = parts;
+static Dot parts_2[Dot_MAX+5];
+Dot* const Dot_0 = parts_2+5;
+Dot* const Dot_EMPTY = Dot_0-5;
+Dot* const Dot_BGFAN = Dot_0-4;
+Dot* const Dot_WHEEL = Dot_0-3;
+Dot* const Dot_BALL = Dot_0-2;
+Dot* const Dot_BLOCK = Dot_0-1;
+AUTORUN {
+	for (int i=1; i<=5; i++)
+		Dot_0[-i] = (Dot){.type = -i};
+}
+
+Dot* Dot_next = Dot_0;
 
 Dot* Dot_at[HEIGHT][WIDTH];
 Dot** const Dot_grid0 = &Dot_at[0][0];
@@ -40,12 +44,12 @@ int* Dot_updateCounts(void) {
 }
 
 bool Dot_limit1000(void) {
-	return Dot_next+1000 < parts+Dot_limit;
+	return Dot_next+1000 < Dot_0+Dot_limit;
 }
 
 // todo: make a create that takes a vector
 Dot* Dot_create(real x, real y, Elem element) {
-	if (Dot_next>=parts+Dot_limit || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
+	if (Dot_next>=Dot_0+Dot_limit || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
 		return NULL;
 	*Dot_next = (Dot){
 		{x,y},
@@ -89,7 +93,7 @@ void Dot_blow(Dot* part, Point airvel) {
 
 void Dot_shuffle(void) {
 	Dot_FOR (p) {
-		Dot* c = &parts[rand() % (Dot_next-parts)];
+		Dot* c = &Dot_0[rand() % (Dot_next-Dot_0)];
 		Dot temp = *p;
 		*p = *c;
 		*c = temp;

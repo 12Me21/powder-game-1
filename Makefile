@@ -17,8 +17,8 @@ ifdef win
 else
  junkdir:= linux
  libs:= X11 m Xpm
-# srcs+= platform-x11
- srcs+= platform-gtk3
+ srcs+= platform-x11
+# srcs+= platform-gtk3
  output:= pg1
  cflags2+= $(shell pkg-config --cflags gtk+-3.0)
  LDFLAGS+= $(shell pkg-config --libs gtk+-3.0)

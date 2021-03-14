@@ -106,7 +106,7 @@ GtkWidget* window;
 
 static gboolean on_window_draw(GtkWidget* da, GdkEvent* event, gpointer data) {
 	GError *err = NULL;
-	GdkPixbuf *pix = gdk_pixbuf_new_from_file("/home/twelve/Pictures/1614117539516.png", &err);
+	GdkPixbuf *pix = gdk_pixbuf_new_from_data((guchar*)&grp[8][8], GDK_COLORSPACE_RGB, false, 8, W, H, 8*2*sizeof(Color), NULL, NULL);
 	if (err) {
 		printf("Error: %s\n", err->message);
 		g_error_free(err);
