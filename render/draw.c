@@ -163,7 +163,7 @@ void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacin
 						Menu_grp[y+iy][x+ix] = color;
 					// draw outline pixel
 					if (n=='#' && bg!=(Color)-1)
-						if (spacing<=-2 && ix<=-spacing-1 && Draw_FONT[last][iy][8+spacing+ix] == '.') {
+						if (spacing<=-2 && ix<=-spacing-1 && last && Draw_FONT[last][iy][8+spacing+ix] == '.') {
 							// (don't draw)
 						} else
 							Menu_grp[y+iy][x+ix] = bg;
