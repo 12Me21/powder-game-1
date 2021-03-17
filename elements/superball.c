@@ -3,12 +3,12 @@ break; case Elem_SUPERBALL:
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
 	airvel.xy *= 0.05;
-	Vec_add(&p->vel, airvel);
+	p->vel.xy += airvel.xy;
 	p->vel.y += 0.01;
-	Vec_mul(&p->vel, 0.999);
+	p->vel.xy *= 0.999;
 	airvel = p->vel;
-	Vec_mul(&airvel, 3.8/(Vec_fastDist(airvel)+1));
-
+	airvel.xy *= 3.8/(Vec_fastDist(airvel)+1);
+	
 	Dot* f = *Dot_pos(p->pos.x+airvel.x, p->pos.y);
 	// empty
 	if (f <= Dot_BGFAN)

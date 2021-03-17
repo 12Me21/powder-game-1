@@ -402,7 +402,7 @@ void Object_update(void) {
 				// fan blow air
 				if (a->meta == Elem_FAN) {
 					Block* cell = Block_at(w, b);
-					if (cell->block == 0)
+					if (cell->block==Block_EMPTY)
 						cell->vel.x += player->facing ? 1 : -1;
 					//spit
 				} else if (a->meta != Elem_BIRD && Dot_at[b][w] == Dot_EMPTY) {

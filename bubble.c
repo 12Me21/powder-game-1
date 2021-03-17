@@ -69,7 +69,7 @@ void Bubble_update(void) {
 	Bubble_FOR (b) {
 		Block* cell = Block_at(b->pos.x, b->pos.y);
 		Point vel = cell->vel;
-		Vec_mul(&vel, 3.8/(Vec_fastDist(vel)+1));
+		vel.xy *= 3.8/(Vec_fastDist(vel)+1);
 		b->pos.xy += vel.xy;
 	}
 	// check dragging bubbles
@@ -156,7 +156,7 @@ void Bubble_draw(axis x, axis y, bool rising, bool old) {
 	x = x&~3;
 	y = y&~3;
 	Block* cell = Block_at(x, y);
-	if (cell->block!=0)
+	if (cell->block!=Block_EMPTY)
 		Bubble_nextId();
 	else {
 		if (rising)

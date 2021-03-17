@@ -30,7 +30,7 @@ break; case Elem_CONCRETE:
 			break;
 		}
 	}
-	Vec_mul(&airvel, 3.8/(mag+1));
+	airvel.xy *= 3.8/(mag+1);
 	
 	Dot* near = *Dot_pos(p->pos.x+airvel.x, p->pos.y);
 	if (near <= Dot_BGFAN) {

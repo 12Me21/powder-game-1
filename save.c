@@ -122,7 +122,7 @@ void load1(void) {
 			when(0):;
 				Dot_at[sy][sx] = Dot_EMPTY;
 			when(Elem_BLOCK):;
-				Block_at(sx,sy)->block = 1;
+				Block_at(sx,sy)->block = Block_BLOCK;
 				Dot_at[sy][sx] = Dot_BLOCK;
 			when(Elem_FIGHTER):;
 				Object_create(sx,sy,0,0);

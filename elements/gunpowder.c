@@ -18,7 +18,7 @@ break; case Elem_GUNPOWDER:
 		}
 		if (!(y&3) && !(x&3)) {
 			Block* cell = Block_at(x,y);
-			if (cell->block<=0) {
+			if (cell->block!=Block_BLOCK) {
 				if (x!=sx)
 					cell->vel.x += 10.0/(x-sx);
 				if (y!=sy)

@@ -9,11 +9,13 @@ typedef struct Block {
 	real pres2; // nd[]
 
 	char block; // K[]
+	// -2: (temporary) when erasing block
 	// -1: offscreen
 	// 0: empty
 	// 1: normal block
-	// -2: (temporary) when erasing block
 } Block;
+
+enum BlockType {Block_OFFSCREEN=-1, Block_EMPTY=0, Block_BLOCK=1, Block_ERASED=-2};
 
 void Block_clearPressure(Block* c);
 void Block_addPressure(Block* c, real p);

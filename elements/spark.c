@@ -2,7 +2,7 @@ break; case Elem_SPARK:
 {
 #ifdef UPDATE_PART
 	Point airvel = Vec_mul2(c->vel, 0.05);
-	Vec_add(&p->vel, airvel);
+	p->vel.xy += airvel.xy;
 	p->vel.y += 0.01;
 	Dot** at = Dot_pos2(p->pos);
 	if (at[1]>=Dot_WHEEL)

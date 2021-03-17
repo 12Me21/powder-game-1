@@ -31,7 +31,7 @@ void Bg_render(void) {
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
 				Block* block = &Blocks[y][x];
-				if (block->block == 1) {
+				if (block->block==Block_BLOCK) {
 					Draw_rectangle(x*4, y*4, 4, 4, 0x606060);
 				} else {
 					int q=0, g=0;
@@ -45,7 +45,7 @@ void Bg_render(void) {
 		}
 		if (Menu_bgMode==Bg_LINE) {
 			Block_FOR (c) {
-				if (c->block==0) {
+				if (c->block==Block_EMPTY) {
 					Point e = c->vel;
 					real r = Vec_fastNormalize(&e);
 					if (r>=0.2) {
@@ -215,7 +215,7 @@ void Bg_render(void) {
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
 				Block* cell = &Blocks[y][x];
-				if (cell->block!=0) continue;
+				if (cell->block!=Block_EMPTY) continue;
 				real vel = Vec_fastDist(cell->vel);
 				if (vel<0.2) continue;
 				vel = atMost(vel, 2);
@@ -243,7 +243,7 @@ void Bg_render(void) {
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
 				Block* cell = &Blocks[y][x];
-				if (cell->block==1)
+				if (cell->block==Block_BLOCK)
 					Draw_rectangle(x*4,y*4,4,4,0x606060);
 				else {
 					int f = 0;
@@ -261,7 +261,7 @@ void Bg_render(void) {
 		for (y=2; y<(H+8)/4; y++) {
 			for (x=2; x<(W+8)/4; x++) {
 				Block* cell = &Blocks[y][x];
-				if (cell->block==1)
+				if (cell->block==Block_BLOCK)
 					Draw_rectangle(x*4,y*4,4,4,0x606060);
 				else {
 					int n = 256 - (int)atMost(fabs(12*cell->pres),32); //should the conversion to int be before or after abs?

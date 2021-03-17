@@ -51,7 +51,7 @@ break; case Elem_PUMP:
 	if (ball->charge!=0 && Dot_limit1000()) {
 		Point c = ball->vel;
 		Vec_fastNormalize(&c);
-		Vec_mul(&c, 4);
+		c.xy *= 4;
 		axis x = ball->pos.x-c.x;
 		axis y = ball->pos.y-c.y;
 		if (*Dot_pos(x,y)<=Dot_BGFAN) {

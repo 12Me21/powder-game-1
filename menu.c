@@ -62,13 +62,7 @@ void Menu_update(void) {
 	real q = 5;
 	Point ee = Vec_sub2(c, Pen_dir);
 	q -= Vec_fastNormalize(&ee);
-	real d = q*0.5;
-	real a = q*0.5;
-	c.x += ee.x*a;
-	c.y += ee.y*a;
-	Pen_dir.x -= ee.x*d;
-	Pen_dir.y -= ee.y*d;
-	Pen_dir = Vec_sub2(c, Pen_dir);
+	Pen_dir.xy = (c.xy + ee.xy*(q*0.5)) - (Pen_dir.xy - ee.xy*(q*0.5));
 	Vec_fastNormalize(&Pen_dir);
 	if (Menu_zoomLevel!=0 && mouse.middle.held) {
 		Menu_zoomX -= (mouse.pos.x-mouse.oldPos.x)/(1<<Menu_zoomLevel);
@@ -143,7 +137,7 @@ void Menu_update(void) {
 										Dot* e = Dot_create(f, g, pa);
 										if (e>=Dot_0) {
 											if (pa==Elem_FAN) {
-												e->vel = Vec_mul2(Pen_dir, 0.1);
+												e->vel.xy = Pen_dir.xy * 0.1;
 											} else if (pa==Elem_FIREWORKS) {
 												e->charge = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
 											} else if (pa==Elem_LASER) {
@@ -163,19 +157,18 @@ void Menu_update(void) {
 		} else {
 			switch (selection) {
 			when(Menu_WIND):;
-				Point b = Vec_mul2(Pen_dir, 10);
 				Block* e = Block_at(Pen_x, Pen_y);
-				if (old && e->block == 0) {
-					Vec_add(&e->vel, b);
+				if (old && e->block==Block_EMPTY) {
+					e->vel.xy += Pen_dir.xy*10;
 					if (Vec_fastDist(e->vel)>10 && Menu_paused) {
 						Vec_fastNormalize(&e->vel);
-						Vec_mul(&e->vel, 10);
+						e->vel.xy *= 10;
 					}
 				}
 			when(Menu_AIR):;
 				void addPressure(axis x, axis y, real amount) {
 					Block* cell = &Blocks[Pen_y/4+y][Pen_x/4+x];
-					if (!cell->block)
+					if (cell->block==Block_EMPTY)
 						Block_addPressure(cell, amount);
 				}
 				if (old) {
@@ -193,7 +186,7 @@ void Menu_update(void) {
 				axis f = Pen_x>>2<<2;
 				axis g = Pen_y>>2<<2;
 				Block* cell = Block_at(Pen_x, Pen_y);
-				if (!cell->block) {
+				if (cell->block==Block_EMPTY) {
 					switch (selection) {
 					when(Menu_FIGHTER):;
 						Object_create(f, g, 0, 0);
@@ -208,7 +201,7 @@ void Menu_update(void) {
 				}
 			when(Menu_BALL):;
 				cell = Block_at(Pen_x, Pen_y);
-				if (cell->block==0 && gotPress) {
+				if (cell->block==Block_EMPTY && gotPress) {
 					Elem type = Menu_BUTTONS[otherSel].ball;
 					if (type)
 						Ball_create(Pen_x, Pen_y, type);
@@ -244,14 +237,14 @@ void Menu_update(void) {
 									Block* cell = &Blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
 									switch(selection) {
 									when(Menu_BLOCK):;
-										cell->block = 1;
+										cell->block = Block_BLOCK;
 										cell->vel = (Point){0,0};
 										Block_clearPressure(cell);
 									when(Menu_ERASE):;
-										cell->block = -2;
+										cell->block = Block_ERASED;
 									when(Menu_CLEAR):;
-										if (cell->block == 0) {
-											cell->block = -2;
+										if (cell->block==Block_EMPTY) {
+											cell->block = Block_ERASED;
 											cell->vel = (Point){0,0};
 											Block_clearPressure(cell);
 										}
@@ -279,23 +272,23 @@ void Menu_update(void) {
 					}
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
 						Dot_FOR (p) {
-							if (Block_at(p->pos.x,p->pos.y)->block != 0)
+							if (Block_at(p->pos.x,p->pos.y)->block!=Block_EMPTY)
 								Dot_remove(p--);
 						}
 					}
 					if (selection==Menu_ERASE || selection==Menu_CLEAR) {
 						Block_FOR(cell) {
-							if (cell->block==-2)
-								cell->block = 0;
+							if (cell->block==Block_ERASED)
+								cell->block = Block_EMPTY;
 						}
 					}
 					for (int y=8;y<H+8;y++) {
 						for (int x=8;x<W+8;x++) {
 							Block* cell = Block_at(x,y);
-							Dot** part = &Dot_at[y][x];
-							if (cell->block==0 && *part == Dot_BLOCK)
+							Dot** part = Dot_pos(x,y);
+							if (cell->block==Block_EMPTY && *part == Dot_BLOCK)
 								*part = Dot_EMPTY;
-							else if (cell->block==1 && *part < Dot_BLOCK)
+							else if (cell->block==Block_BLOCK && *part < Dot_BLOCK)
 								*part = Dot_BLOCK;
 						}
 					}

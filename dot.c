@@ -317,7 +317,7 @@ void Dot_save(SavePixel save[H][W]) {
 void Dot_reset(void) {
 	for (axis y=0; y<HEIGHT; y++) {
 		for (axis x=0; x<WIDTH; x++) {
-			if (Block_at(x,y)->block==1)
+			if (Block_at(x,y)->block==Block_BLOCK)
 				*Dot_pos(x,y) = Dot_BLOCK;
 			else
 				*Dot_pos(x,y) = Dot_EMPTY;

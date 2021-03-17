@@ -2,7 +2,7 @@ break; case Elem_VINE:
 {
 #ifdef UPDATE_PART
 	Point airvel = p->vel;
-	Vec_mul(&p->vel, 0.3);
+	p->vel.xy *= 0.3;
 	Dot_blow(p, airvel);
 	// todo check part limit
 

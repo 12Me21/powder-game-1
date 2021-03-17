@@ -9,8 +9,8 @@ break; case Elem_STONE:
 	real mag = Vec_fastDist(airvel);
 	if (mag>10 && Rnd_perchance(50))
 		p->type = Elem_POWDER;
-	Vec_mul(&airvel, 3.8/(mag+1));
-
+	airvel.xy *= 3.8/(mag+1);
+	
 	Dot* near = *Dot_pos(p->pos.x+airvel.x, p->pos.y);
 	if (near <= Dot_BGFAN) {
 		p->pos.x += airvel.x;
