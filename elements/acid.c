@@ -4,19 +4,21 @@ break; case Elem_ACID:
 	if (p->charge>=100)
 		Dot_KILL();
 	Dot_liquidUpdate(p, c, 0.2, 0,0.1, 0.01, 0.02,0.05, 0.9);
-	int dir = atLeast(Random_int(8)-4, 0); //0 to 3
+	// 1/8 chance each of 1,2,3; 5/8 chance of 0
+	int dir = atLeast(Random_int(8)-4, 0);
 	
-	Dot* g = Dot_dirNear(p->pos, dir);
-	if (g>=Dot_0) {
-		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
-		int rate = ELEMENTS[g->type].dissolveRate;
+	Dot* near = Dot_dirNear(p->pos, dir);
+	if (near>=Dot_0) {
+		int rate = ELEMENTS[near->type].dissolveRate;
 		if (rate) {
-			if (Random_(200)<200-p->charge) {
+			if (Random_(200) < 200-p->charge) {
 				p->charge = clamp(p->charge+rate,0,100);
-				g->type = Elem_ACID;
-				g->charge = 100; //will die instantly next update
+				// destroy the nearby element
+				// by turning it into an acid particle that will be destroyed on the next frame
+				near->type = Elem_ACID;
+				near->charge = 100;
 			}
-		} else if (Dot_checkPump(p, g, dir))
+		} else if (Dot_checkPump(p, near, dir))
 			Dot_KILL();
 	}
 

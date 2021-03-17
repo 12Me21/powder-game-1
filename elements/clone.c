@@ -7,7 +7,8 @@ break; case Elem_CLONE:
 	if (!p->charge) {
 		// check random nearby part
 		axis x = Random_int(5)-1; // 5-1, really?
-		Dot* near = Dot_pos2(p->pos)[Dot_ofs(x, Random_int(5)-1)];
+		axis y = Random_int(5)-1;
+		Dot* near = Dot_pos3(p->pos, x, y);
 		if (near>=Dot_0) {
 			if (near->type == Elem_CLONE)
 				p->charge = near->charge;
@@ -29,7 +30,7 @@ break; case Elem_CLONE:
 		int y = ball->pos.y;
 		if (ELEMENTS[ball->charge].state==State_POWDER || ball->charge==Elem_MAGMA || ball->charge==Elem_SPARK)
 			y+=4;
-		if (Dot_pos(x, y)[0]<=Dot_BGFAN)
+		if (*Dot_pos(x,y)<=Dot_BGFAN)
 			Dot_create(x, y, ball->charge);
 	}
 
