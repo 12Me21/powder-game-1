@@ -16,7 +16,8 @@ typedef struct ObjectNode {
 } ObjectNode;
 
 typedef struct Object {
-	int type; // A[]
+	char type; // A[]
+	//char sub; 
 	int meta; // Ed[]
 	//used for:
 	// box size

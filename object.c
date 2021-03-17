@@ -467,17 +467,7 @@ void Object_update(void) {
 			}
 			break;
 		case Object_PLAYER+1:
-			copyPos(10, 5);
-			copyPos(9, 4);
-			copyPos(8, 3);
-			copyPos(7, 3);
-			copyPos(6, 2);
-			copyPos(5, 2);
-			copyPos(4, 1);
-			copyPos(3, 1);
-			copyPos(2, 1);
-			copyPos(1, 0);
-			copyPos(0, 0);
+			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);copyPos(0, 0);
 			a->vel.y -= 1;
 			a->age = 0;
 			a->type = Object_PLAYER+3;
@@ -692,7 +682,7 @@ void Object_save(SavePixel save[H][W]) {
 			node = &e->parts[4];
 			type = Elem_FIGHTER;
 		} else if (e->type==Object_BOX) {
-			node = &e->parts[0]; //todo: maybe avg the points instead?
+			node = &e->parts[0]; //maybe avg the points instead?
 			type = Elem_BOX;
 			meta = e->meta;
 		} else if (e->type==Object_PLAYER) {

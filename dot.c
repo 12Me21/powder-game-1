@@ -105,7 +105,6 @@ void Dot_shuffle(void) {
 extern int wa;
 
 void Dot_update(void) {
-	// todo: wheels
 	Dot_FOR (p) {
 		if (!Menu_cursorInMenu && wa==0) {
 			if (!p->held) {

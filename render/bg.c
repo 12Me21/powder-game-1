@@ -1,5 +1,5 @@
 #include <string.h>
-#include <math.h> //todo: define macros for abs/fabs etc.
+#include <math.h>
 #include "../common.h"
 #include "../menu.h"
 #include "draw.h"

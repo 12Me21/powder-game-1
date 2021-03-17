@@ -118,7 +118,7 @@ break; case Elem_THUNDER:
 			// hit metal/mercury
 			if (near->type==Elem_METAL||near->type==Elem_MERCURY) {
 				Dot_swap(p, near);
-				p->Cthunder2.type = near->type==Elem_METAL ? 6000>>2 : 6100>>2; //todo: thinking about it, we could probably use pumptype for this...
+				p->Cthunder2.type = near->type==Elem_METAL ? 6000>>2 : 6100>>2;
 				p->Cthunder2.dir = dir+b;
 				near->type = inside;
 				near->charge = 0;

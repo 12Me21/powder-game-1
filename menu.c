@@ -9,8 +9,6 @@
 #include "platform.h"
 #include "sim.h"
 
-//todo: split this file into menu rendering + menu buttons/controls
-
 enum PenMode {Pen_FREE, Pen_LINE, Pen_LOCK, Pen_PAINT};
 
 axis Pen_x=0, Pen_y=0;

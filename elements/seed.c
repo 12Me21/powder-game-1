@@ -12,7 +12,11 @@ break; case Elem_SEED:
 	
 	if (p->charge==0) {
 		Dot* below = Dot_pos3(p->pos, 0, 1);
-		if (below<Dot_0 || (below->type!=Elem_POWDER && below->type!=Elem_WOOD && below->type!=Elem_VINE)) //TODO: !IMPORTANT! check part limit here
+		if (below<Dot_0)
+			break;
+		if (below->type!=Elem_POWDER && below->type!=Elem_WOOD && below->type!=Elem_VINE)
+			break;
+		if (!Dot_limit1000())
 			break;
 	}
 	

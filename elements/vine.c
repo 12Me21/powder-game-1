@@ -4,8 +4,10 @@ break; case Elem_VINE:
 	Point airvel = p->vel;
 	p->vel.xy *= 0.3;
 	Dot_blow(p, airvel);
-	// todo check part limit
 
+	if (!Dot_limit1000())
+		break;
+	
 	inline void tryGrow(void) {
 		if (Dot_pos3(p->pos, 0, 1)<=Dot_BGFAN && Dot_pos3(p->pos, 0, 2)<=Dot_BGFAN && Dot_pos3(p->pos, -1, 1)<=Dot_BGFAN && Dot_pos3(p->pos, 1, 1)<=Dot_BGFAN && Rnd_perchance(20)) {
 			Dot* f = Dot_create(p->pos.x, p->pos.y+1, Elem_VINE);
