@@ -14,14 +14,13 @@ gcc?= gcc
 # print status nicely (assumes ansi-compatible terminal)
 empty:=
 comma:= ,
-printlist = [$1m$(subst $(empty) $(empty),[m$(comma) [$1m,$(2:$(junkdir)/%=[37m$(junkdir)/[$1m%))
-cc = echo '$(call printlist,33,$(target))	[37mfrom: $(call printlist,32,$^)[m' && $(gcc)
-
-target = $@
+printlist = [$1m$(subst $(empty) $(empty),[m$(comma) [$1m,$(2:$(3)%=[37m$(3)[$1m%))
+print = echo '$(call printlist,33,$(1),$(2))	[37mfrom: $(call printlist,32,$(3),$(4))[m'
 
 # Link
 $(output): $(srcs:%=$(junkdir)/%.o)
-	@$(cc) $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
+	@$(call print,$@,,$^,$(junkdir)/)
+	@$(gcc) $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
 
 # this uses a feature of gcc, which parses a C file
 # and outputs a list of headers it depends on
@@ -29,12 +28,12 @@ $(output): $(srcs:%=$(junkdir)/%.o)
 #	$(cc) $(CFLAGS) -DHDEPS -MM $< -MP -MQ$@ -MQ$(<:%.c=$(junkdir)/%.o) -MF$@
 
 # Compile
-$(junkdir)/%.o $(junkdir)/%.mk &: target = $(junkdir)/$*.o
 $(junkdir)/%.o $(junkdir)/%.mk &: $(srcdir)/%.c
 	@mkdir -p $(@D)
 #$(addprefix -I,$(includes))
 # -MP ?
-	@$(cc) $(CFLAGS) -MMD -MF$(junkdir)/$*.mk -MQ$(junkdir)/$*.mk -MQ$(<:%.c=$(junkdir)/%.o) -c $< -o $(junkdir)/$*.o
+	@$(call print,$(junkdir)/$*.o,$(junkdir)/,$<,$(srcdir)/)
+	@$(gcc) $(CFLAGS) -MMD -MF$(junkdir)/$*.mk -MQ$(junkdir)/$*.mk -MQ$(<:%.c=$(junkdir)/%.o) -c $< -o $(junkdir)/$*.o
 
 .PHONY: clean
 clean:
@@ -48,5 +47,9 @@ ifneq ($(MAKECMDGOALS),clean)
  # But for some reason, include fails if the file is in a nonexistent directory.
  # This is the only solution I can think of:
 # temp != mkdir -p $(addprefix $(junkdir)/,$(dir $(srcs)))
- include $(srcs:%=$(junkdir)/%.mk)
+ ifeq (,$(findstring B,$(MAKEFLAGS)))
+  include $(srcs:%=$(junkdir)/%.mk)
+ endif
 endif
+
+.EXTRA_PREREQS = Makefile .Nice.mk
