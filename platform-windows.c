@@ -1,11 +1,12 @@
 #ifndef HDEPS
-#include <stdio.h>
-#include <stdlib.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <dwmapi.h>
 #undef RGB
 #endif
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "common.h"
 #include "input.h"
 #include "save.h"
@@ -22,23 +23,36 @@ void Platform_frame(void);
 // https://gist.github.com/niconii/4269d1f938ba56cac6cb44376468f7bb
 
 HWND win;
+WNDCLASS wc;
+HDC hdc;
+HINSTANCE hInstance2;
 
 long Platform_nanosec(void) {
 	return GetTickCount()*1000000L;
 }
 
-// todo: make a wrapper function so this can be called from outside platform- files.
-// call one function to create bitmaps (for windows this can just do nothing)
-// and then another to render them
-void gcopy(HDC hdc, void* grp, int sw, int sh, int dx, int dy, int sx, int sy, int w, int h) {
+void Platform_createWindow(axis width, axis height, char* title) {
+	RECT rect = {
+		.top = 0,
+		.left = 0,
+		.bottom = height,
+		.right = width,
+	};
+	DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+	AdjustWindowRect(&rect, style, false);
+	win = CreateWindow(wc.lpszClassName, title, style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance2, NULL);
+	hdc = GetDC(win);
+}
+
+void Platform_drawBitmap(Platform_Bitmap bitmap, int dx, int dy, int srcx, int srcy, int w, int h) {
 	StretchDIBits(
 		hdc,
 		dx,dy, w,h, //dest
-		sy,sx, w,h, //source
-		grp, &(BITMAPINFO){
+		srcy,srcx, w,h, //source
+		bitmap.data, &(BITMAPINFO){
 			{
 				sizeof(BITMAPINFOHEADER),
-				sw, -sh,
+				bitmap.width, -bitmap.height,
 				1, 32, BI_RGB, 0,
 				0, 0, 0, 0
 			},
@@ -49,11 +63,28 @@ void gcopy(HDC hdc, void* grp, int sw, int sh, int dx, int dy, int sx, int sy, i
 	);
 }
 
-void Platform_saveAs(char* text) {
-	OPENFILENAME ofn = {
+Platform_Bitmap Platform_createBitmap(Color* data, int width, int height) {
+	return (Platform_Bitmap){
+		width,
+		height,
+		data,
+	};
+}
+
+FILE* Platform_openWrite(void* name) {
+	return fopen((char*)name, "w+");
+}
+
+FILE* Platform_openRead(void* name) {
+	return fopen((char*)name, "r");
+}
+
+void* Platform_selectFile(int mode) {
+	static char name[PATH_MAX];
+	OPENFILENAME ofn = (OPENFILENAME){
 		.lStructSize = sizeof(OPENFILENAME),
 		.hwndOwner = win,
-		.lpstrFile = (char[PATH_MAX]){0},
+		.lpstrFile = name,
 		.nMaxFile = PATH_MAX,
 		.lpstrFilter = "All\0*.*\0Text\0*.TXT\0",
 		.nFilterIndex = 1,
@@ -63,16 +94,9 @@ void Platform_saveAs(char* text) {
 		.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST,
 	};
 	if (GetSaveFileName(&ofn)==TRUE) {
-		FILE* n = fopen(ofn.lpstrFile, "w+");
-		fputs(text, n);
-		fclose(n);
+		return ofn.lpstrFile;
 	}
-}
-
-void DrawPixels(HDC hdc) {
-	gcopy(hdc, grp,WIDTH,HEIGHT, 0,0, 8,8, W,H);
-	// draw menu
-	gcopy(hdc, Menu_grp,W,MENU_HEIGHT, 0,H, 0,0, W,MENU_HEIGHT);
+	return NULL;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -111,8 +135,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch(msg) {
 	case WM_PAINT:;
 		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hwnd, &ps);
-		DrawPixels(hdc);
+		hdc = BeginPaint(hwnd, &ps); //return value ignored
+		Platform_redraw();
 		EndPaint(hwnd, &ps);
 		break;
 	case WM_CLOSE:
@@ -153,8 +177,8 @@ FILE* Platform_fopen(const void* name) {
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	MSG msg;
-	WNDCLASS wc = {
+	hInstance2 = hInstance;
+	wc = (WNDCLASS){
 		.style = CS_HREDRAW | CS_VREDRAW,
 		.lpszClassName = "Powder Game",
 		.hInstance = hInstance,
@@ -163,21 +187,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		.hCursor = LoadCursor(0, IDC_ARROW),
 	};
 	RegisterClass(&wc);
-	RECT rect = {
-		.top = 0,
-		.left = 0,
-		.bottom = WINDOW_HEIGHT,
-		.right = WINDOW_WIDTH,
-	};
-	DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-	AdjustWindowRect(&rect, style, false);
-	win = CreateWindow(wc.lpszClassName, "Powder Game", style, CW_USEDEFAULT, CW_USEDEFAULT, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, hInstance, NULL);
 
 	int argc;
 	wchar_t** argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 	Platform_main(argc, (void**)argv);
 
-	HDC hdc = GetDC(win);
+	MSG msg;
 	float delta = 0;
 	while(1) {
 		DWORD dwStart = timeGetTime();
@@ -189,9 +204,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		Platform_frame();
+		Platform_redraw();
 		
-		DrawPixels(hdc);
-
 		//DwmFlush();
 		/*delta = timeGetTime() - dwStart;
 		int amt = delta-1000.0/60;

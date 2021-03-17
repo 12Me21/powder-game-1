@@ -1,8 +1,10 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "common.h"
 #include "input.h"
+#include "platform.h"
 #include "save.h"
 #include "render/draw.h"
 #include "vector.h"
@@ -12,28 +14,17 @@
 #include <X11/xpm.h>
 #include <X11/keysym.h>
 
-#include <gtk/gtk.h>
-
 void Platform_frame(void);
-void Platform_main(int argc, char** argv);
 
 Display* D;
+Visual* visual;
 Window win;
-XImage* simImage;
-XImage* menuImage;
 
 long Platform_nanosec(void) {
 	struct timespec ts;
 	timespec_get(&ts, TIME_UTC);
 	return (long)ts.tv_sec * 1000000000L + ts.tv_nsec; // ONE MILLION
 }
-
-void redraw(void) {
-	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
-	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
-}
-
-Atom wmDeleteMessage;
 
 static bool processEvent(void) {
 	while (1) {
@@ -48,12 +39,8 @@ static bool processEvent(void) {
 		if (!t)
 			return true;
 		switch (ev.event.type) {
-			//case ClientMessage:
-			//			if ((Atom)ev.clientMessage.data.l[0] == wmDeleteMessage)
-			//				return false;
-			//			break;
 		case Expose:
-			redraw();
+			Platform_redraw();
 			break;
 		case ButtonPress:;
 		case ButtonRelease:;
@@ -106,32 +93,24 @@ static bool processEvent(void) {
 	}
 }
 
-int main(int argc, char** argv) {
-	srand(time(NULL));///todo put this in windows
-	D = XOpenDisplay(NULL);
-	Visual* visual = DefaultVisual(D, 0);
-	if (visual->class!=TrueColor) {
-		fprintf(stderr, "Cannot handle non true color visual ...\n");
-		XCloseDisplay(D);
-		exit(1);
-	}
-
-	//XFontStruct* font = XLoadQueryFont(D, "serif")
-
-	// Create window
-	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0);
+void Platform_createWindow(axis width, axis height, char* title) {
+	win = XCreateSimpleWindow(D, RootWindow(D, 0), 0, 0, width, height, 1, 0, 0);
 	XSelectInput(D, win, ButtonPressMask|ButtonReleaseMask|ExposureMask|KeyPressMask|KeyReleaseMask|PointerMotionMask);
 	XMapWindow(D, win);
-	
+
 	// Lock window size
 	XSizeHints* shints = XAllocSizeHints();
 	shints->flags = PMinSize|PMaxSize;
-	shints->min_width = shints->max_width = WINDOW_WIDTH;
-	shints->min_height = shints->max_height = WINDOW_HEIGHT;
+	shints->min_width = shints->max_width = width;
+	shints->min_height = shints->max_height = height;
 	XSetWMNormalHints(D, win, shints);
 	XFree(shints);
 
-	// Set icon
+	XTextProperty t = {0};
+	XStringListToTextProperty(&title, 1, &t); // heheh
+	XSetWMName(D, win, &t);
+
+	// Set icon (TODO)
 	Pixmap pixmap = 0;
 	Pixmap mask = 0;
 #include "icon.xpm"
@@ -141,47 +120,62 @@ int main(int argc, char** argv) {
 	hints->icon_pixmap = pixmap;
 	XSetWMHints(D, win, hints);
 	XFree(hints);
+}
 
-	// this refers to center portion of grp (without the 8px edge regions)
-	simImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)&grp[8][8], W,H, 32, WIDTH*4);
-	// menu
-	menuImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W,MENU_HEIGHT, 32, 0);
-
-	//wmDeleteMessage = XInternAtom(D, "WM_DELETE_WINDOW", False);
-	//XSetWMProtocols(D, win, &wmDeleteMessage, 1);
+int main(int argc, char** argv) {
+	srand(time(NULL));///todo put this in windows
+	D = XOpenDisplay(NULL);
+	visual = DefaultVisual(D, 0);
+	if (visual->class!=TrueColor) {
+		fprintf(stderr, "Cannot handle non true color visual ...\n");
+		XCloseDisplay(D);
+		exit(1);
+	}
 	
 	// start
-	Platform_main(argc, argv);
-	Platform_frame();
-	redraw();
+	Platform_main(argc, (void**)argv);
 	while (processEvent()) {
 		Platform_frame();
-		redraw();
+		Platform_redraw();
 	}
 }
 
-FILE* Platform_fopen(const void* name) {
-	return fopen((const char*)name, "r");
+void Platform_drawBitmap(Platform_Bitmap bitmap, int dx, int dy, int srcx, int srcy, int w, int h) {
+	XPutImage(D, win, DefaultGC(D, 0), bitmap.data, srcx,srcy, dx,dy, w,h);
 }
 
-void Platform_saveAs(char* text) {
-	puts("starting");
-	GtkFileChooserNative* native = gtk_file_chooser_native_new("Save File", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, "_Save", "_Cancel");
-	printf("native: %p\n", native);
-	GtkFileChooser* chooser = GTK_FILE_CHOOSER(native);
-	printf("chooser: %p\n", chooser);
-	
-	gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+Platform_Bitmap Platform_createBitmap(Color* data, int width, int height) {
+	return (Platform_Bitmap){
+		width,
+		height,
+		XCreateImage(D, visual, 24, ZPixmap, 0, (char*)data, width,height, 32, 0),
+	};
+}
 
-	gtk_file_chooser_set_current_name(chooser, "untitled.txt");
-	
-	gint res = gtk_native_dialog_run(GTK_NATIVE_DIALOG(native));
-	if (res==GTK_RESPONSE_ACCEPT) {
-		char* filename = gtk_file_chooser_get_filename(chooser);
-		FILE* n = fopen(filename, "w+");
-		fputs(text, n);
-		fclose(n);
-		g_free(filename);
+FILE* Platform_openWrite(void* name) {
+	return fopen((char*)name, "w+");
+}
+
+FILE* Platform_openRead(void* name) {
+	return fopen((char*)name, "r");
+}
+
+// this is absolutely fucked,
+void* Platform_selectFile(int mode) {
+	int pipefds[2];
+	pipe(pipefds);
+	if (fork()==0) {
+		dup2(pipefds[1], 1);
+		int status = execlp("zenity", "", "--file-selection", mode ? "--save" : NULL, NULL);
+		write(pipefds[1], "", 1);
+		close(pipefds[1]);
+		_exit(0);
 	}
-	g_object_unref(native);
+	static char buf[1000];
+	ssize_t n = read(pipefds[0], buf, 1000);
+	if (n>=0) {
+		buf[n] = '\0';
+		return buf;
+	}
+	return NULL;
 }

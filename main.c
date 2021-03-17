@@ -4,14 +4,26 @@
 #include "save.h"
 #include "platform.h"
 #include "reset.h"
+#include "render/draw.h"
 
 #define DEFCALL(name) void name(void); name()
 
+Platform_Bitmap simBitmap;
+Platform_Bitmap menuBitmap;
+
 void Platform_main(int argc, void** argv) {
+	Platform_createWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Powder Game");
+	simBitmap = Platform_createBitmap(&grp[0][0], WIDTH, HEIGHT);
+	menuBitmap = Platform_createBitmap(&Menu_grp[0][0], MENU_WIDTH, MENU_HEIGHT);
 	if (argc>=2)
 		Save_Load_test(argv[1]);
 	else
 		Sim_reset(false);
+}
+
+void Platform_redraw(void) {
+	Platform_drawBitmap(simBitmap, 0, 0, 8, 8, W, H);
+	Platform_drawBitmap(menuBitmap, 0, H, 0, 0, MENU_WIDTH, MENU_HEIGHT);
 }
 
 void render() {

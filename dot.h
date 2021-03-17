@@ -87,24 +87,24 @@ extern Dot* const Dot_BLOCK; // -1
 #define Dot_ofs(x,y) ((int)(x)+(int)(y)*WIDTH)
 #define Dot_pos3(pos,x,y) (Dot_pos2(pos)[Dot_ofs(x,y)])
 
-Dot* Dot_create(real x, real y, Elem element); // id()
-void Dot_blow(Dot* part, Point airvel); // ye()
-void Dot_swap(Dot* part1, Dot* part2); // xe()
-void Dot_remove(Dot* part); // U()
-void Dot_paint(axis x, axis y, Elem replace, Elem type, int charge); // Zd()
+extern Dot* Dot_create(real x, real y, Elem element); // id()
+extern void Dot_blow(Dot* part, Point airvel); // ye()
+extern void Dot_swap(Dot* part1, Dot* part2); // xe()
+extern void Dot_remove(Dot* part); // U()
+extern void Dot_paint(axis x, axis y, Elem replace, Elem type, int charge); // Zd()
 
-int* Dot_updateCounts(void);
-void Dot_shuffle(void);
-void Dot_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis));
-bool Dot_checkPump(Dot* part, Dot* pump, int dir);
-void Dot_liquidUpdate(Dot* part, Block* cell, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc);
+extern int* Dot_updateCounts(void);
+extern void Dot_shuffle(void);
+extern void Dot_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, axis));
+extern bool Dot_checkPump(Dot* part, Dot* pump, int dir);
+extern void Dot_liquidUpdate(Dot* part, Block* cell, real adv, real x1, real x2, real xr1, real yr1, real yr2, real frc);
 
-void Dot_print(Dot* p); //for debug
+extern void Dot_print(Dot* p); //for debug
 
-bool Dot_limit1000(void); // returns true if there are >= 1000 unused parts
+extern bool Dot_limit1000(void); // returns true if there are >= 1000 unused parts
 
-void Dot_toGrid(Dot* p);
+extern void Dot_toGrid(Dot* p);
 
-Dot* Dot_rndNear5(Point pos);
-Dot* Dot_rndNear(Point pos, axis rad);
-Dot* Dot_dirNear(Point pos, char dir);
+extern Dot* Dot_rndNear5(Point pos);
+extern Dot* Dot_rndNear(Point pos, axis rad);
+extern Dot* Dot_dirNear(Point pos, char dir);

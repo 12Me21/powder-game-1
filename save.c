@@ -154,7 +154,7 @@ void load1(void) {
 }
 
 void Save_Load_test(void* filename) {
-	FILE* f = Platform_fopen(filename);
+	FILE* f = Platform_openRead(filename);
 	if (f) {
 		loadSaveFile(f);
 		load1();

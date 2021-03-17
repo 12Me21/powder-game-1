@@ -27,7 +27,7 @@ $(junkdir)/%.mk: $(srcdir)/%.c
 	$(cc) $(CFLAGS) -DHDEPS -MM $< -MP -MQ$@ -MQ$(<:%.c=$(junkdir)/%.o) -MF$@
 
 # Compile
-$(junkdir)/%.o: $(srcdir)/%.c $(gch)
+$(junkdir)/%.o: $(srcdir)/%.c
 	$(cc) $(CFLAGS) $(cflags2) $(addprefix -I,$(includes)) -c $< -o $@
 
 %.h.gch: %.h

@@ -21,7 +21,7 @@ int Menu_leftSelection = 0;
 int Menu_rightSelection = Menu_WIND;
 int Menu_penSize = 0;
 int Menu_zoomLevel = 0;
-axis Menu_zoomX = 0, Menu_zoomY = 0;
+float Menu_zoomX = 0, Menu_zoomY = 0;
 int Menu_dotLimit = 0;
 int Menu_gridSize = 0;
 int Menu_carefully = 0;
@@ -119,7 +119,11 @@ void Menu_input(void) {
 			if (Mouse_fallingDirection) {
 				Save_save1();
 				char* s = Save_string(Save_data);
-				Platform_saveAs(s);
+				void* name = Platform_selectFile(1);
+				FILE* f = Platform_openWrite(name);
+				if (f) {
+					fputs(s, f);
+				}
 				free(s);
 			}
 				//wa=1;

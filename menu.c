@@ -300,6 +300,13 @@ void Menu_update(void) {
 						}
 					}
 				}
+				break;
+			case Menu_SCALE:
+				if (Menu_zoomLevel!=0 && old) {
+					Menu_zoomX -= (mouse.pos.x - mouse.oldPos.x) / (1<<Menu_zoomLevel);
+					Menu_zoomY -= (mouse.pos.y - mouse.oldPos.y) / (1<<Menu_zoomLevel);
+					clampZoom();
+				}
 			}
 		}
 	}

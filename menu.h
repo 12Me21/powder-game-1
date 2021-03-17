@@ -26,8 +26,8 @@ extern int Menu_fps; // Qc
 extern int Menu_zoomLevel; // la
 extern bool Menu_minimapEnabled; // Ga
 extern int buttonflash; // ja
-extern axis Menu_zoomX; // ma
-extern axis Menu_zoomY; // na
+extern real Menu_zoomX; // ma
+extern real Menu_zoomY; // na
 extern Point Pen_dir; // jd
 
 extern const int Dot_LIMITS[4]; // ia

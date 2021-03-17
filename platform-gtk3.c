@@ -8,14 +8,16 @@
 #include "vector.h"
 
 #include <gtk/gtk.h>
+#include <gdk/gdkx.h>
+#include <X11/Xlib.h>
 
 void Platform_frame(void);
 void Platform_main(int argc, char** argv);
 
-/*Display* D;
+Display* D;
 Window win;
 XImage* simImage;
-XImage* menuImage;*/
+XImage* menuImage;
 
 long Platform_nanosec(void) {
 	struct timespec ts;
@@ -24,8 +26,8 @@ long Platform_nanosec(void) {
 }
 
 void redraw(void) {
-	//	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
-	//	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
+	XPutImage(D, win, DefaultGC(D, 0), simImage, 0,0, 0,0, W,H);
+	XPutImage(D, win, DefaultGC(D, 0), menuImage, 0,0, 0,H, W,MENU_HEIGHT);
 }
 
 //Atom wmDeleteMessage;
@@ -104,42 +106,35 @@ void redraw(void) {
 GtkApplication* app;
 GtkWidget* window;
 
-static gboolean on_window_draw(GtkWidget* da, GdkEvent* event, gpointer data) {
-	GError *err = NULL;
-	GdkPixbuf *pix = gdk_pixbuf_new_from_data((guchar*)&grp[8][8], GDK_COLORSPACE_RGB, false, 8, W, H, 8*2*sizeof(Color), NULL, NULL);
-	if (err) {
-		printf("Error: %s\n", err->message);
-		g_error_free(err);
-		return FALSE;
-	}
-	cairo_t* cr = gdk_cairo_create(gtk_widget_get_window(da));
-	gdk_cairo_set_source_pixbuf(cr, pix, 0, 0);
-	cairo_paint(cr);
-	cairo_destroy(cr);
+gint timeout_callback (gpointer data) {
+	Platform_frame();
+
+	return true;
 }
 
 int main(int argc, char** argv) {
-	GtkWidget* canvas;
 	gtk_init(&argc, &argv);
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_widget_set_size_request(window, WINDOW_WIDTH, WINDOW_HEIGHT);
-	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-	canvas = gtk_drawing_area_new();
-	gtk_container_add(GTK_CONTAINER(window), canvas);
-	g_signal_connect(canvas, "draw", (GCallback)on_window_draw, NULL);
-	gtk_widget_set_app_paintable(canvas, TRUE);
-	gtk_widget_show_all(window);
-	gtk_main();
-	return 0;
 	
-	/*	// start
+	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(window), "Image");
+	gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);
+	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+	D = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
+	win = gdk_x11_window_get_xid(gtk_widget_get_window(window));
+	Visual* visual = gdk_x11_visual_get_xvisual(gdk_x11_screen_lookup_visual(gdk_screen_get_default() ,0));
+	simImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)&grp[8][8], W,H, 32, WIDTH*4);
+	// menu
+	menuImage = XCreateImage(D, visual, 24, ZPixmap, 0, (char*)Menu_grp, W,MENU_HEIGHT, 32, 0);
+	
+	gtk_widget_show_all(window);
+	g_timeout_add(16, timeout_callback, NULL);
 	Platform_main(argc, argv);
-	Platform_frame();
-	redraw();
-	while (processEvent()) {
-		Platform_frame();
-		redraw();
-		}*/
+	
+	gtk_main();
+	
+	return 0;
 }
 
 FILE* Platform_fopen(const void* name) {
