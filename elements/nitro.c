@@ -2,26 +2,26 @@ break; case Elem_NITRO:
 {
 #ifdef UPDATE_PART
 	Dot_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
-	int dir = Random_int(8)-4;
-	if (dir<0) dir=0;
+	// 0 0 0 0 0 1 2 3
+	int dir = atLeast(Random_int(8)-4, 0);
 
-	Dot* g = Dot_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
-	if (g>=Dot_0) {
+	Dot* near = Dot_dirNear(p->pos, dir);
+	if (near>=Dot_0) {
 		//powders except stone
-		if (dir<3 && (ELEMENTS[g->type].state==State_POWDER && (g->type!=Elem_STONE))) {
+		if (dir<3 && (near->type[ELEMENTS].state==State_POWDER && (near->type!=Elem_STONE))) {
 			if (Rnd_perchance(10))
-				Dot_swap(p, g);
+				Dot_swap(p, near);
 		// fuse
-		} else if (g->type==Elem_FUSE && !g->Cfuse.burning) {
-			g->Cfuse.type = Elem_NITRO;
+		} else if (near->type==Elem_FUSE && !near->Cfuse.burning) {
+			near->Cfuse.type = Elem_NITRO;
 			Dot_KILL();
 		//put water into pump
-		} else if (Dot_checkPump(p,g,dir))
+		} else if (Dot_checkPump(p,near,dir))
 			Dot_KILL();
 	}
 	if (Vec_fastDist(p->vel)<10) {
 		Dot* near = Dot_rndNear(p->pos, 5);
-		if (near<Dot_0 || ELEMENTS[near->type].state != State_HOT)
+		if (near<Dot_0 || near->type[ELEMENTS].state != State_HOT)
 			break;
 	}
 	void func(axis x, axis y, axis sx, axis sy) {
@@ -47,7 +47,7 @@ break; case Elem_NITRO:
 	if (touched<0) break;
 	if (ELEMENTS[touched].state==State_HOT) {
 		void func(axis x, axis y, axis sx, axis sy) {
-			Dot* d = Dot_pos(x, y)[0];
+			Dot* d = *Dot_pos(x,y);
 			if (d>=Dot_0) {
 				d->vel.x += 10*(x-sx);
 				d->vel.y += 10*(y-sy);

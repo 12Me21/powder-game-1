@@ -305,12 +305,12 @@ void Object_update(void) {
 			bool down = a->isPlayer2==0 ? Keys[40].held : Keys[83].held||Keys[115].held;
 			Player* player = &players[a->isPlayer2];
 			a->age++;
-			bool w =
-				Dot_pos2(a->parts[4].pos)[Dot_ofs(0,1)]>Dot_BGFAN ||
-				Dot_pos2(a->parts[4].pos)[0]>Dot_BGFAN;
+			bool leftFoot =
+				Dot_pos3(a->parts[4].pos,0,1)>Dot_BGFAN ||
+				*Dot_pos2(a->parts[4].pos)>Dot_BGFAN;
 			bool rightFoot =
-				Dot_pos2(a->parts[5].pos)[Dot_ofs(0,1)]>Dot_BGFAN ||
-				Dot_pos2(a->parts[5].pos)[0]>Dot_BGFAN;
+				Dot_pos3(a->parts[5].pos,0,1)>Dot_BGFAN ||
+				*Dot_pos2(a->parts[5].pos)>Dot_BGFAN;
 			if (down && a->meta == Elem_BIRD) {
 				for (int b=0;b<6;b++)
 					moveNode(&a->parts[b], 0.01, 0.997);
@@ -329,7 +329,7 @@ void Object_update(void) {
 				a->type = Object_PLAYER+2;
 			if (player->Xe>0)
 				player->Xe--;
-			if (player->Xe!=0 || w!=1 || rightFoot!=1) {
+			if (player->Xe!=0 || leftFoot!=1 || rightFoot!=1) {
 				if (right) {
 					if (a->parts[1].pos.x - a->parts[1].oldPos.x < 0)
 						a->parts[1].pos.x += 0.1;
@@ -365,7 +365,7 @@ void Object_update(void) {
 			}
 			if (player->Ye>1)
 				player->Ye--;
-			if (player->Ye>0 && (w==1||rightFoot==1))
+			if (player->Ye>0 && (leftFoot==1||rightFoot==1))
 				player->Ye--;
 			if (player->Ye==0 && up) {
 				player->Ye=50;
@@ -382,7 +382,7 @@ void Object_update(void) {
 				updateNode(&a->parts[i], 0.1, (i<4), a->held>0);
 			for (int y=0;y<3;y++) {
 				for (int x=-1;x<2;x++) {
-					Dot* p = Dot_pos2(a->parts[0].oldPos)[Dot_ofs(x,y)];
+					Dot* p = Dot_pos3(a->parts[0].oldPos, x, y);
 					if (p == Dot_BGFAN)
 						a->meta = Elem_FAN;
 					else if (p >= Dot_0 && ELEMENTS[p->type].playerValid==1)

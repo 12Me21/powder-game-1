@@ -10,26 +10,27 @@ break; case Elem_SEAWATER:
 			near->charge = 0;
 		}
 	}
-	int dir = atLeast(Random_int(8)-4, 0); //0 to 3, usually 0
-	
-	Dot* g = Dot_pos2(p->pos)[(Offset[]){Dot_ofs(0,-1),-1,1,Dot_ofs(0,1)}[dir]];
-	if (g>=Dot_0) {
-		int type = g->type;
-		if (dir!=3 && ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE && type!=Elem_CONCRETE)||type==Elem_NITRO)) { //nitro, and solids except powder,stone
+	// 0 0 0 0 0 1 2 3
+	int dir = atLeast(Random_int(8)-4, 0);
+
+	near = Dot_dirNear(p->pos, dir);
+	if (near>=Dot_0) {
+		int type = near->type;
+		if (dir!=3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE && type!=Elem_CONCRETE)||type==Elem_NITRO)) { //nitro, and solids except powder,stone
 			if (Rnd_perchance(10))
-				Dot_swap(p, g);
+				Dot_swap(p, near);
 		// destroy vine AGAIN
 		} else if (type==Elem_VINE) {
-			g->type = Elem_POWDER;
-			g->charge = 0;
+			near->type = Elem_POWDER;
+			near->charge = 0;
 		} else if (type==Elem_CONCRETE) {
 			if (Rnd_perchance(1)) {
-				g->type = Elem_STONE;
-				g->charge = 0;
-				Dot_swap(p, g);
+				near->type = Elem_STONE;
+				near->charge = 0;
+				Dot_swap(p, near);
 			}
 		//put water into pump
-		} else if (Dot_checkPump(p, g, dir))
+		} else if (Dot_checkPump(p, near, dir))
 			Dot_KILL();
 	}
 

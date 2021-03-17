@@ -10,8 +10,7 @@ break; case Elem_GLASS:
 	// charge=1: breaking
 	} else if (p->charge==1) {
 		Point airvel = p->vel;
-		real mag = Vec_fastNormalize(&airvel)*0.5;
-		if (mag<1) mag=1;
+		real mag = atLeast(Vec_fastNormalize(&airvel)*0.5, 1);
 		// spread cracks
 		for (int b=1; b<6; b++) {
 			Dot* near = *Dot_pos(

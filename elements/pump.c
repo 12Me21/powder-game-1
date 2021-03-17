@@ -2,39 +2,44 @@ break; case Elem_PUMP:
 {
 #ifdef UPDATE_PART
 	Dot_toGrid(p);
+
+	const Offset DIRS[4] = {WIDTH,-1,-WIDTH,1};
+	const axis DIRSX[4] = {0,-1,0,1};
+	const axis DIRSY[4] = {1,0,-1,0};
 	
 	if (p->pumpType==0)
 		break;
 	int dir = p->Cpump.dir;
+	// randomly check in a clockwise or counterclockwise order
 	int r = Random_(1)<0.5 ? 1 : -1;
+	// this will either go
+	// forward,left,right OR forward,right,left
 	for (int b=0;b<4;b++) {
 		if (b==2) continue;
-		Dot* f = Dot_pos2(p->pos)[(Offset[]){WIDTH,-1,-WIDTH,1}[(dir+b*r)&3]];
-		if (f>=Dot_0 && f->type==Elem_PUMP) {
-			if (f->pumpType==0) {
-				Dot_swap(p,f);
+		Dot* near = Dot_pos2(p->pos)[DIRS[(dir+b*r)&3]];
+		if (near>=Dot_0 && near->type==Elem_PUMP) {
+			if (near->pumpType==0) {
+				// move forward
+				Dot_swap(p,near);
 				p->Cpump.dir += b*r;
-			} else if (p->pumpType == f->pumpType) {
-				f->Cpump.amount += p->Cpump.amount;
+			} else if (p->pumpType == near->pumpType) {
+				// merge contents with pump carrying same element
+				near->Cpump.amount += p->Cpump.amount;
 				p->charge = 0;
 				p->pumpType = 0;
 			} else {
+				// reverse direction
 				p->Cpump.dir += 2;
 			}
 			goto pumped;
 		}
 	}
 	// if there wasn't another pump to transfer to:
-	if (Dot_pos2(p->pos)[2*(Offset[]){WIDTH,-1,-WIDTH,1}[dir]]<=Dot_BGFAN && Dot_limit1000()) {
-		axis x = p->pos.x+0.5;
-		axis y = p->pos.y+0.5;
-		switch (dir) {
-		case 0: y+=2; break;
-		case 1: x-=2; break;
-		case 2: y-=2; break;
-		case 3: x+=2; break;
-		}
-		Dot_create(x,y,p->pumpType);
+	if (Dot_pos2(p->pos)[2*DIRS[dir]]<=Dot_BGFAN && Dot_limit1000()) {
+		Dot_create(
+			p->pos.x+0.5+DIRSX[dir]*2, // I doubt this +0.5 ever matters
+			p->pos.y+0.5+DIRSY[dir]*2,
+			p->pumpType);
 	}
 	if (p->Cpump.amount<=1) {
 		p->charge = 0;
@@ -61,18 +66,17 @@ break; case Elem_PUMP:
 		}
 	}
 #elif defined UPDATE_BALL_PART
+	Elem type = part->type;
 	if (!ball->charge) {
-		if (part->type==Elem_WATER||part->type==Elem_OIL||part->type==Elem_MAGMA||part->type==Elem_NITRO||part->type==Elem_GAS||part->type==Elem_SOAPY||part->type==Elem_ACID||part->type==Elem_SEAWATER||part->type==Elem_MERCURY||part->type==Elem_CLOUD)
-			ball->charge = part->type;
+		if (type==Elem_WATER||type==Elem_OIL||type==Elem_MAGMA||type==Elem_NITRO||type==Elem_GAS||type==Elem_SOAPY||type==Elem_ACID||type==Elem_SEAWATER||type==Elem_MERCURY||type==Elem_CLOUD)
+			ball->Cpump.type = type;
 	} else {
-		int type = ball->charge & 0xFF; //what if we used field size uh
-		int amount = ball->charge>>8;
-		if (part->type == type) {
-			ball->charge = (amount+1)<<8 | type;
+		if (type == ball->Cpump.type) {
+			ball->Cpump.amount++;
 			Dot_remove(part);
 		}
 	}
-	if (part->type==Elem_MAGMA || part->type==Elem_LASER || part->type==Elem_THUNDER)
+	if (type==Elem_MAGMA || type==Elem_LASER || type==Elem_THUNDER)
 		return 1;
 #endif
 }

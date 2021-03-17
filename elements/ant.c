@@ -29,7 +29,8 @@ break; case Elem_ANT:
 	
 	if (p->charge==0 || !Dot_limit1000())
 		break;
-	Offset k = (Offset[]){1,Dot_ofs(0,1),-1,Dot_ofs(0,-1)}[p->Cant.dir];
+	const Offset DIRS[4] = {WIDTH,-1,-WIDTH,1};
+	Offset k = DIRS[p->Cant.dir-1 & 3]; // rotating this so it lines up with pump/thunder dir table
 	Dot* near = Dot_pos2(p->pos)[k];
 	// if moving into an empty space
 	if (near<=Dot_BGFAN) {

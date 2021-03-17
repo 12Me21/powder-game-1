@@ -8,6 +8,10 @@ typedef struct Ball {
 	Point vel; // $[]
 	bool used; // Hc[]
 	int charge;  // R[]
+	struct {
+		uint8_t type: 8;
+		uint32_t amount: 32-8;
+	} Cpump;
 	bool held; // Yd[]
 	Elem type; // P[]
 } Ball;

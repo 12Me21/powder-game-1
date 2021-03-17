@@ -2,23 +2,25 @@ break; case Elem_OIL:
 {
 #ifdef UPDATE_PART
 	Dot_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
+	// 0 0 0 0 0 1 2 3
 	int dir = atLeast(Random_int(8)-4, 0);
 	
-	Dot* g = Dot_dirNear(p->pos, dir);
-	if (g>=Dot_0) {
+	Dot* near = Dot_dirNear(p->pos, dir);
+	if (near>=Dot_0) {
+		Elem type = near->type;
 		//powders (except stone), water, nitro, saltwater
-		if (dir<3 && ((ELEMENTS[g->type].state==State_POWDER && g->type!=Elem_STONE) || g->type==Elem_WATER || g->type==Elem_NITRO || g->type==Elem_SEAWATER)) {
+		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE) || type==Elem_WATER || type==Elem_NITRO || type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
-				Dot_swap(p, g);
+				Dot_swap(p, near);
 		//burn
-		} else if (ELEMENTS[g->type].state==State_HOT) {
+		} else if (type[ELEMENTS].state==State_HOT) {
 			p->charge = 1;
 		//oil is absorbed by FUSE
-		} else if (g->type==Elem_FUSE && !g->Cfuse.burning) {
-			g->Cfuse.type = Elem_OIL;
+		} else if (type==Elem_FUSE && !near->Cfuse.burning) {
+			near->Cfuse.type = Elem_OIL;
 			Dot_KILL();
 		//and PUMP
-		} else if (Dot_checkPump(p,g,dir))
+		} else if (Dot_checkPump(p,near,dir))
 			Dot_KILL();
 	}
 	if (p->charge==1) {
@@ -33,7 +35,7 @@ break; case Elem_OIL:
 
 #elif defined UPDATE_BALL
 	if (touched<0) break;
-	if (ELEMENTS[touched].state==State_HOT) {
+	if (touched[ELEMENTS].state==State_HOT) {
 		for (int i=9;i<21;i++) {
 			Dot* near = Dot_pos2(ball->pos)[neighbors[i].offset];
 			if (near<=Dot_BGFAN && Rnd_perchance(50))

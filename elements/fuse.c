@@ -4,13 +4,12 @@ break; case Elem_FUSE:
 	Dot_toGrid(p);
 	
 	if (!p->Cfuse.burning) {
-		axis x = Random_int(3)-1;
-		axis y = Random_int(3)-1;
-		Dot* near = Dot_pos3(p->pos, x, y);
+		Dot* near = Dot_rndNear(p->pos, 3);
 		if (near>=Dot_0) {
-			if (ELEMENTS[near->type].state==State_HOT && near->type!=Elem_SPARK)
+			Elem type = near->type;
+			if (type[ELEMENTS].state==State_HOT && type!=Elem_SPARK)
 				p->Cfuse.burning = 1;
-			else if (near->type==Elem_WATER || near->type==Elem_SEAWATER)
+			else if (type==Elem_WATER || type==Elem_SEAWATER)
 				p->type = Elem_GUNPOWDER;
 		}
 	} else {
@@ -21,11 +20,11 @@ break; case Elem_FUSE:
 			case Elem_OIL:
 				g = Elem_FIRE;
 			when(Elem_NITRO):;
-				g=Elem_NITRO;
+				g = Elem_NITRO;
 			when(Elem_SOAPY):;
-				g=Elem_STEAM;
+				g = Elem_STEAM;
 			otherwise:
-				g=Elem_SPARK;
+				g = Elem_SPARK;
 			}
 			Dot** at = Dot_pos2(p->pos);
 			void create(axis x, axis y) {
@@ -53,7 +52,7 @@ break; case Elem_FUSE:
 				create(1, 1);
 			}
 			for (int b=0; b<8; b++) {
-				Dot* near = Dot_pos2(p->pos)[(Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
+				Dot* near = Dot_pos2(p->pos)[Dot_ofs8(b)];
 				if (near>=Dot_0) {
 					if (near->type==Elem_FUSE && !near->Cfuse.burning)
 						near->Cfuse.burning = 1;

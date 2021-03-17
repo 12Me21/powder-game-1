@@ -37,10 +37,10 @@ break; case Elem_METAL:
 			*newType = Elem_MAGMA;
 	when(Elem_METAL):;
 		if (Dot_limit1000() && ball->vel.x*ball->vel.x+ball->vel.y*ball->vel.y > 10) {
-			int x = floor(ball->pos.x) + floor(Random_(5))-2;
-			int y = floor(ball->pos.y) + floor(Random_(5))-2;
-			if (Dot_pos(x, y)[0]<=Dot_BGFAN)
-				Dot_create(x, y, Elem_SPARK);
+			axis x = (int)ball->pos.x + Random_int(5)-2;
+			axis y = (int)ball->pos.y + Random_int(5)-2;
+			if (*Dot_pos(x,y)<=Dot_BGFAN)
+				Dot_create(x,y, Elem_SPARK);
 		}
 	when(Elem_THUNDER): case Elem_LASER: case Elem_SPARK:
 		return 1;

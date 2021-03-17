@@ -282,6 +282,10 @@ Dot* Dot_dirNear(Point pos, char dir) {
 	return Dot_pos2(pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[dir]];
 }
 
+Offset Dot_ofs8(char dir) {
+	return (Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[dir];
+}
+
 static bool onscreen(int x, int y){
 	return x>=8 && x<W+8 && y>=8 && y<H+8;
 }

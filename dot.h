@@ -23,43 +23,43 @@ typedef struct Dot {
 		// the total size is always 32 (with usually only 16 used) bits
 		int charge;  // M[]
 		struct {
-			uint8_t dir: 2;
-			uint32_t amount: 32-2;
+			uint8_t dir: 2; // down,left,up,right
+			uint32_t amount: 32-2; // number
 		} Cpump;
 		struct {
-			uint8_t dir: 4;
-			uint8_t age: 4;
-			uint32_t inside: 32-4-4;
+			uint8_t dir: 4; // UNSET,down,left,up,right,INVALID,...
+			uint8_t age: 4; // number
+			uint32_t inside: 32-4-4; // element
 		} Claser;
 		
 		struct {
-			uint16_t prng: 10;
-			uint32_t dir: 32-10;
+			uint16_t prng: 10; // number
+			uint32_t dir: 32-10; // down,left,up,right
 			// dir is only 2 bits, but I like to make the last item extend to the top because
 			// originally this would have been written as:
 			// charge = prng | dir<<10, so nothing limited dir to 2 bits.
 		} Cthunder1;
 		struct {
-			uint8_t dir: 2;
+			uint8_t dir: 2; // down,left,up,right
 			uint32_t type: 32-2;
 		} Cthunder2;
 
 		struct {
-			uint8_t type: 8;
-			uint32_t burning: 32-8;
+			uint8_t type: 8; // element
+			uint32_t burning: 32-8; // bool
 		} Cfuse;
 
 		/*struct {
 			uint32_t growing: 32;
 			} Cseed;*/
 		struct {
-			uint8_t dir: 2;
-			uint32_t holding: 32-2;
+			uint8_t dir: 2; // right,down,left,up
+			uint32_t holding: 32-2; // element
 		} Cant;
 
 		struct {
-			uint8_t type: 8;
-			uint32_t age: 32-8;
+			uint8_t type: 8; // element
+			uint32_t age: 32-8; // number
 		} Cvirus;
 	};
 	
@@ -108,3 +108,4 @@ extern void Dot_toGrid(Dot* p);
 extern Dot* Dot_rndNear5(Point pos);
 extern Dot* Dot_rndNear(Point pos, axis rad);
 extern Dot* Dot_dirNear(Point pos, char dir);
+Offset Dot_ofs8(char dir);

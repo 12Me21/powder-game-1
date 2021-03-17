@@ -40,10 +40,10 @@ break; case Elem_MAGMA:
 				near->type = Elem_MAGMA;
 		}
 	}
-	int g = Random_int(4);
-	near = Dot_pos2(p->pos)[(Offset[]){-WIDTH,-1,1,WIDTH}[g]];
+	int dir = Random_int(4);
+	near = Dot_dirNear(p->pos, dir);
 	//enter pump
-	if (near>=Dot_0 && Dot_checkPump(p, near, g))
+	if (near>=Dot_0 && Dot_checkPump(p, near, dir))
 		Dot_KILL();
 #elif defined UPDATE_BALL
 	//nothing

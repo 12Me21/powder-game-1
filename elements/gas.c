@@ -7,14 +7,14 @@ break; case Elem_GAS:
 	p->vel.xy *= 0.9;
 	Dot_blow(p, airvel);
 	
-	int g = Random_int(4);
-	Dot* near = Dot_pos2(p->pos)[(Offset[]){Dot_ofs(0,-1),-1,1,Dot_ofs(0,-1)}[g]];
+	int dir = Random_int(4);
+	Dot* near = Dot_dirNear(p->pos, dir);
 	if (near>=Dot_0) {
-		if (g<3 && (near->type[ELEMENTS].state==State_POWDER || near->type[ELEMENTS].state==State_LIQUID)) {
+		if (dir<3 && (near->type[ELEMENTS].state==State_POWDER || near->type[ELEMENTS].state==State_LIQUID)) {
 			Dot_swap(p, near);
 		} else if (near->type==Elem_GAS) {
 			p->vel.xy += Rnd_point(-0.2,0.2, -0.2,0.2).xy;
-		} else if (Dot_checkPump(p, near, g))
+		} else if (Dot_checkPump(p, near, dir))
 			Dot_KILL();
 	}
 	if (p->charge==0) {

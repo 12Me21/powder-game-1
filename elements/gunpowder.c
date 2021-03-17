@@ -7,17 +7,17 @@ break; case Elem_GUNPOWDER:
 	p->vel.xy *= 0.8;
 	Dot_blow(p, airvel);
 	
-	Dot* g = Dot_rndNear(p->pos,5);
-	if (g<Dot_0 || ELEMENTS[g->type].state != State_HOT)
+	Dot* near = Dot_rndNear(p->pos,5);
+	if (near<Dot_0 || near->type[ELEMENTS].state!=State_HOT)
 		break;
 	void func(axis x, axis y, axis sx, axis sy) {
-		Dot* g = Dot_at[y][x];
-		if (g>=Dot_0 && g->type != Elem_GUNPOWDER) {
-			g->vel.x += 10*(x-sx);
-			g->vel.y += 10*(y-sy);
+		Dot* near = Dot_at[y][x];
+		if (near>=Dot_0 && near->type != Elem_GUNPOWDER) {
+			near->vel.x += 10*(x-sx);
+			near->vel.y += 10*(y-sy);
 		}
-		if ((y&3)+(x&3)==0) {
-			Block* cell = &Blocks[y>>2][x>>2];
+		if (!(y&3) && !(x&3)) {
+			Block* cell = Block_at(x,y);
 			if (cell->block<=0) {
 				if (x!=sx)
 					cell->vel.x += 10.0/(x-sx);
@@ -32,11 +32,15 @@ break; case Elem_GUNPOWDER:
 #elif defined UPDATE_BALL
 	if (touched<0) break;
 	// explode when touching a hot element AND charge is 0
-	if (ball->charge==0 && ELEMENTS[touched].state==State_HOT) {
+	if (ball->charge==0 && touched[ELEMENTS].state==State_HOT) {
 		for (int i=0;i<37;i++) {
 			Dot* near = Dot_pos2(ball->pos)[neighbors[i].offset];
 			if (near<=Dot_BGFAN) {
-				Dot* e = Dot_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
+				Dot* e = Dot_create(
+					(int)ball->pos.x+neighbors[i].breakX,
+					(int)ball->pos.y+neighbors[i].breakY,
+					Elem_FIRE
+				);
 				if (e>=Dot_0) {
 					real f = Random_(20);
 					e->vel.x += ball->vel.x*f+neighbors[i].breakVel.x*f/2;

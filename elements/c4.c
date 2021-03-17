@@ -11,7 +11,7 @@ break; case Elem_C4:
 	} else {
 		//spread explodeystate
 		for (int b=0; b<8; b++) {
-			Dot* near = Dot_pos2(p->pos)[(axis[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[b]];
+			Dot* near = Dot_pos2(p->pos)[Dot_ofs8(b)];
 			if (near >= Dot_0 && near->type==Elem_C4)
 				near->charge = 1;
 		}

@@ -20,7 +20,7 @@ break; case Elem_VINE:
 		Dot* near = Dot_at[y][x];
 		if (near <= Dot_BGFAN) {
 			for (int i=0; i<8; i++) {
-				near = Dot_pos(x,y)[(Offset[]){1,-1,WIDTH,-WIDTH,WIDTH+1,WIDTH-1,-WIDTH+1,-WIDTH-1}[i]];
+				near = Dot_pos(x,y)[Dot_ofs8(i)];
 				if (near>=Dot_0 && near->type!=Elem_VINE && near->type!=Elem_ANT) {
 					if (Rnd_perchance(50))
 						Dot_create(x,y,Elem_VINE);
