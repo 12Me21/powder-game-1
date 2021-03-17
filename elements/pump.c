@@ -7,7 +7,7 @@ break; case Elem_PUMP:
 	const axis DIRSX[4] = {0,-1,0,1};
 	const axis DIRSY[4] = {1,0,-1,0};
 	
-	if (p->pumpType==0)
+	if (p->Cpump.type==0)
 		break;
 	int dir = p->Cpump.dir;
 	// randomly check in a clockwise or counterclockwise order
@@ -18,15 +18,14 @@ break; case Elem_PUMP:
 		if (b==2) continue;
 		Dot* near = Dot_pos2(p->pos)[DIRS[(dir+b*r)&3]];
 		if (near>=Dot_0 && near->type==Elem_PUMP) {
-			if (near->pumpType==0) {
+			if (near->Cpump.type==0) {
 				// move forward
 				Dot_swap(p,near);
 				p->Cpump.dir += b*r;
-			} else if (p->pumpType == near->pumpType) {
+			} else if (p->Cpump.type == near->Cpump.type) {
 				// merge contents with pump carrying same element
 				near->Cpump.amount += p->Cpump.amount;
 				p->charge = 0;
-				p->pumpType = 0;
 			} else {
 				// reverse direction
 				p->Cpump.dir += 2;
@@ -39,11 +38,10 @@ break; case Elem_PUMP:
 		Dot_create(
 			p->pos.x+0.5+DIRSX[dir]*2, // I doubt this +0.5 ever matters
 			p->pos.y+0.5+DIRSY[dir]*2,
-			p->pumpType);
+			p->Cpump.type);
 	}
 	if (p->Cpump.amount<=1) {
 		p->charge = 0;
-		p->pumpType = 0;
 	} else {
 		p->Cpump.amount--;
 	}

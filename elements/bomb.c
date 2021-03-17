@@ -76,7 +76,6 @@ break; case Elem_BOMB:
 			c->vel.x += airvel.x+1*(p->pos.x-x);
 			c->vel.y += airvel.y+1*(p->pos.y-y);
 			if (c->type!=Elem_BOMB||c->charge==0) {
-				c->pumpType = 0;
 				c->charge = c->type;
 				c->type = Elem_BOMB;
 			}
@@ -97,7 +96,6 @@ break; case Elem_BOMB:
 			if (c>=Dot_0) {
 				c->charge = c->type;
 				c->type = Elem_BOMB;
-				c->pumpType = 0;
 				c->vel.x += 0.5*airvel.x+0.5*(ball->pos.x-x);
 				c->vel.y += 0.5*airvel.y+0.5*(ball->pos.y-y);
 			}

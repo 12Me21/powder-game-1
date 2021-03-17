@@ -87,7 +87,7 @@ void Wheel_update(void) {
 				when(Elem_PUMP):;
 					if (Rnd_perchance(10)) {
 						part->type = Elem_SPARK;
-						part->pumpType = 0;
+						part->charge = 0;
 					}
 				}
 			}

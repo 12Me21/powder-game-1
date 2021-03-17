@@ -10,8 +10,8 @@ void Dot_render(void) {
 		return;
 	Dot_FOR (i) {
 		Elem type = i->type;
-		if (type==Elem_PUMP && i->pumpType!=0)
-			type = i->pumpType;
+		if (type==Elem_PUMP && i->Cpump.type!=0)
+			type = i->Cpump.type;
 		Color color;
 		if (Menu_bgMode==Bg_GRAY)
 			color = ELEMENTS[type].grayColor;

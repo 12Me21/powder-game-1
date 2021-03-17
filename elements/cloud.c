@@ -21,7 +21,7 @@ break; case Elem_CLOUD:
 		} else if (near->type==Elem_METAL) {
 			p->type = Elem_THUNDER;
 		} else if (Dot_checkPump(p, near, dir)) {
-			near->pumpType = Elem_WATER;
+			near->Cpump.type = Elem_WATER;
 			Dot_KILL();
 		}
 	} else if (near==Dot_BLOCK)

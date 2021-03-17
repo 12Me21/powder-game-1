@@ -115,7 +115,6 @@ void Ball_break(Ball* ball, int mode, int createType, int charge, real vx, real 
 			} else if (near>=Dot_0) {
 				near->type = createType;
 				near->charge = 0;
-				near->pumpType = 0;
 			}
 		}
 		ball->used = false;

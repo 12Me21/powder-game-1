@@ -49,7 +49,6 @@ break; case Elem_ANT:
 				p->Cant.dir--;
 			near->type = Elem_ANT;
 			near->charge = p->charge;
-			near->pumpType = 0;
 			Dot_KILL();
 		}
 		p->Cant.dir++;

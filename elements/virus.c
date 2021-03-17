@@ -19,7 +19,6 @@ break; case Elem_VIRUS:
 			f->type = Elem_VIRUS;
 			f->charge = 0;
 			f->Cvirus.type = p->Cvirus.type;
-			f->pumpType = 0;
 		}
 		p->Cvirus.age++;
 	} else {
@@ -41,7 +40,6 @@ break; case Elem_VIRUS:
 		else {
 			part->type = ball->charge;
 			part->charge = 0;
-			part->pumpType = 0;
 		}
 	}
 #endif

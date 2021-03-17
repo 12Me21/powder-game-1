@@ -56,7 +56,6 @@ Dot* Dot_create(real x, real y, Elem element) {
 		{0,0},
 		.type=element,
 		.charge=0,
-		.pumpType=0,
 		.held=false,
 	};
 	*Dot_pos2(Dot_next->pos) = Dot_next;
@@ -193,10 +192,10 @@ void Dot_doRadius(axis x, axis y, axis radius, void (*func)(axis, axis, axis, ax
 }
 
 bool Dot_checkPump(Dot* part, Dot* pump, int dir) {
-	if (pump->type == Elem_PUMP && !pump->pumpType) {
+	if (pump->type == Elem_PUMP && !pump->Cpump.type) {
 		pump->Cpump.dir = ~dir;
 		pump->Cpump.amount = 1;
-		pump->pumpType = part->type;
+		pump->Cpump.type = part->type;
 		return true;
 	}
 	return false;
@@ -228,7 +227,6 @@ void Dot_paint(axis x, axis y, Elem replace, Elem type, int charge) {
 		if (f>=Dot_0 && f->type==replace) {
 			f->type = type;
 			f->charge = charge;
-			f->pumpType = 0;
 			x1--;
 		} else
 			break;
@@ -240,7 +238,6 @@ void Dot_paint(axis x, axis y, Elem replace, Elem type, int charge) {
 		if (f>=Dot_0 && f->type==replace) {
 			f->type = type;
 			f->charge = charge;
-			f->pumpType = 0;
 			x2++;
 		} else
 			break;
@@ -271,7 +268,7 @@ Dot* Dot_rndNear(Point pos, axis diam) {
 }
 
 void Dot_print(Dot* p) {
-	printf("%s\npos: %f,%f\nvel: %f,%f\ncharge: %d\npumpType: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->charge, p->pumpType);
+	printf("%s\npos: %f,%f\nvel: %f,%f\ncharge: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->charge);
 }
 
 void Dot_toGrid(Dot* p) {
