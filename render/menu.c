@@ -4,7 +4,7 @@
 #include "../common.h"
 #include "../menu.h"
 #include "../elements.h"
-#include "../dot.h"
+#include "../sim.h"
 #include "bg.h"
 #include "draw.h"
 #include "../object.h"
@@ -165,22 +165,44 @@ void Menu_render(void) {
 	memcpy(Menu_grp, normalMenuImage, sizeof(normalMenuImage));
 	if (Menu_numberMenu) {
 		int* counts = Dot_updateCounts();
-		void Draw_count(int i, int elem) {
-			if (!elem)
-				return;
+		void Draw_count(int i, int count, char name, Color color) {
 			axis x = i/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
 			axis y = i%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
 			char buffer[29];
-			buffer[0] = ELEMENTS[elem].name[0];
+			buffer[0] = name;
 			buffer[1] = 0;
 			Draw_mrectangle(4+x+4, 11-8+y, Menu_BUTTONWIDTH, Menu_BUTTONHEIGHT, 0x404040);
-			Draw_text(4+4+x,11-8+y,buffer,ELEMENTS[elem].menuColor, 0);
-			sprintf(buffer, "  %d", counts[elem]);
-			Draw_spacedText(4+4+x,11-8+y,buffer,ELEMENTS[elem].menuColor,0,-1);
+			Draw_text(4+4+x,11-8+y,buffer,color, 0);
+			sprintf(buffer, "  %d", count);
+			Draw_spacedText(4+4+x,11-8+y,buffer,color,0,-1);
 		}
 		for (int i=0; i<39; i++) {
-			Draw_count(i, Menu_BUTTONS[i].element);
+			Elem elem = Menu_BUTTONS[i].element;
+			Draw_count(i, counts[elem], ELEMENTS[elem].name[0], ELEMENTS[elem].menuColor);
 		}
+		Draw_count(43, Bubble_next-Bubble_bubbles, 'B', 0xFFE0E0); //is this correct for first char?
+		Draw_count(44, Wheel_next-Wheel_wheels, 'W', 0xB0A090);
+		int ecounts[5] = {0};
+		Object_FOR (en) {
+			if (en->type>=Object_CREATE)
+				ecounts[4]++;
+			else if (en->type>=Object_PLAYER)
+				ecounts[2]++;
+			else if (en->type>=Object_BOX)
+				ecounts[1]++;
+			else if (en->type>=Object_FIGHTER)
+				ecounts[0]++;
+			
+		}
+		Ball_FOR (b) {
+			if (b->used)
+				ecounts[3]++;
+		}
+		Draw_count(45, ecounts[2], 'P', 0xF2BD6B);
+		Draw_count(46, ecounts[0], 'F', 0xF2BD6B);
+		Draw_count(47, ecounts[1], 'B', 0xF2BD6B);
+		Draw_count(48, ecounts[3], 'B', 0xF2BD6B);
+		Draw_count(49, ecounts[4], 'C', 0x907010);
 	}
 	if (Menu_hover>=0) {
 		Draw_mrectangle(0,0,W,1,0x660000);
