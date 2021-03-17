@@ -26,27 +26,27 @@ break; case Elem_FUSE:
 			otherwise:
 				g = Elem_SPARK;
 			}
-			Dot** at = Dot_pos2(p->pos);
+			//Dot** at = Dot_pos2(p->pos);
 			void create(axis x, axis y) {
-				if (at[Dot_ofs(x,y)]<=Dot_BGFAN)
+				if (Dot_pos3(p->pos,x,y)<=Dot_BGFAN)
 					Dot_create(p->pos.x+x, p->pos.y+y, g);
 			}
-			if (at[1]>=Dot_0) {
+			if (Dot_pos3(p->pos,1,0)>=Dot_0) {
 				create(-1, 0);
 				create(-1, -1);	
 				create(-1, 1);
 			}
-			if (at[-1]>=Dot_0) {
+			if (Dot_pos3(p->pos,-1,0)>=Dot_0) {
 				create(1, 0);
 				create(1, -1);	
 				create(1, 1);
 			}
-			if (at[Dot_ofs(0,1)]>=Dot_0) {
+			if (Dot_pos3(p->pos,0,1)>=Dot_0) {
 				create(0, -1);
 				create(-1, -1);	
 				create(1, -1);
 			}
-			if (at[Dot_ofs(0,-1)]>=Dot_0) {
+			if (Dot_pos3(p->pos,0,-1)>=Dot_0) {
 				create(0, 1);
 				create(-1, 1);	
 				create(1, 1);

@@ -23,12 +23,12 @@ typedef struct Dot {
 		// the total size is always 32 (with usually only 16 used) bits
 		int charge;  // M[]
 		struct {
-			uint8_t type: 8; // Jd[]
+			uint8_t type: 8; // Jd[]. I moved this into charge because there was room.
 			uint8_t dir: 2; // down,left,up,right
-			uint32_t amount: 32-2; // number
+			uint32_t amount: 32-2-8; // number
 		} Cpump;
 		struct {
-			uint8_t dir: 4; // UNSET,down,left,up,right,INVALID,...
+			uint8_t dir: 4; // 0 is invalid, 1-8 is direction, 9-15 unused
 			uint8_t age: 4; // number
 			uint32_t inside: 32-4-4; // element
 		} Claser;
@@ -65,7 +65,6 @@ typedef struct Dot {
 	};
 	
 	Elem type;    // t[]
-	//Elem pumpType;// Jd[]
 	bool held;    // Md[]
 	// Q[] was redundant but I might add it back later for optimization
 } Dot;

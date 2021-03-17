@@ -2,7 +2,7 @@ break; case Elem_ANT:
 {
 #ifdef UPDATE_PART
 	Dot** at = Dot_pos2(p->pos);
-	Dot* below = at[Dot_ofs(0,1)];
+	Dot* below = Dot_pos3(p->pos,0,1);
 	// charge=0: ant hasn't picked up an element yet
 	if (p->charge==0 && below>=Dot_0) {
 		int type = below->type;

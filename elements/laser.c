@@ -5,6 +5,9 @@ break; case Elem_LASER:
 	const Offset nears[] = {1,-WIDTH+1,-WIDTH,-WIDTH-1,-1,WIDTH-1,WIDTH,WIDTH+1};
 	const axis nearsX[] = {1,1,0,-1,-1,-1,0,1};
 	const axis nearsY[] = {0,-1,-1,-1,0,1,1,1};
+	// 3 2 1
+	// 4 * 0
+	// 5 6 7
 
 	Dot_toGrid(p);
 	p->vel = (Point){0,0};
@@ -39,21 +42,18 @@ break; case Elem_LASER:
 			Dot* w = at[nears[n]];
 			return w>=Dot_0 && w->type!=Elem_LASER;
 		}
-		// b   c
-		//   *  
-		// q   r
 		bool ne = check(1);
 		bool nw = check(3);
 		bool sw = check(5);
 		bool se = check(7);
-		if (nw && sw && check(4)) v=1;
-		else if (sw && se && check(6)) v=3;
-		else if (se && ne && check(0)) v=5;
-		else if (ne && nw && check(2)) v=7;
-		else if (sw) v=2;
-		else if (se) v=4;
-		else if (ne) v=6;
-		else if (nw) v=8;
+		if (nw && sw && check(4)) v=1; // northeast
+		else if (sw && se && check(6)) v=3; // northwest
+		else if (se && ne && check(0)) v=5; // southwest 
+		else if (ne && nw && check(2)) v=7; // southeast
+		else if (sw) v=2; // up
+		else if (se) v=4; // left
+		else if (ne) v=6; // down
+		else if (nw) v=8; // right
 		else {
 			p->Claser.inside = 0;
 			p->Claser.age = 10;

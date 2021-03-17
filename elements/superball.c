@@ -2,7 +2,7 @@ break; case Elem_SUPERBALL:
 {
 #ifdef UPDATE_PART
 	Point airvel = c->vel;
-	Vec_mul(&airvel, 0.05);
+	airvel.xy *= 0.05;
 	Vec_add(&p->vel, airvel);
 	p->vel.y += 0.01;
 	Vec_mul(&p->vel, 0.999);

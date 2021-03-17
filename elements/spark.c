@@ -15,7 +15,7 @@ break; case Elem_SPARK:
 		p->vel.y -= Random_(0.5);
 	if (at[Dot_ofs(0,-1)]>=Dot_WHEEL)
 		p->vel.y += Random_(0.5);
-	Vec_mul(&p->vel, 0.98);
+	p->vel.xy *= 0.98;
 	airvel = p->vel;
 	Dot_blow(p, airvel);
 	int x = Random_int(5)-2;
