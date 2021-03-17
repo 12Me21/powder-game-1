@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "menu.h"
 #include "save.h"
 #include "platform.h"
@@ -15,6 +16,7 @@ void Platform_main(int argc, void** argv) {
 	Platform_createWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Powder Game");
 	simBitmap = Platform_createBitmap(&grp[0][0], WIDTH, HEIGHT);
 	menuBitmap = Platform_createBitmap(&Menu_grp[0][0], MENU_WIDTH, MENU_HEIGHT);
+	srand(time(NULL));
 	if (argc>=2)
 		Save_Load_test(argv[1]);
 	else

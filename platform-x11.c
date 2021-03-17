@@ -123,7 +123,6 @@ void Platform_createWindow(axis width, axis height, char* title) {
 }
 
 int main(int argc, char** argv) {
-	srand(time(NULL));///todo put this in windows
 	D = XOpenDisplay(NULL);
 	visual = DefaultVisual(D, 0);
 	if (visual->class!=TrueColor) {
