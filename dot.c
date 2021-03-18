@@ -142,7 +142,7 @@ void Dot_update(void) {
 			}
 		} else { //loop edge
 			if (p->pos.x<8) {
-				Dot** o = &Dot_pos2(p->pos)[Dot_ofs(W,0)];
+				Dot** o = &Dot_pos3(p->pos, W, 0);
 				if (*o<=Dot_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
 					*Dot_pos2(p->pos) = Dot_EMPTY;
 					p->pos.x += W;
@@ -150,7 +150,7 @@ void Dot_update(void) {
 				} else
 					Dot_remove(p--);
 			} else if (p->pos.x>=W+8) {
-				Dot** o = &Dot_pos2(p->pos)[Dot_ofs(-W,0)];
+				Dot** o = &Dot_pos3(p->pos, -W, 0);
 				if (*o<=Dot_BGFAN && p->pos.y>=8 && p->pos.y<H+8) {
 					*Dot_pos2(p->pos) = Dot_EMPTY;
 					p->pos.x -= W;
@@ -158,7 +158,7 @@ void Dot_update(void) {
 				} else
 					Dot_remove(p--);
 			} else if (p->pos.y<8) {
-				Dot** o = &Dot_pos2(p->pos)[Dot_ofs(0,H)];
+				Dot** o = &Dot_pos3(p->pos, 0, H);
 				if (*o<=Dot_BGFAN) {
 					*Dot_pos2(p->pos) = Dot_EMPTY;
 					p->pos.y += H;
@@ -166,7 +166,7 @@ void Dot_update(void) {
 				} else
 					Dot_remove(p--);
 			} else if (p->pos.y>=H+8) {
-				Dot** o = &Dot_pos2(p->pos)[Dot_ofs(0,-H)];
+				Dot** o = &Dot_pos3(p->pos, 0, -H);
 				if (*o<=Dot_BGFAN) {
 					*Dot_pos2(p->pos) = Dot_EMPTY;
 					p->pos.y -= H;

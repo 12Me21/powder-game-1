@@ -7,16 +7,15 @@ break; case Elem_SNOW: //❄
 	p->vel.xy *= 0.7;
 	Dot_blow(p, airvel);
 	
-	int x = p->pos.x + Random_int(3)-1;
-	int y = p->pos.y + Random_int(3)-1;
-	Dot* g = Dot_at[y][x];
-	if (g>=Dot_0) {
-		if (g->type == Elem_ICE)
+	Dot* near = Dot_rndNear(p->pos, 3);
+	if (near>=Dot_0) {
+		Elem type = near->type;
+		if (type == Elem_ICE)
 			p->type = Elem_ICE;
 		// melt on contact with elements except for:
 		// wood, wheel, snow, clone, vine, cloud
 		// wait how could the type ever be wheel?
-		else if (g->type!=Elem_WOOD && g->type!=Elem_WHEEL && g->type!=Elem_SNOW && g->type!=Elem_SNOW && g->type!=Elem_CLONE && g->type!=Elem_VINE && g->type!=Elem_CLOUD)
+		else if (type!=Elem_WOOD && type!=Elem_WHEEL && type!=Elem_SNOW && type!=Elem_SNOW && type!=Elem_CLONE && type!=Elem_VINE && type!=Elem_CLOUD)
 			p->type = Elem_WATER;
 	}
 #endif

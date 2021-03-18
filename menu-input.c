@@ -62,12 +62,12 @@ void Menu_input(void) {
 		return;
 	}
 	// clicked a menu button
-	axis c=4;
-	axis e=H+3;
-	if (mouseinside(c,e,391,139)/*&& wa==0*/) {
-		axis d = (mouse.pos.x-c)/Menu_BUTTONWIDTH;
-		axis b = (mouse.pos.y-e)/Menu_BUTTONHEIGHT;
-		int selection = clamp(Menu_BUTTONROWS*d+b,0,69);
+	axis bsx=4;
+	axis bsy=H+3;
+	if (mouseinside(bsx,bsy,391,139)/*&& wa==0*/) {
+		axis bx = (mouse.pos.x-bsx)/Menu_BUTTONWIDTH;
+		axis by = (mouse.pos.y-bsy)/Menu_BUTTONHEIGHT;
+		int selection = clamp(bx*Menu_BUTTONROWS+by,0,69);
 		Menu_hover = selection;
 		switch (selection) {
 		when(Menu_COPYPASTE):;

@@ -39,10 +39,10 @@ break; case Elem_C4:
 	if (touched<0) break;
 	if (ELEMENTS[touched].state==State_HOT) {
 		void func(axis x, axis y, axis sx, axis sy) {
-			Dot* d = Dot_pos(x, y)[0];
-			if (d>=Dot_0) {
-				d->vel.x += 10*(x-sx);
-				d->vel.y += 10*(y-sy);
+			Dot* near = Dot_pos(x, y)[0];
+			if (near>=Dot_0) {
+				near->vel.x += 10*(x-sx);
+				near->vel.y += 10*(y-sy);
 			}
 			if ((y&3)+(x&3)==0){
 				Block* cell = Block_at(x,y);

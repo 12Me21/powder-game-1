@@ -7,29 +7,29 @@ break; case Elem_SOAPY:
 	int dir = Random_int(8)-4;
 	if (dir<0) dir=0;
 
-	Dot* g = Dot_dirNear(p->pos,dir);
-	if (g>=Dot_0) {
+	Dot* near = Dot_dirNear(p->pos,dir);
+	if (near>=Dot_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
-		switch (g->type) {
+		switch (near->type) {
 		when(Elem_ICE):;
 			if (Rnd_perchance(50))
 				p->type = Elem_ICE;
 		when(Elem_OIL):;
-			g->type = Elem_SOAPY;
-			g->charge = p->charge = 1; //both particles promise to die
+			near->type = Elem_SOAPY;
+			near->charge = p->charge = 1; //both particles promise to die
 		when(Elem_FUSE):;
-			if (!g->Cfuse.burning) {
-				g->Cfuse.type = Elem_SOAPY;
+			if (!near->Cfuse.burning) {
+				near->Cfuse.type = Elem_SOAPY;
 				Dot_KILL();
 			}
 		when(Elem_PUMP):;
-			if (Dot_checkPump(p,g,dir))
+			if (Dot_checkPump(p,near,dir))
 				Dot_KILL();
 		otherwise:;
-			int type = g->type;
+			int type = near->type;
 			if ((ELEMENTS[type].state==State_POWDER && type!=Elem_STONE)||type==Elem_NITRO||type==Elem_SEAWATER)
 				if (dir<3 && Rnd_perchance(10))
-					Dot_swap(p, g);
+					Dot_swap(p, near);
 		}
 	}
 	// if air vel > 2, turn into bubbles

@@ -4,19 +4,19 @@ break; case Elem_WATER:
 	Dot_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	int dir = atLeast(Random_int(8)-4, 0); //0 to 3
 	
-	Dot* g = Dot_dirNear(p->pos, dir);
-	if (g>=Dot_0) {
+	Dot* near = Dot_dirNear(p->pos, dir);
+	if (near>=Dot_0) {
 		//solids (except stone),nitro,soapy, and saltwater, diffuse through water
-		int type = g->type;
+		int type = near->type;
 		if (dir<3 && ((type[ELEMENTS].state==State_POWDER && type!=Elem_STONE && type!=Elem_CONCRETE)||type==Elem_NITRO||type==Elem_SOAPY||type==Elem_SEAWATER)) {
 			if (Rnd_perchance(10))
-				Dot_swap(p, g);
+				Dot_swap(p, near);
 		//freeze water
 		} else if (type==Elem_ICE) {
 			if (Rnd_perchance(50))
 				p->type = Elem_ICE;
 		//put water into pump
-		} else if (Dot_checkPump(p, g, dir))
+		} else if (Dot_checkPump(p, near, dir))
 			Dot_KILL();
 	}
 

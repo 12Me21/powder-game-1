@@ -23,6 +23,7 @@ break; case Elem_OIL:
 		} else if (Dot_checkPump(p,near,dir))
 			Dot_KILL();
 	}
+	// burning
 	if (p->charge==1) {
 		int x = p->pos.x+Random_int(3)-1;
 		int y = p->pos.y+Random_int(3)-1;

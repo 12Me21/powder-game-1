@@ -22,7 +22,7 @@ break; case Elem_SEED:
 	
 	p->charge=1;
 	int x = p->pos.x + Random_int(3)-1;
-	int y = p->pos.y - Random_int(1.5); //yes
+	int y = p->pos.y - (int)Random_(1.5);
 	if (Dot_at[y][x] <= Dot_BGFAN) {
 		if (Dot_at[y+1][x] <= Dot_BGFAN) {
 			*Dot_pos2(p->pos) = Dot_EMPTY;

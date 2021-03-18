@@ -49,12 +49,14 @@ break; case Elem_PUMP:
 
 #elif defined UPDATE_BALL
 	if (ball->charge!=0 && Dot_limit1000()) {
-		Point c = ball->vel;
-		Vec_fastNormalize(&c);
-		c.xy *= 4;
-		axis x = ball->pos.x-c.x;
-		axis y = ball->pos.y-c.y;
+		// get location 4px behind ball (based on movement direction)
+		Point vel = ball->vel;
+		Vec_fastNormalize(&vel);
+		vel.xy *= 4;
+		axis x = ball->pos.x-vel.x;
+		axis y = ball->pos.y-vel.y;
 		if (*Dot_pos(x,y)<=Dot_BGFAN) {
+			// place liquid
 			Elem elem = ball->charge & 0xFF;
 			int fill = ball->charge>>8;
 			if (fill>0) {

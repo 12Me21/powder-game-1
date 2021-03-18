@@ -54,14 +54,14 @@ void Menu_update(void) {
 	Menu_pen.x = clamp(Menu_pen.x+8,8,WIDTH-8-1);
 	Menu_pen.y = clamp(Menu_pen.y+8,8,HEIGHT-8-1);
 	// todo: line mode etc.
-	Point c = {Pen_x,Pen_y};
-	Pen_dir.x = Pen_oldx-5*Pen_dir.x;
-	Pen_dir.y = Pen_oldy-5*Pen_dir.y;
-	real q = 5;
-	Point ee = Vec_sub2(c, Pen_dir);
-	q -= Vec_fastNormalize(&ee);
-	Pen_dir.xy = (c.xy + ee.xy*(q*0.5)) - (Pen_dir.xy - ee.xy*(q*0.5));
+
+	// calculate pen direction
+	Pen_dir.xy = Menu_penOld.xy - 5*Pen_dir.xy;
+	Point ee = Vec_sub2(Menu_pen, Pen_dir);
+	real dist = 5-Vec_fastNormalize(&ee);
+	Pen_dir.xy = (Menu_pen.xy + ee.xy*(dist*0.5)) - (Pen_dir.xy - ee.xy*(dist*0.5));
 	Vec_fastNormalize(&Pen_dir);
+	
 	if (Menu_zoomLevel!=0 && mouse.middle.held) {
 		Menu_zoomX -= (mouse.pos.x-mouse.oldPos.x)/(1<<Menu_zoomLevel);
 		Menu_zoomY -= (mouse.pos.y-mouse.oldPos.y)/(1<<Menu_zoomLevel);
@@ -181,20 +181,20 @@ void Menu_update(void) {
 				Bubble_draw(Pen_x, Pen_y, gotPress, old);
 			when(Menu_PLAYER): case Menu_FIGHTER: case Menu_BOX: case Menu_CREATE:
 				if (!gotPress) break;
-				axis f = Pen_x>>2<<2;
-				axis g = Pen_y>>2<<2;
 				Block* cell = Block_at(Pen_x, Pen_y);
 				if (cell->block==Block_EMPTY) {
+					axis x = Pen_x & ~3;
+					axis y = Pen_y & ~3;
 					switch (selection) {
 					when(Menu_FIGHTER):;
-						Object_create(f, g, 0, 0);
+						Object_create(x, y, 0, 0);
 					when(Menu_BOX):;
-						Object_create(f, g, Elem_BOX, Menu_penSize);
+						Object_create(x, y, Elem_BOX, Menu_penSize);
 					when(Menu_PLAYER):;
 						Elem type = Menu_BUTTONS[otherSel].player;
-						Object_create(f, g, Elem_PLAYER, type);
+						Object_create(x, y, Elem_PLAYER, type);
 					when(Menu_CREATE):;
-						Object_create(f, g, Elem_BOX, 10);
+						Object_create(x, y, Elem_BOX, 10);
 					}
 				}
 			when(Menu_BALL):;
@@ -215,24 +215,24 @@ void Menu_update(void) {
 					old = btn->gotRelease;
 				if (old) {
 					// god, more line drawing shit
-					axis n = (int)Pen_x/4 - (int)Pen_oldx/4;
-					axis r = (int)Pen_y/4 - (int)Pen_oldy/4;
-					axis w = abs(n);
-					if (abs(r)>w) w=abs(r);
-					w = atLeast(w, 1);
-					n = (n<<8)/w;
-					r = (r<<8)/w;
-					int y = ((int)Pen_oldx/4<<8)-127;
-					int z = ((int)Pen_oldy/4<<8)-127;
-					for (int b=0; b<=w; b++, y+=n, z+=r) {
-						int c = (y>>8) - (int)Menu_penSize/2;
-						int v = (z>>8) - (int)Menu_penSize/2;
-						int Y = c+(real)Menu_penSize/2+0.5;
-						int Ka = v+(real)Menu_penSize/2+0.5;
-						for (axis g=v; g<=v+Menu_penSize; g++) {
-							for (axis f=c; f<=c+Menu_penSize; f++) {
-								if ((f-Y)*(f-Y)+(g-Ka)*(g-Ka)<=Menu_penSize*Menu_penSize/4) {
-									Block* cell = &Blocks[(int)clamp(g,2,(HEIGHT)/4-3)][(int)clamp(f,2,(WIDTH)/4-3)];
+					int dx = (int)Pen_x/4 - (int)Pen_oldx/4;
+					int dy = (int)Pen_y/4 - (int)Pen_oldy/4;
+					axis steps = abs(dx);
+					if (abs(dy)>steps) steps=abs(dy);
+					steps = atLeast(steps, 1);
+					dx = (dx<<8)/steps;
+					dy = (dy<<8)/steps;
+					int x = ((int)Pen_oldx/4<<8)-127;
+					int y = ((int)Pen_oldy/4<<8)-127;
+					for (int i=0; i<=steps; i++) {
+						int startX = (x>>8) - (int)Menu_penSize/2;
+						int startY = (y>>8) - (int)Menu_penSize/2;
+						int centerX = startX+(real)Menu_penSize/2+0.5;
+						int centerY = startY+(real)Menu_penSize/2+0.5;
+						for (axis y=startY; y<=startY+Menu_penSize; y++) {
+							for (axis x=startX; x<=startX+Menu_penSize; x++) {
+								if ((x-centerX)*(x-centerX)+(y-centerY)*(y-centerY)<=Menu_penSize*Menu_penSize/4) {
+									Block* cell = &Blocks[(int)clamp(y,2,(HEIGHT)/4-3)][(int)clamp(x,2,(WIDTH)/4-3)];
 									switch(selection) {
 									when(Menu_BLOCK):;
 										cell->block = Block_BLOCK;
@@ -250,10 +250,12 @@ void Menu_update(void) {
 								}
 							}
 						}
+						x+=dx;
+						y+=dy;
 					}
 					/// aaaaa
 					// this is broken i think
-					if (selection==Menu_CLEAR && Menu_penSize==0) {
+					/*if (selection==Menu_CLEAR && Menu_penSize==0) {
 						int n=Pen_x-Pen_oldx;
 						int r=Pen_y-Pen_oldy;
 						int w=abs(n);
@@ -267,7 +269,8 @@ void Menu_update(void) {
 									Dot_remove(e--);
 							}
 						}
-					}
+						}*/
+					// remove dots that are inside newly placed blocks
 					if (selection == Menu_BLOCK || selection == Menu_CLEAR) {
 						Dot_FOR (p) {
 							if (Block_at(p->pos.x,p->pos.y)->block!=Block_EMPTY)

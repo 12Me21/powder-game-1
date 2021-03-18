@@ -1,3 +1,5 @@
+.EXTRA_PREREQS = Makefile .Nice.mk
+
 # location for intermediate files (.o and .mk)
 # (will be created automatically, as well as any subdirectories)
 # (ex: src `subdir/file` will create `.junk/subdir/` and compile `subdir/file.c` to `.junk/subdir/file.o`)
@@ -10,7 +12,7 @@ else
 endif
 srcdir?= .
 
-gcc?= gcc
+cc?= gcc
 # print status nicely (assumes ansi-compatible terminal)
 empty:=
 comma:= ,
@@ -20,20 +22,13 @@ print = echo '$(call printlist,33,$(1),$(2))	[37mfrom: $(call printlist,32,$(3)
 # Link
 $(output): $(srcs:%=$(junkdir)/%.o)
 	@$(call print,$@,,$^,$(junkdir)/)
-	@$(gcc) $(LDFLAGS) $^ $(addprefix -l,$(libs)) -o $@
-
-# this uses a feature of gcc, which parses a C file
-# and outputs a list of headers it depends on
-#$(junkdir)/%.mk: $(srcdir)/%.c
-#	$(cc) $(CFLAGS) -DHDEPS -MM $< -MP -MQ$@ -MQ$(<:%.c=$(junkdir)/%.o) -MF$@
+	@$(cc) $(LDFLAGS) $^ $(libs:%=-l%) -o $@
 
 # Compile
 $(junkdir)/%.o $(junkdir)/%.mk &: $(srcdir)/%.c
 	@mkdir -p $(@D)
-#$(addprefix -I,$(includes))
-# -MP ?
 	@$(call print,$(junkdir)/$*.o $(junkdir)/$*.mk,$(junkdir)/,$^,$(srcdir)/)
-	@$(gcc) $(CFLAGS) -MMD -MF$(junkdir)/$*.mk -MQ$(junkdir)/$*.mk -MQ$(<:%.c=$(junkdir)/%.o) -c $< -o $(junkdir)/$*.o
+	@$(cc) $(CFLAGS) -MMD -MF$(junkdir)/$*.mk -MQ$(junkdir)/$*.mk -MQ$(<:%.c=$(junkdir)/%.o) -c $< -o $(junkdir)/$*.o
 
 .PHONY: clean
 clean:
@@ -43,13 +38,7 @@ clean:
 # found a way to make "clean" work!
 # don't try to make clean at the same time as other goals though.
 ifneq ($(MAKECMDGOALS),clean)
- # Normally, Make will try to generate nonexistent included files (in this case, with our $(junkdir)/%.mk rule
- # But for some reason, include fails if the file is in a nonexistent directory.
- # This is the only solution I can think of:
-# temp != mkdir -p $(addprefix $(junkdir)/,$(dir $(srcs)))
  ifeq (,$(findstring B,$(MAKEFLAGS)))
   include $(srcs:%=$(junkdir)/%.mk)
  endif
 endif
-
-.EXTRA_PREREQS = Makefile .Nice.mk

@@ -34,8 +34,8 @@ typedef int8_t Elem;
 //#define forRange(var, start, cond, step) for(var start; var cond; var step)
 
 // size of visible area
-#define W 400
-#define H 300
+#define W 1300
+#define H 200
 
 // size of physics area and framebuffer
 // h

@@ -24,11 +24,11 @@ void Platform_main(int argc, void** argv) {
 }
 
 void Platform_redraw(void) {
-	Platform_drawBitmap(simBitmap, 0, 0, 8, 8, W, H);
-	Platform_drawBitmap(menuBitmap, 0, H, 0, 0, MENU_WIDTH, MENU_HEIGHT);
+	Platform_drawBitmap(simBitmap, 0,0, 8,8, W,H);
+	Platform_drawBitmap(menuBitmap, 0,H, 0,0, MENU_WIDTH,MENU_HEIGHT);
 }
 
-void render() {
+void render(void) {
 	DEFCALL(Bg_render);
 	
 	DEFCALL(Dot_render);

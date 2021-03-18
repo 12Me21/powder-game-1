@@ -7,7 +7,7 @@ CFLAGS+= -fsingle-precision-constant
 #gch:= precompile.h
 
 ifdef win
- gcc:= i686-w64-mingw32-gcc
+ cc:= i686-w64-mingw32-gcc
  LDFLAGS+= -mwindows
  junkdir:= windows
  libs:= winmm dwmapi
@@ -15,7 +15,7 @@ ifdef win
  output:= pg1.exe
  gch:= precompile.h.gch
 else
- gcc:= gcc
+ cc:= gcc
  junkdir:= linux
  libs:= X11 m Xpm
  srcs+= platform-x11
