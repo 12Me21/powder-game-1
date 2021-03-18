@@ -32,7 +32,7 @@ $(junkdir)/%.o $(junkdir)/%.mk &: $(srcdir)/%.c
 	@mkdir -p $(@D)
 #$(addprefix -I,$(includes))
 # -MP ?
-	@$(call print,$(junkdir)/$*.o,$(junkdir)/,$<,$(srcdir)/)
+	@$(call print,$(junkdir)/$*.o $(junkdir)/$*.mk,$(junkdir)/,$^,$(srcdir)/)
 	@$(gcc) $(CFLAGS) -MMD -MF$(junkdir)/$*.mk -MQ$(junkdir)/$*.mk -MQ$(<:%.c=$(junkdir)/%.o) -c $< -o $(junkdir)/$*.o
 
 .PHONY: clean
