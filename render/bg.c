@@ -17,6 +17,13 @@ void Bg_reset(void) {
 		*px = (BgPixel){0,0,0};
 }
 
+static inline Color fadeRGB(Color c, int a) {
+	int r = RED(c)*a/256;
+	int g = GREEN(c)*a/256;
+	int b = BLUE(c)*a/256;
+	return RGB(r,g,b);
+}
+
 #define for_visibleBlocks(x,y) for (axis y=2; y<HEIGHT/4-2; y++) for (axis x=2; x<WIDTH/4-2; x++)
 
 #define for_visibleRows(y) for (axis y=8; y<H+8; y++)
@@ -58,12 +65,9 @@ void Bg_render(void) {
 			if (block->block==Block_BLOCK) {
 				color = 0x606060;
 			} else {
-				int q=0, g=0;
-				if (block->pres>0)
-					g = atMost(block->pres*48, 96);
-				if (block->pres<0)
-					q = atMost(-block->pres*48, 96);
-				color = RGB(0,g,q);
+				int g = between(block->pres*48, 0, 96);
+				int b = between(-block->pres*48, 0, 96);
+				color = RGB(0,g,b);
 			}
 			Draw_rectangle(x*4, y*4, 4, 4, color);
 		}
@@ -76,8 +80,12 @@ void Bg_render(void) {
 					if (vel>=0.2) {
 						vel = atMost(vel, 8);
 						int f = atMost(48*vel, 96);
-						Draw_line(x*4+e.x*vel*10, y*4+e.y*vel*10, x*4, y*4, f<<16); // should these be centered in the block?
-					}					
+						Draw_line(
+							x*4+e.x*vel*10, y*4+e.y*vel*10, // should these be centered in the block?
+							x*4, y*4,
+							RGB(f,0,0)
+						);
+					}
 				}
 			}
 		}
@@ -86,12 +94,8 @@ void Bg_render(void) {
 		for_visiblePixels0rev (i) {
 			if (Dot_grid0[i]==Dot_BLOCK)
 				grp0[i] = 0x606060;
-			else {
-				int r = RED(grp0[i])*230/256;
-				int g = GREEN(grp0[i])*230/256;
-				int b = BLUE(grp0[i])*230/256;
-				grp0[i] = RGB(r,g,b);
-			}
+			else
+				grp0[i] = fadeRGB(grp0[i],230);
 		}
 		break;
 	case Bg_SHADE:; {
@@ -155,12 +159,8 @@ void Bg_render(void) {
 		for_visiblePixels0rev (i) {
 			if (Dot_grid0[i]==Dot_BLOCK)
 				grp0[i] = 0x606060;
-			else {
-				int r = RED(grp0[i])*220/256;
-				int g = GREEN(grp0[i])*220/256;
-				int b = BLUE(grp0[i])*220/256;
-				grp0[i] = RGB(r,g,b);
-			}
+			else
+				grp0[i] = fadeRGB(grp0[i],220);
 		}
 		break;
 	case Bg_TOON:
@@ -214,26 +214,27 @@ void Bg_render(void) {
 		for_visibleBlocks (x,y) {
 			Block* cell = &Blocks[y][x];
 			if (cell->block!=Block_EMPTY) continue;
+			
 			real vel = Vec_fastDist(cell->vel);
 			if (vel<0.2) continue;
 			vel = atMost(vel, 2);
-			int g = atMost(vel*48, 96);
-			int r = 0;
-			if (cell->pres>0)
-				r = atMost(cell->pres*48*r, 96);
-			int b = 0;
-			if (cell->pres<0)
-				b = atMost(-cell->pres*48*r, 96);
-			int d = x*4 + 5*cell->vel.x;
-			int n = y*4 + 5*cell->vel.y;
-			cell = &Blocks[y][x+1];
-			int w = (x+1)*4 + 5*cell->vel.x;
-			int h = (y)*4 + 5*cell->vel.y;
-			Draw_line(d,n,w,h,RGB(r,g,b));
-			cell = &Blocks[y+1][x];
-			w = (x)*4 + 5*cell->vel.x;
-			h = (y+1)*4 + 5*cell->vel.y;
-			Draw_line(d,n,w,h,RGB(r,g,b));
+		
+			int r = between(cell->pres*48, 0, 96);
+			int g = vel*48;
+			int b = between(-cell->pres*48, 0, 96);
+			Color color = RGB(r,g,b);
+			
+			int startX = x*4 + 5*cell->vel.x;
+			int startY = y*4 + 5*cell->vel.y;
+			
+			inline void line(axis dx, axis dy) {
+				Block* cell = &Blocks[y+dy][x+dx];
+				int w = (x+dx)*4 + 5*cell->vel.x;
+				int h = (y+dy)*4 + 5*cell->vel.y;
+				Draw_line(startX,startY,w,h,color);
+			}
+			line(1,0);
+			line(0,1);
 		}
 		break;
 	case Bg_GRAY:
@@ -243,31 +244,26 @@ void Bg_render(void) {
 			if (cell->block==Block_BLOCK)
 				color = 0x606060;
 			else {
-				int f = 0;
-				if (cell->pres>0)
-					f = atMost(cell->pres*48, 72);
-				if (cell->pres<0)
-					f = atMost(-cell->pres*48, 72);
+				int f = fabs(between(cell->pres*48, -24, 72));
 				color = RGB(f,f,f);
 			}
 			Draw_rectangle(x*4,y*4,4,4,color);
 		}
 		break;
 	case Bg_TRACK:;
-		const Offset blockOffsets[] = {0,1,2,3,WIDTH+0,WIDTH+1,WIDTH+2,WIDTH+3,2*WIDTH+0,2*WIDTH+1,2*WIDTH+2,2*WIDTH+3,3*WIDTH+0,3*WIDTH+1,3*WIDTH+2,3*WIDTH+3};
 		for_visibleBlocks (x,y) {
 			Block* cell = &Blocks[y][x];
 			if (cell->block==Block_BLOCK)
 				Draw_rectangle(x*4,y*4,4,4,0x606060);
 			else {
-				int n = 256 - (int)atMost(fabs(12*cell->pres),32); //should the conversion to int be before or after abs?
+				int n = 256 - (int)atMost(fabs(12*cell->pres),32); //todo: should the conversion to int be before or after abs?
 				if (n!=256) {
-					for (int i=0;i<16;i++) {
-						Offset e = x*4+y*4*WIDTH+blockOffsets[i];
-						int r = RED(grp0[e])*n / 256;
-						int g = GREEN(grp0[e])*n / 256;
-						int b = BLUE(grp0[e])*n / 256;
-						grp0[e] = RGB(r,g,b);
+					// fade the pixels in the block based on the pressure
+					for (axis by=0;by<4;by++) {
+						for (axis bx=0;bx<4;bx++) {
+							Color* px = &grp[y*4+by][x*4+bx];
+							*px = fadeRGB(*px,n);
+						}
 					}
 				}
 			}
@@ -342,9 +338,9 @@ void Bg_render(void) {
 			if (Dot_grid0[a]==Dot_BLOCK)
 				grp0[a] = 0;
 			else if (Dot_grid0[a]==Dot_EMPTY) {
-				int r = 0xFF- (0xFF-RED(grp0[a]))/2;
-				int g = 0xFF- (0xFF-GREEN(grp0[a]))/2;
-				int b = 0xFF- (0xFF-BLUE(grp0[a]))/2;
+				int r = (255+RED(grp0[a])+1)/2;
+				int g = (255+GREEN(grp0[a])+1)/2;
+				int b = (255+BLUE(grp0[a])+1)/2;
 				grp0[a] = RGB(r,g,b);
 			}
 		}
@@ -362,12 +358,7 @@ void Bg_render2(void) {
 		int l = Bg_pixels0[a].light;
 		if (l<=0)
 			grp0[a] = 0;
-		else {
-			l = atMost(l, 255);
-			int r = ((RED(grp0[a]))*l)/256;
-			int g = ((GREEN(grp0[a]))*l)/256;
-			int b = ((BLUE(grp0[a]))*l)/256;
-			grp0[a] = RGB(r,g,b);
-		}
+		else
+			grp0[a] = fadeRGB(grp0[a], atMost(l, 255));
 	}
 }

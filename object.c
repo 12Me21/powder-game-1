@@ -8,7 +8,7 @@
 #include "elements.h"
 #include "menu.h" //todo: split this into sim properties (edge mode etc.) and others
 #include "render/bg.h"
-#include "dot.h"
+#include "sim.h"
 #include "input.h"
 #include "object.h"
 #include "block.h"
@@ -58,7 +58,6 @@ void Object_create(real x, real y, int type, int meta) {
 		Object_next->type = Object_PLAYER;
 		if (oldPlayer)
 			Object_next->isPlayer2 = !oldPlayer->isPlayer2;
-		//Object_next->isPlayer2 = q;
 	} else if (type==Elem_PLAYER2) {
 		Object_next->type = Object_PLAYER;
 		if (!oldPlayer)
@@ -111,7 +110,7 @@ void fighterWalk(Object* a) {
 void fighterKick(Object* a) {
 	Object_FOR (r) {
 		if (r==a) continue;
-		if (r->type==Object_FIGHTER || r->type==Object_FIGHTER+1 || r->type==Object_PLAYER) {
+		if (r->type==Object_FIGHTER || r->type==Object_FIGHTER_JUMPING || r->type==Object_PLAYER) {
 			for (int i=4; i<=5; i++) {
 				ObjectNode* foot = &a->parts[i];
 				real g = abs(foot->pos.x - r->parts[0].pos.x);
@@ -119,7 +118,7 @@ void fighterKick(Object* a) {
 				if (g<=2 && q>=0 && q<=6) {
 					r->vel.xy += Cxy(foot->pos.x-foot->oldPos.x, 2*(foot->pos.y-foot->oldPos.y));
 					if (r->type==Object_FIGHTER)
-						r->type = Object_FIGHTER+1;
+						r->type = Object_FIGHTER_JUMPING;
 					r->age = 0;
 				}
 			}
@@ -182,83 +181,78 @@ void pullNodes(Object* e, int n1, int n2, real length, real mul1, real mul2) {
 	}
 }
 
-static void updateNode(ObjectNode* node, real dd, bool noCollide, bool held) {
-	Point e = Vec_sub2(node->pos, node->oldPos);
+static void updateNode(ObjectNode* node, real adv, bool noCollide, bool held) {
+	Point vel = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
-	if (dd!=0) {
+	if (adv!=0) {
 		Block* cell = Block_at(node->pos.x,node->pos.y);
-		e.xy += cell->vel.xy*dd;
+		vel.xy += cell->vel.xy*adv;
 	}
-	int d;
+	int steps;
 	if (!held) {
-		real f = Vec_fastDist(e)+1;
+		real f = Vec_fastDist(vel)+1;
 		if (f>=8) {
-			e.xy *= 3.8/f;
-			d = 2;
+			vel.xy *= 3.8/f;
+			steps = 2;
 		} else if (f>=4) {
-			e.xy *= 0.5;
-			d = 2;
+			vel.xy *= 0.5;
+			steps = 2;
 		} else
-			d = 1;
+			steps = 1;
 	} else {
-		d = (int)(Vec_fastDist(e)/3)+1;
-		e.xy *= 1.0/d;
+		steps = (int)(Vec_fastDist(vel)/3)+1;
+		vel.xy *= 1.0/steps;
 	}
 	node->touching = 0;
 	if (noCollide) {
-		e.xy *= d;
-		node->pos.xy += e.xy;
+		vel.xy *= steps;
+		node->pos.xy += vel.xy;
 		node->pos.x = clamp(node->pos.x, 4, WIDTH-5);
 		node->pos.y = clamp(node->pos.y, 4, HEIGHT-5);
 	} else {
-		for (int c=0; c<d; c++) {
-			double b = node->pos.y + e.y;
-			if (b<4 || b>=HEIGHT-4) {
+		for (int c=0; c<steps; c++) {
+			real newY = node->pos.y + vel.y;
+			if (newY<4 || newY>=HEIGHT-4) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			//added
-			//if (node->pos.x<0 || node->pos.x>=W) {
-			//	node->touching = Elem_EMPTY;
-			//	break;
-			//}
-			Dot* part = *Dot_pos(node->pos.x, b);
+			Dot* part = *Dot_pos(node->pos.x, newY);
 			int type = part->type;
 			if (part <= Dot_BGFAN) {
-				node->pos.y = b;
+				node->pos.y = newY;
 			} else if (part <= Dot_BLOCK) {
-				e.x *= 0.5;
-				e.y = -e.y;
+				vel.x *= 0.5;
+				vel.y = -vel.y;
 				node->touching = type; //hhh
 			} else {
-				e.x *= ELEMENTS[type].friction;
+				vel.x *= ELEMENTS[type].friction;
 				node->touching = type;
-				if (e.y<0)
-					node->pos.y = b;
-				else if (ELEMENTS[type].state==State_LIQUID && type != Elem_MERCURY)
-					node->pos.y = b;
+				if (vel.y<0)
+					node->pos.y = newY;
+				else if (ELEMENTS[type].state==State_LIQUID && type!=Elem_MERCURY)
+					node->pos.y = newY;
 				else
-					e.y = -e.y;
+					vel.y = -vel.y;
 			}
-			b = node->pos.x + e.x;
-			if (b<4 || b>=WIDTH-4) {
+			real newX = node->pos.x + vel.x;
+			if (newX<4 || newX>=WIDTH-4) {
 				node->touching = Elem_EMPTY;
 				break;
 			}
-			part = *Dot_pos(b, node->pos.y);
+			part = *Dot_pos(newX, node->pos.y);
 			type = part->type;
 			if (part <= Dot_BGFAN) {
-				node->pos.x = b;
+				node->pos.x = newX;
 			} else if (part <= Dot_BLOCK) {
-				e.y *= 0.5;
-				e.x = -e.x;
+				vel.y *= 0.5;
+				vel.x = -vel.x;
 				node->touching = type;
 			} else {
-				e.y *= ELEMENTS[type].friction;
-				e.x = -e.x;
+				vel.y *= ELEMENTS[type].friction;
+				vel.x = -vel.x;
 				node->touching = type;
 				if (ELEMENTS[type].state==State_LIQUID || type==Elem_WOOD)
-					node->pos.x = b;
+					node->pos.x = newX;
 			}
 		}
 	}
@@ -323,10 +317,10 @@ void Object_update(void) {
 				moveNode(&a->parts[5], 0.3, 0.995);
 			}
 			checkDrag(a, 6);
-			a->parts[0].pos.c += a->vel.c;
-			a->vel.c *= 0.5;
+			a->parts[0].pos.xy += a->vel.xy;
+			a->vel.xy *= 0.5;
 			if (a->vel.x!=0)
-				a->type = Object_PLAYER+2;
+				a->type = Object_PLAYER_DYING;
 			if (player->Xe>0)
 				player->Xe--;
 			if (player->Xe!=0 || leftFoot!=1 || rightFoot!=1) {
@@ -430,7 +424,7 @@ void Object_update(void) {
 			}
 			// damage
 			if (checkTouching(a,0,6)==3 || checkTouching(a,0,6)==-5)
-				a->type = Object_PLAYER+2;
+				a->type = Object_PLAYER_DYING;
 			// edge
 			if (Menu_edgeMode==1) {
 				for (int r=4;r<=5;r++) {
@@ -466,13 +460,13 @@ void Object_update(void) {
 				}
 			}
 			break;
-		case Object_PLAYER+1:
+		case Object_PLAYER_DYING:
 			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);copyPos(0, 0);
 			a->vel.y -= 1;
 			a->age = 0;
-			a->type = Object_PLAYER+3;
+			a->type = Object_PLAYER_DEAD;
 			break;
-		case Object_PLAYER+3:
+		case Object_PLAYER_DEAD:
 			a->age++;
 			for (int b=0;b<11;b++) {
 				moveNode(&a->parts[b], 0.1, 0.999);
@@ -490,7 +484,7 @@ void Object_update(void) {
 			if (a->age>150)
 				Object_remove(a--);
 			break;
-		case Object_FIGHTER: case Object_FIGHTER+1:
+		case Object_FIGHTER: case Object_FIGHTER_JUMPING:
 			a->age++;
 			if (a->type==Object_FIGHTER) {
 				moveNode(&a->parts[0],-0.2,0.995);
@@ -528,11 +522,11 @@ void Object_update(void) {
 				updateNode(&a->parts[i], 0.1, (i<4), a->held>0);
 			int t = checkTouching(a,0,6);
 			if (t==3 || t==-5)
-				a->type = Object_FIGHTER+2;
+				a->type = Object_FIGHTER_DYING;
 			if (a->type==Object_FIGHTER && checkTouching(a,0,6))
 				a->age = 0;
 			else if (a->age>50)
-				a->type = Object_FIGHTER+1;
+				a->type = Object_FIGHTER_JUMPING;
 			if (Menu_edgeMode==1) {
 				for (int r=4;r<=5;r++) {
 					int w=0,b=0;
@@ -568,22 +562,13 @@ void Object_update(void) {
 				}
 			}
 			break;
-		case Object_FIGHTER+2:
-			copyPos(10, 5);
-			copyPos(9, 4);
-			copyPos(8, 3);
-			copyPos(7, 3);
-			copyPos(6, 2);
-			copyPos(5, 2);
-			copyPos(4, 1);
-			copyPos(3, 1);
-			copyPos(2, 1);
-			copyPos(1, 0);
+		case Object_FIGHTER_DYING:
+			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);
 			a->vel.y -= 1;
 			a->age = 0;
-			a->type = Object_FIGHTER+3;
+			a->type = Object_FIGHTER_DEAD;
 			break;
-		case Object_FIGHTER+3:
+		case Object_FIGHTER_DEAD:
 			a->age++;
 			for (int b=0; b<11; b++) {
 				moveNode(&a->parts[b], 0.1, 0.999);
@@ -609,7 +594,7 @@ void Object_update(void) {
 			// kick
 			for (int b=0;b<4;b++) {
 				Object_FOR (r) {
-					if (r->type==Object_FIGHTER||r->type==Object_FIGHTER+1||r->type==Object_PLAYER) {
+					if (r->type==Object_FIGHTER||r->type==Object_FIGHTER_JUMPING||r->type==Object_PLAYER) {
 						for (int i=4;i<=5;i++) {
 							ObjectNode* part = &r->parts[i];
 							real g = abs(part->pos.x - a->parts[b].pos.x);
@@ -633,9 +618,9 @@ void Object_update(void) {
 				updateNode(&a->parts[b],0.5,false,true);
 			t = checkTouching(a,0,6);
 			if (t==3 || t==-5)
-				a->type = Object_BOX+1;
+				a->type = Object_BOX_DYING;
 			break;
-		case Object_BOX+1:
+		case Object_BOX_DYING:
 			copyPos(7, 0);
 			copyPos(6, 3);
 			copyPos(5, 3);
@@ -644,9 +629,9 @@ void Object_update(void) {
 			copyPos(2, 1);
 			a->held = 0;
 			a->age = 0;
-			a->type = checkTouching(a,0,4)==-5 ? Object_BOX+3 : Object_BOX+2;
+			a->type = checkTouching(a,0,4)==-5 ? Object_BOX_DEAD : Object_BOX_BURNING;
 			break;
-		case Object_BOX+2: case Object_BOX+3:
+		case Object_BOX_BURNING: case Object_BOX_DEAD:
 			a->age++;
 			checkDrag(a, 8);
 			for (int b=0;b<8;b++)
@@ -656,7 +641,8 @@ void Object_update(void) {
 			pullNodes(a, 2, 3, r, 0.5, 0.5);
 			pullNodes(a, 4, 5, r, 0.5, 0.5);
 			pullNodes(a, 6, 7, r, 0.5, 0.5);
-			if (a->type==Object_BOX+2 && Dot_limit1000()) {
+			// put fire on burning box
+			if (a->type==Object_BOX_BURNING && Dot_limit1000()) {
 				for (int b=0;b<5;b+=2) {
 					Point e = {.c=
 						(a->parts[b+1].oldPos.c - a->parts[b].oldPos.c) * Random_(1) + a->parts[b].oldPos.c
@@ -669,6 +655,55 @@ void Object_update(void) {
 				updateNode(&a->parts[b],0.1,false,false);
 			if (a->age>150)
 				Object_remove(a--);
+			break;
+		case Object_CREATE:
+			if (a->parts[0].createType==0) {
+				// check for touching
+				Point pos = a->parts[0].pos;
+				bool touching(Point pos2) {
+					return (pos.x+8>=pos2.x &&
+					        pos.x-4<=pos2.x &&
+					        pos.y+8>=pos2.y &&
+					        pos.y-4<=pos2.y);
+				}
+				Object_FOR (r) {
+					if (touching(r->parts[0].pos)) {
+						if (r->type==Object_FIGHTER || r->type==Object_BOX) {
+							a->parts[0].createType = r->type;
+							a->meta = r->meta;
+						} else if (r->type==Object_PLAYER) {
+							Object_FOR (e) {
+								if (e->type==Object_CREATE && e->parts[0].createType==Object_PLAYER)
+									e->parts[0].createType = 0;
+							}
+							a->parts[0].createType = r->type;
+							a->meta = r->meta;
+						}
+					}
+				}
+				Ball_FOR (r) {
+					if (r->used && touching(r->pos)) {
+						a->parts[0].createType = Object_BALL;
+						a->meta = r->type;
+					}
+				}
+			} else {
+				// create is spawning objects:
+				axis x = a->parts[0].pos.x;
+				axis y = a->parts[0].pos.y;
+				int type = a->parts[0].createType;
+				if (type==Object_PLAYER) {
+					if (Rnd_perchance(10))
+						Object_create(x,y,Elem_PLAYER,a->meta);
+				} else if (Rnd_perchance(1)) {
+					if (type==Object_FIGHTER)
+						Object_create(x,y,0,0);
+					else if (type==Object_BOX)
+						Object_create(x,y,Elem_BOX,a->meta);
+					else if (type==Object_BALL)
+						Ball_create(x+2,y+2,a->meta);
+				}
+			}
 		}
 	}
 }
@@ -678,7 +713,7 @@ void Object_save(SavePixel save[H][W]) {
 		ObjectNode* node = NULL;
 		Elem type;
 		int meta = 0;
-		if (e->type==Object_FIGHTER || e->type==Object_FIGHTER+1) {
+		if (e->type==Object_FIGHTER || e->type==Object_FIGHTER_JUMPING) {
 			node = &e->parts[4];
 			type = Elem_FIGHTER;
 		} else if (e->type==Object_BOX) {

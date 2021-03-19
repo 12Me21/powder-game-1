@@ -21,15 +21,15 @@ void Object_render(void) {
 	Object_FOR (e) {
 		switch (e->type) {
 		when(Object_FIGHTER):
-		case Object_FIGHTER+1:
-		case Object_FIGHTER+2:
+		case Object_FIGHTER_JUMPING:
+		case Object_FIGHTER_DYING:
 			line(e, 0, 1, tan);
 			line(e, 1, 2, white);
 			line(e, 1, 3, white);
 			line(e, 2, 4, white);
 			line(e, 3, 5, white);
 			rectangle(e, 0, 3, 3, tan);
-		when(Object_FIGHTER+3):
+		when(Object_FIGHTER_DEAD):
 			line(e, 1, 2, white);
 			if (e->age>145) break;
 			line(e, 3, 5, white);
@@ -42,14 +42,13 @@ void Object_render(void) {
 			if (e->age>125) break;
 			rectangle(e, 0, 2, 2, tan);
 		when(Object_BOX):
-		case Object_BOX+1:
+		case Object_BOX_DYING:
 			line(e, 0, 1, tan);
 			line(e, 1, 2, tan);
 			line(e, 2, 3, tan);
 			line(e, 3, 0, tan);
-			//draw dead box
-		when(Object_BOX+2):
-		case Object_BOX+3:
+		when(Object_BOX_BURNING):
+		case Object_BOX_DEAD:
 			line(e, 0, 1, tan);
 			if (e->age>145) break;
 			line(e, 2, 3, tan);
@@ -59,10 +58,10 @@ void Object_render(void) {
 			line(e, 6, 7, tan);
 			if (e->age>130) break; //???
 		when(Object_PLAYER):
-		case Object_PLAYER+2:
-		case Object_PLAYER+3:; //dead
+		case Object_PLAYER_DYING:
+		case Object_PLAYER_DEAD:;
 			int f,g,q,n;
-			if (e->type != Object_PLAYER+3) {
+			if (e->type != Object_PLAYER_DEAD) {
 				line(e, 1, 2, white);
 				line(e, 1, 3, white);
 				line(e, 2, 4, white);
@@ -98,16 +97,49 @@ void Object_render(void) {
 						Bg_pixels[y][x].light = 0x1FFFFFFF;
 			}
 			break;
+		case Object_CREATE:;
+			Color col = 0x907010;
+			if (Menu_bgMode==Bg_SILUET)
+				col = 0x000000;
+			int x = e->parts[0].pos.x;
+			int y = e->parts[0].pos.y;
+			void line(int x1,int y1,int x2,int y2) {
+				Draw_line(x+x1,y+y1,x+x2,y+y2,col);
+			}
+			switch(e->parts[0].createType) {
+			case Object_FIGHTER:
+				line(0,0, 0,3);
+				line(0,0, 3,0);
+				line(0,2, 2,2);
+				break;
+			case Object_BOX:
+				Draw_box(x,y, 3,3, col);
+				break;
+			case Object_PLAYER:
+				line(0,0, 0,3);
+				line(0,0, 2,0);
+				line(0,2, 2,2);
+				line(3,0, 3,2);
+				break;
+			case Object_BALL:
+				line(1,0, 2,0);
+				line(0,1, 0,2);
+				line(3,1, 3,2);
+				line(1,3, 2,3);
+				break;
+			default:
+				Draw_rectangle(x,y, 3,3, col);
+			}
 		}
 		// lights in TG mode
 		switch(e->type){
 		case Object_FIGHTER:
-		case Object_FIGHTER+1:
-		case Object_FIGHTER+2:
-		case Object_FIGHTER+3:
+		case Object_FIGHTER_JUMPING:
+		case Object_FIGHTER_DYING:
+		case Object_FIGHTER_DEAD:
 		case Object_PLAYER:
-		case Object_PLAYER+2:
-		case Object_PLAYER+3:
+		case Object_PLAYER_DYING:
+		case Object_PLAYER_DEAD:
 			if (Menu_bgMode == Bg_TG) {
 				for (int d=0; d<6; d++)
 					Bg_pixels

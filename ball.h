@@ -14,6 +14,7 @@ typedef struct Ball {
 	} Cpump;
 	bool held; // Yd[]
 	Elem type; // P[]
+	int pee: 1;
 } Ball;
 
 // Gc

@@ -2,7 +2,14 @@
 #include "common.h"
 #include "vector.h"
 
-enum ObjectType {Object_FIGHTER=10, Object_BOX=20, Object_PLAYER=30, Object_CREATE=40};
+enum ObjectType {
+	// (not sure about jumping)
+	Object_FIGHTER=10, Object_FIGHTER_JUMPING, Object_FIGHTER_DYING, Object_FIGHTER_DEAD,
+	Object_BOX=20, Object_BOX_DYING, Object_BOX_BURNING, Object_BOX_DEAD,
+	Object_PLAYER=30, Object_PLAYER_1, Object_PLAYER_DYING, Object_PLAYER_DEAD,
+	Object_CREATE=40,
+	Object_BALL=-2, // used by create
+};
 
 // Dd
 #define Object_PARTS 28
@@ -12,7 +19,11 @@ enum ObjectType {Object_FIGHTER=10, Object_BOX=20, Object_PLAYER=30, Object_CREA
 typedef struct ObjectNode {
 	Point pos; // N[]
 	Point oldPos; // Z[]
-	Elem touching; // Ud[]
+	union {
+		Elem touching; // Ud[]
+		char createType;
+		// idk why create type is stored HERE rather than in .held or something
+	};
 } ObjectNode;
 
 typedef struct Object {
