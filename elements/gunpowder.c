@@ -52,7 +52,7 @@ break; case Elem_GUNPOWDER:
 		ball->used = false;
 	// destroyed by acid
 	} else if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_GUNPOWDER, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_GUNPOWDER, 0, Point(0), 0);
 
 #elif defined UPDATE_BALL_PART
 	// charge is increased by water types and decreased by some hot elements

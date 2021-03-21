@@ -57,7 +57,7 @@ break; case Elem_C4:
 		Dot_doRadius((int)ball->pos.x&~3, (int)ball->pos.y&~3, 10, func);
 		ball->used = false;
 	} else if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_NITRO, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_NITRO, 0, Point(0), 0);
 
 #elif defined UPDATE_BALL_PART
 	//none

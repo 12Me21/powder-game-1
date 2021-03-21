@@ -166,10 +166,11 @@ void Object_remove(Object* entity) {
 
 // update node position
 static void moveNode(ObjectNode* node, real gravity, real slowdown) {
-	Point movement = {.xy= node->pos.xy - node->oldPos.xy};
+	Point vel = Point(node->pos.xy - node->oldPos.xy);
+	vel.y += gravity;
+	
 	node->oldPos = node->pos;
-	movement.y += gravity;
-	node->pos.xy += (movement.xy * slowdown);
+	node->pos.xy += (vel.xy * slowdown);
 }
 
 // try to make the nodes be a certain distance apart
@@ -179,7 +180,7 @@ static void moveNode(ObjectNode* node, real gravity, real slowdown) {
 void pullNodes(Object* e, int n1, int n2, real length, real mul1, real mul2) {
 	ObjectNode* node1 = &e->parts[n1];
 	ObjectNode* node2 = &e->parts[n2];
-	Point offset = {.xy= node2->pos.xy - node1->pos.xy};
+	Point offset = Point(node2->pos.xy - node1->pos.xy);
 	real dist = Vec_fastNormalize(&offset);
 	if (dist) {
 		length -= dist;

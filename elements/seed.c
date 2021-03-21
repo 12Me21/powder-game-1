@@ -38,10 +38,10 @@ break; case Elem_SEED:
 	if (touched<0) break;
 	// destroyed by acid
 	if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_SEED, 0, 0.5*ball->vel.x, 0.5*ball->vel.y, 0.5);
+		Ball_break(ball, 0, Elem_SEED, 0, Point(0.5*ball->vel.xy), 0.5);
 	// burned by hot elements (except spark)
 	else if (touched!=Elem_SPARK && touched[ELEMENTS].state==State_HOT)
-		Ball_break(ball, 0, Elem_FIRE, 0, 0.5*ball->vel.x, 0.5*ball->vel.y, 0.5);
+		Ball_break(ball, 0, Elem_FIRE, 0, Point(0.5*ball->vel.xy), 0.5);
 
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {

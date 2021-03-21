@@ -17,7 +17,7 @@ break; case Elem_ICE:
 	// if touching block,wheel,stone,metal,bomb, with velocity>5
 	if (touched==Elem_THUNDER||touched==Elem_ACID|| 
 		((touched==Elem_BLOCK||touched==-3||touched==Elem_STONE||touched==Elem_METAL||touched==Elem_BOMB)&&vel>5))
-		Ball_break(ball, 0, Elem_SNOW, 0, ball->vel.x, ball->vel.y, vel);
+		Ball_break(ball, 0, Elem_SNOW, 0, ball->vel, vel);
 
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {

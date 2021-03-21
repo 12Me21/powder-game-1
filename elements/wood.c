@@ -49,16 +49,16 @@ break; case Elem_WOOD:
 
 #elif defined UPDATE_BALL
 	if (touched==Elem_TORCH)
-		Ball_break(ball, 0, Elem_TORCH, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_TORCH, 0, Point(0), 0);
 	else if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_POWDER, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_POWDER, 0, Point(0), 0);
 	else if (touched==Elem_THUNDER)
-		Ball_break(ball, 0, Elem_POWDER, 0, 0, 0, 1);
+		Ball_break(ball, 0, Elem_POWDER, 0, Point(0), 1);
 	else if (touched>=0 && ELEMENTS[touched].state==State_HOT) {
 		if (ball->charge==1) //if oiled
-			Ball_break(ball, 0, Elem_WOOD, 1, 0, 0, 0);
+			Ball_break(ball, 0, Elem_WOOD, 1, Point(0), 0);
 		else
-			Ball_break(ball, 0, Elem_FIRE, 1, 0, 0, 0);
+			Ball_break(ball, 0, Elem_FIRE, 1, Point(0), 0);
 	}
 
 #elif defined UPDATE_BALL_PART

@@ -14,6 +14,11 @@ typedef union Point {
 	//   `point.xy *= 2` is the same as `point.x *= 2; point.y *= 2;`
 } Point;
 
+//sorry do not use this!
+#define Point(c) ((Point){.xy=c})
+
+#define Cxy(x,y) ((Point){(x),(y)}.xy)
+
 // some functions were removed because they were redundant in C :
 // point1.set(point2) -> point1 = point2
 // Kd(point1,x,y)     -> point1 = (Point){x,y}

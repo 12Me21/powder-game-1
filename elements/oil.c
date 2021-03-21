@@ -43,9 +43,9 @@ break; case Elem_OIL:
 				Dot_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
 		}
 		if (Rnd_perchance(1))
-			Ball_break(ball, 0, Elem_OIL, 0, 0, 0, 0);
+			Ball_break(ball, 0, Elem_OIL, 0, Point(0), 0);
 	} else if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_OIL, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_OIL, 0, Point(0), 0);
 
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {

@@ -23,9 +23,9 @@ break; case Elem_TORCH:
 #elif defined UPDATE_BALL
 	switch (touched) {
 	case Elem_WATER: case Elem_SOAPY: case Elem_SEAWATER: case Elem_ACID:
-		Ball_break(ball, 0, Elem_TORCH, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_TORCH, 0, Point(0), 0);
 	when(Elem_THUNDER):;
-		Ball_break(ball, 0, Elem_FIRE, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_FIRE, 0, Point(0), 0);
 	}
 
 #elif defined UPDATE_BALL_PART

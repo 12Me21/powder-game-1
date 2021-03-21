@@ -79,46 +79,31 @@ static const struct neighbor {
    {(Point){ 0.7 , 0.7 },XYOFS( 2, 2),},
 };
 
-void Ball_break(Ball* ball, int mode, int createType, int charge, real vx, real vy, real speed) {
+// mode:
+// 0 - create parts in normal ball shape
+// 1 - same as 0, but replace existing parts which are in the way
+// 2 - same as 1, but fill the inside of the circle too
+
+void Ball_break(Ball* ball, int mode, int createType, int charge, Point vel, real speed) {
 	Dot** pc = Dot_pos2(ball->pos);
-	if (mode==0) {
-		for (int i=9;i<21;i++) {
-			Dot* near = pc[neighbors[i].offset];
-			if (near<=Dot_BGFAN) {
-				near = Dot_create(
-					(int)(ball->pos.x)+neighbors[i].breakX,
-					(int)(ball->pos.y)+neighbors[i].breakY,
-					createType
-				);
-				if (near) {
-					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
-					//near->vel.x += vx+neighbors[i].breakVel.x*speed;
-					//near->vel.y += vy+neighbors[i].breakVel.y*speed;
-					near->charge = charge;
-				}
+	for (int i=mode==2 ? 0 : 9; i<21; i++) {
+		Dot* near = pc[neighbors[i].offset];
+		if (near<=Dot_BGFAN) {
+			near = Dot_create(
+				(int)(ball->pos.x)+neighbors[i].breakX,
+				(int)(ball->pos.y)+neighbors[i].breakY,
+				createType
+			);
+			if (near) {
+				near->vel.xy += vel.xy + neighbors[i].breakVel.xy * speed;
+				near->charge = charge;
 			}
+		} else if (mode>=1 && near>=Dot_0) {
+			near->type = createType;
+			near->charge = 0;
 		}
-		ball->used = false;
-	} else if (mode==1||mode==2) {
-		for (int i=mode==1?9:0; i<21; i++) {
-			Dot* near = pc[neighbors[i].offset];
-			if (near<=Dot_BGFAN) {
-				near = Dot_create(
-					(int)(ball->pos.x)+neighbors[i].breakX,
-					(int)(ball->pos.y)+neighbors[i].breakY,
-					createType
-				);
-				if (near) {
-					near->vel.xy += (Point){vx,vy}.xy + neighbors[i].breakVel.xy * speed;
-					near->charge = charge;
-				}
-			} else if (near>=Dot_0) {
-				near->type = createType;
-				near->charge = 0;
-			}
-		}
-		ball->used = false;
 	}
+	ball->used = false;
 }
 
 bool Ball_react(Ball* ball, Dot* part, Elem* newType) {

@@ -74,17 +74,17 @@ break; case Elem_FUSE:
 	if (touched>=0) {
 		if (touched[ELEMENTS].state==State_HOT) {
 			if (ball->charge==Elem_OIL)
-				Ball_break(i,2,Elem_FIRE,0,0,0,0);
+				Ball_break(i,2,Elem_FIRE,0,Point(0),0);
 			else if (ball->charge==Elem_NITRO)
-				Ball_break(i,0,Elem_NITRO,0,0,0,1);
+				Ball_break(i,0,Elem_NITRO,0,Point(0),1);
 			else if (ball->charge==Elem_SOAPY)
-				Ball_break(i,0,Elem_STEAM,0,0,0,1);
+				Ball_break(i,0,Elem_STEAM,0,Point(0),1);
 			else
-				Ball_break(i,0,Elem_SPARK,0,0,0,0);
+				Ball_break(i,0,Elem_SPARK,0,Point(0),0);
 		} else if (touched==Elem_WATER || touched==Elem_SEAWATER)
-			Ball_break(i,0,Elem_GUNPOWDER,0,0,0,0);
+			Ball_break(i,0,Elem_GUNPOWDER,0,Point(0),0);
 		else if (touched==Elem_ACID)
-			Ball_break(i,0,Elem_FUSE,0,0,0,0);
+			Ball_break(i,0,Elem_FUSE,0,Point(0),0);
 	}
 
 #elif defined UPDATE_BALL_PART

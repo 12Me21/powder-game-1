@@ -16,8 +16,6 @@ typedef uint32_t Color;
 #define BLUE(x) (int)((x)&0xFF)
 #define RGB(r,g,b) ((r)<<16|(g)<<8|(b))
 
-#define Cxy(x,y) ((Point){(x),(y)}.xy)
-
 typedef int32_t axis; // could probably be 16bit but we want axis*width+axis to be 32bit so i make this 32bit just in case
 typedef int32_t Offset; 
 typedef int8_t Elem; // this has to be like, 0-100 ish, and a few negatives. -128 to 127 is a good range.

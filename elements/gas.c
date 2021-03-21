@@ -41,13 +41,13 @@ break; case Elem_GAS:
 	if (touched>=0) {
 		if (ELEMENTS[touched].state==State_HOT) {
 			// the first time, ball releases extra gas without breaking.
-			Ball_break(ball, 0, Elem_GAS, 0, 0, 0, 1);
+			Ball_break(ball, 0, Elem_GAS, 0, Point(0), 1);
 			if (ball->charge<2) {
 				ball->charge++;
 				ball->used=true; //resurrect!
 			}
 		} else if (touched==Elem_ACID)
-			Ball_break(ball, 0, Elem_GAS, 0, 0, 0, 0);
+			Ball_break(ball, 0, Elem_GAS, 0, Point(0), 0);
 	}
 
 #elif defined UPDATE_BALL_PART

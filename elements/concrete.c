@@ -83,7 +83,7 @@ break; case Elem_CONCRETE:
 	if (dist>7 && (touched==-1 || touched==Elem_METAL || touched==Elem_BOMB))
 		ball->type = Elem_POWDER;
 	else if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_STONE, 0, 0, 0, 0);
+		Ball_break(ball, 0, Elem_STONE, 0, Point(0), 0);
 
 #elif defined UPDATE_BALL_PART
 	switch (part->type) {
