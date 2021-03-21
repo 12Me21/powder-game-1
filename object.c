@@ -17,9 +17,11 @@
 Object entitys[Object_MAX];
 Object* Object_next = entitys;
 
-void Object_create(real x, real y, int type, int meta) {
+// `type` is an ELEMENT NUMBER, not an object type
+void Object_create(real x, real y, Elem type, int meta) {
 	if (Object_next >= entitys+Object_MAX)
 		return;
+	// check if player exists already
 	Object* oldPlayer = NULL;
 	if (type==Elem_PLAYER || type==Elem_PLAYER2) {
 		int totalPlayers=0;
@@ -32,7 +34,9 @@ void Object_create(real x, real y, int type, int meta) {
 		if (totalPlayers>=2 || (meta && !ELEMENTS[meta].playerValid))
 			return;
 	}
-	*Object_next = (Object){
+	// default object
+	Object* obj = Object_next;
+	*obj = (Object){
 		.vel = {0,0},
 		.type = Object_FIGHTER,
 		.age = 0,
@@ -40,41 +44,44 @@ void Object_create(real x, real y, int type, int meta) {
 		.meta = meta,
 		.isPlayer2 = false,
 	};
-	// idk why this one goes to 20...
-	for (int i=0; i<20; i++)
-		Object_next->parts[i].oldPos = Object_next->parts[i].pos = (Point){x+Random_(4), y+Random_(4)};
+	// reset all the parts
+	for (int i=0; i<20; i++) // idk why this one goes to 20...
+		obj->parts[i].oldPos =
+			obj->parts[i].pos = (Point){x+Random_(4), y+Random_(4)};
 	for (int i=0; i<Object_PARTS; i++)
-		Object_next->parts[i].touching = 0;
+		obj->parts[i].touching = 0;
+
+	
 	if (type==Elem_BOX) {
 		if (meta != 10) {
-			Object_next->type = Object_BOX;
+			obj->type = Object_BOX;
 		} else {
-			Object_next->type = Object_CREATE;
-			Object_next->meta = 0;
-			Object_next->parts[0].pos = (Point){x,y};
-			Object_next->parts[0].oldPos = (Point){x,y};
+			obj->type = Object_CREATE;
+			obj->meta = 0;
+			obj->parts[0].pos = (Point){x,y};
+			obj->parts[0].oldPos = (Point){x,y};
 		}
 	} else if (type==Elem_PLAYER) {
-		Object_next->type = Object_PLAYER;
+		obj->type = Object_PLAYER;
 		if (oldPlayer)
-			Object_next->isPlayer2 = !oldPlayer->isPlayer2;
-	} else if (type==Elem_PLAYER2) {
-		Object_next->type = Object_PLAYER;
+			obj->isPlayer2 = !oldPlayer->isPlayer2;
+	} else if (type==Elem_PLAYER2) { // this is used during loading, I think?
+		obj->type = Object_PLAYER;
 		if (!oldPlayer)
-			Object_next->isPlayer2 = false;
+			obj->isPlayer2 = false;
 		else {
 			Point pos = oldPlayer->parts[0].pos;
-			int b = (int)pos.x & ~3;
-			int c = (int)pos.y & ~3;
-			if (x<b)
-				Object_next->isPlayer2 = true;
-			else if (x>b)
-				Object_next->isPlayer2 = false;
-			else if (y<c)
-				Object_next->isPlayer2 = true;
+			int px = (int)pos.x & ~3;
+			int py = (int)pos.y & ~3;
+			if (x<px)
+				obj->isPlayer2 = true;
+			else if (x>px)
+				obj->isPlayer2 = false;
+			else if (y<py)
+				obj->isPlayer2 = true;
 			else
-				Object_next->isPlayer2 = false;
-			oldPlayer->isPlayer2 = !Object_next->isPlayer2;
+				obj->isPlayer2 = false;
+			oldPlayer->isPlayer2 = !obj->isPlayer2;
 		}
 	}
 	Object_next++;
@@ -99,10 +106,10 @@ void fighterWalk(Object* a) {
 	} else {
 		if (left->touching) {
 			if (Rnd_perchance(2))
-				left->pos.xy += (Point){Random_2(-4,4),-4}.xy;
+				left->pos.xy += (Point){Random_2(-4,4), -4}.xy;
 		} else if (right->touching) {
 			if (Rnd_perchance(2))
-				right->pos.xy += (Point){Random_2(-4,4),-4}.xy;
+				right->pos.xy += (Point){Random_2(-4,4), -4}.xy;
 		}
 	}
 }
@@ -113,9 +120,9 @@ void fighterKick(Object* a) {
 		if (r->type==Object_FIGHTER || r->type==Object_FIGHTER_JUMPING || r->type==Object_PLAYER) {
 			for (int i=4; i<=5; i++) {
 				ObjectNode* foot = &a->parts[i];
-				real g = abs(foot->pos.x - r->parts[0].pos.x);
-				real q = foot->pos.y - r->parts[0].pos.y;
-				if (g<=2 && q>=0 && q<=6) {
+				real dx = abs(foot->pos.x - r->parts[0].pos.x);
+				real dy = foot->pos.y - r->parts[0].pos.y;
+				if (dx<=2 && dy>=0 && dy<=6) {
 					r->vel.xy += Cxy(foot->pos.x-foot->oldPos.x, 2*(foot->pos.y-foot->oldPos.y));
 					if (r->type==Object_FIGHTER)
 						r->type = Object_FIGHTER_JUMPING;
@@ -172,16 +179,20 @@ static void moveNode(ObjectNode* node, real gravity, real slowdown) {
 void pullNodes(Object* e, int n1, int n2, real length, real mul1, real mul2) {
 	ObjectNode* node1 = &e->parts[n1];
 	ObjectNode* node2 = &e->parts[n2];
-	Point diff = {.c= node2->pos.c - node1->pos.c};
-	real dist = Vec_fastNormalize(&diff);
+	Point offset = {.xy= node2->pos.xy - node1->pos.xy};
+	real dist = Vec_fastNormalize(&offset);
 	if (dist) {
 		length -= dist;
-		node1->pos.c -= diff.c * (length*mul1);
-		node2->pos.c += diff.c * (length*mul2);
+		node1->pos.xy -= offset.xy * (length*mul1);
+		node2->pos.xy += offset.xy * (length*mul2);
 	}
 }
 
-static void updateNode(ObjectNode* node, real adv, bool noCollide, bool held) {
+// adv: how much the node is affected by wind
+// noCollide: whether to not check collisions
+// fancy: whether to do a full simulation
+//        if false, will limit velocity and only do 1 or 2 steps.
+static void updateNode(ObjectNode* node, real adv, bool noCollide, bool fancy) {
 	Point vel = Vec_sub2(node->pos, node->oldPos);
 	node->pos = node->oldPos;
 	if (adv!=0) {
@@ -189,7 +200,7 @@ static void updateNode(ObjectNode* node, real adv, bool noCollide, bool held) {
 		vel.xy += cell->vel.xy*adv;
 	}
 	int steps;
-	if (!held) {
+	if (!fancy) {
 		real f = Vec_fastDist(vel)+1;
 		if (f>=8) {
 			vel.xy *= 3.8/f;
@@ -211,6 +222,7 @@ static void updateNode(ObjectNode* node, real adv, bool noCollide, bool held) {
 		node->pos.y = clamp(node->pos.y, 4, HEIGHT-5);
 	} else {
 		for (int c=0; c<steps; c++) {
+			// check y-axis movement
 			real newY = node->pos.y + vel.y;
 			if (newY<4 || newY>=HEIGHT-4) {
 				node->touching = Elem_EMPTY;
@@ -234,6 +246,7 @@ static void updateNode(ObjectNode* node, real adv, bool noCollide, bool held) {
 				else
 					vel.y = -vel.y;
 			}
+			// check x-axis movement
 			real newX = node->pos.x + vel.x;
 			if (newX<4 || newX>=WIDTH-4) {
 				node->touching = Elem_EMPTY;
@@ -258,6 +271,11 @@ static void updateNode(ObjectNode* node, real adv, bool noCollide, bool held) {
 	}
 }
 
+// I don't know whats up with these return values...
+// 0: nothing
+// 3: hot
+//-5: acid, screen edge
+// 1: other
 static int checkTouching(Object* e, int start, int end) {
 	int b=0;
 	for (; start<end; start++) {
@@ -266,7 +284,7 @@ static int checkTouching(Object* e, int start, int end) {
 			return -5;
 		else if (touching<0)
 			b = 1;
-		else if (ELEMENTS[touching].state == State_HOT)
+		else if (touching[ELEMENTS].state == State_HOT)
 			return 3;
 		else if (touching==Elem_ACID)
 			return -5;
@@ -285,74 +303,74 @@ typedef struct Player {
 Player players[2];
 
 void Object_update(void) {
-	Object_FOR (a) {
+	Object_FOR (obj) {
 		void copyPos(int dest, int src) {
-			a->parts[dest].pos = a->parts[src].pos;
-			a->parts[dest].oldPos = a->parts[src].oldPos;
+			obj->parts[dest].pos = obj->parts[src].pos;
+			obj->parts[dest].oldPos = obj->parts[src].oldPos;
 		}
-		switch (a->type) {
+		switch (obj->type) {
 		case Object_PLAYER:;
 			/// todo: held || gotPress perhaps?
-			bool left = a->isPlayer2==0 ? Keys[37].held : Keys[65].held||Keys[97].held;
-			bool right = a->isPlayer2==0 ? Keys[39].held : Keys[68].held||Keys[100].held;
-			bool up = a->isPlayer2==0 ? Keys[38].held : Keys[87].held||Keys[119].held;
-			bool down = a->isPlayer2==0 ? Keys[40].held : Keys[83].held||Keys[115].held;
-			Player* player = &players[a->isPlayer2];
-			a->age++;
+			bool left = obj->isPlayer2==0 ? Keys[37].held : Keys[65].held||Keys[97].held;
+			bool right = obj->isPlayer2==0 ? Keys[39].held : Keys[68].held||Keys[100].held;
+			bool up = obj->isPlayer2==0 ? Keys[38].held : Keys[87].held||Keys[119].held;
+			bool down = obj->isPlayer2==0 ? Keys[40].held : Keys[83].held||Keys[115].held;
+			Player* player = &players[obj->isPlayer2];
+			obj->age++;
 			bool leftFoot =
-				Dot_pos3(a->parts[4].pos,0,1)>Dot_BGFAN ||
-				*Dot_pos2(a->parts[4].pos)>Dot_BGFAN;
+				Dot_pos3(obj->parts[4].pos,0,1)>Dot_BGFAN ||
+				*Dot_pos2(obj->parts[4].pos)>Dot_BGFAN;
 			bool rightFoot =
-				Dot_pos3(a->parts[5].pos,0,1)>Dot_BGFAN ||
-				*Dot_pos2(a->parts[5].pos)>Dot_BGFAN;
-			if (down && a->meta == Elem_BIRD) {
+				Dot_pos3(obj->parts[5].pos,0,1)>Dot_BGFAN ||
+				*Dot_pos2(obj->parts[5].pos)>Dot_BGFAN;
+			if (down && obj->meta == Elem_BIRD) {
 				for (int b=0;b<6;b++)
-					moveNode(&a->parts[b], 0.01, 0.997);
+					moveNode(&obj->parts[b], 0.01, 0.997);
 			} else { //dubious
-				moveNode(&a->parts[0], -0.2, 0.995);
-				moveNode(&a->parts[1], -0.1, 0.995);
-				moveNode(&a->parts[2], 0, 0.995);
-				moveNode(&a->parts[3], 0, 0.995);
-				moveNode(&a->parts[4], 0.3, 0.995);
-				moveNode(&a->parts[5], 0.3, 0.995);
+				moveNode(&obj->parts[0], -0.2, 0.995);
+				moveNode(&obj->parts[1], -0.1, 0.995);
+				moveNode(&obj->parts[2], 0, 0.995);
+				moveNode(&obj->parts[3], 0, 0.995);
+				moveNode(&obj->parts[4], 0.3, 0.995);
+				moveNode(&obj->parts[5], 0.3, 0.995);
 			}
-			checkDrag(a, 6);
-			a->parts[0].pos.xy += a->vel.xy;
-			a->vel.xy *= 0.5;
-			if (a->vel.x!=0)
-				a->type = Object_PLAYER_DYING;
+			checkDrag(obj, 6);
+			obj->parts[0].pos.xy += obj->vel.xy;
+			obj->vel.xy *= 0.5;
+			if (obj->vel.x!=0)
+				obj->type = Object_PLAYER_DYING;
 			if (player->Xe>0)
 				player->Xe--;
 			if (player->Xe!=0 || leftFoot!=1 || rightFoot!=1) {
 				if (right) {
-					if (a->parts[1].pos.x - a->parts[1].oldPos.x < 0)
-						a->parts[1].pos.x += 0.1;
+					if (obj->parts[1].pos.x - obj->parts[1].oldPos.x < 0)
+						obj->parts[1].pos.x += 0.1;
 					player->facing = 1;
 				} else if (left) {
-					if (a->parts[1].pos.x - a->parts[1].oldPos.x > 0)
-						a->parts[1].pos.x -= 0.1;
+					if (obj->parts[1].pos.x - obj->parts[1].oldPos.x > 0)
+						obj->parts[1].pos.x -= 0.1;
 					player->facing = 0;
 				}
 			} else {
 				real b = 0.8;
 				if (right) {
 					player->Xe = 15;
-					if (a->parts[4].pos.x < a->parts[5].pos.x) {
-						a->parts[2].pos.x += 4*b;
-						a->parts[2].pos.y -= 3*b;
+					if (obj->parts[4].pos.x < obj->parts[5].pos.x) {
+						obj->parts[2].pos.x += 4*b;
+						obj->parts[2].pos.y -= 3*b;
 					} else {
-						a->parts[3].pos.x += 4*b;
-						a->parts[3].pos.y -= 3*b;
+						obj->parts[3].pos.x += 4*b;
+						obj->parts[3].pos.y -= 3*b;
 					}
 					player->facing = 1;
 				} else if (left) {
 					player->Xe = 15;
-					if (a->parts[4].pos.x > a->parts[5].pos.x) {
-						a->parts[2].pos.x -= 4*b;
-						a->parts[2].pos.y -= 3*b;
+					if (obj->parts[4].pos.x > obj->parts[5].pos.x) {
+						obj->parts[2].pos.x -= 4*b;
+						obj->parts[2].pos.y -= 3*b;
 					} else {
-						a->parts[3].pos.x -= 4*b;
-						a->parts[3].pos.y -= 3*b;
+						obj->parts[3].pos.x -= 4*b;
+						obj->parts[3].pos.y -= 3*b;
 					}
 					player->facing = 0;
 				}
@@ -363,51 +381,51 @@ void Object_update(void) {
 				player->Ye--;
 			if (player->Ye==0 && up) {
 				player->Ye=50;
-				a->parts[4].pos.y -= 6;
-				a->parts[5].pos.y -= 6;
+				obj->parts[4].pos.y -= 6;
+				obj->parts[5].pos.y -= 6;
 			}
-			pullNodes(a, 0, 1, 4, 0.5, 0.5);
-			pullNodes(a, 1, 2, 4, 0.5, 0.5);
-			pullNodes(a, 1, 3, 4, 0.5, 0.5);
-			pullNodes(a, 2, 4, 5, 0.5, 0.5);
-			pullNodes(a, 3, 5, 5, 0.5, 0.5);
-			pullNodes(a, 2, 3, 5, 0.1, 0.1);
+			pullNodes(obj, 0, 1, 4, 0.5, 0.5);
+			pullNodes(obj, 1, 2, 4, 0.5, 0.5);
+			pullNodes(obj, 1, 3, 4, 0.5, 0.5);
+			pullNodes(obj, 2, 4, 5, 0.5, 0.5);
+			pullNodes(obj, 3, 5, 5, 0.5, 0.5);
+			pullNodes(obj, 2, 3, 5, 0.1, 0.1);
 			for (int i=0;i<6;i++)
-				updateNode(&a->parts[i], 0.1, (i<4), a->held>0);
+				updateNode(&obj->parts[i], 0.1, (i<4), obj->held>0);
 			for (int y=0;y<3;y++) {
 				for (int x=-1;x<2;x++) {
-					Dot* p = Dot_pos3(a->parts[0].oldPos, x, y);
+					Dot* p = Dot_pos3(obj->parts[0].oldPos, x, y);
 					if (p == Dot_BGFAN)
-						a->meta = Elem_FAN;
+						obj->meta = Elem_FAN;
 					else if (p >= Dot_0 && ELEMENTS[p->type].playerValid==1)
-						a->meta = p->type;
+						obj->meta = p->type;
 				}
 			}
-			if (!(up && (left||right)) && down && a->meta) {
-				int w = a->parts[0].pos.x;
-				int b = a->parts[0].pos.y+1;
+			if (!(up && (left||right)) && down && obj->meta) {
+				int w = obj->parts[0].pos.x;
+				int b = obj->parts[0].pos.y+1;
 				// nitro fly
-				if (a->meta == Elem_NITRO) {
+				if (obj->meta == Elem_NITRO) {
 					w += player->facing ? -8 : 8;
 					b += 12;
 				}
 				w=clamp(w,8,W+8-1);
 				b=clamp(b,8,H+8-1);
 				// fan blow air
-				if (a->meta == Elem_FAN) {
+				if (obj->meta == Elem_FAN) {
 					Block* cell = Block_at(w, b);
 					if (cell->block==Block_EMPTY)
 						cell->vel.x += player->facing ? 1 : -1;
 					//spit
-				} else if (a->meta != Elem_BIRD && Dot_at[b][w] == Dot_EMPTY) {
-					Dot* f = Dot_create(w, b, a->meta);
+				} else if (obj->meta != Elem_BIRD && Dot_at[b][w] == Dot_EMPTY) {
+					Dot* f = Dot_create(w, b, obj->meta);
 					if (f>=Dot_0) {
 						if (player->facing==0)
 							f->vel.x -= 20;
 						if (player->facing==1)
 							f->vel.x += 20;
 						f->vel.y += Random_(3)+1;
-						switch (a->meta) {
+						switch (obj->meta) {
 						when(Elem_FIRE):;
 							f->vel.x *= 3;
 							f->vel.y += 18;
@@ -423,37 +441,38 @@ void Object_update(void) {
 				}
 			}
 			// damage
-			if (checkTouching(a,0,6)==3 || checkTouching(a,0,6)==-5)
-				a->type = Object_PLAYER_DYING;
+			int touching = checkTouching(obj,0,6);
+			if (touching==3 || touching==-5)
+				obj->type = Object_PLAYER_DYING;
 			// edge
 			if (Menu_edgeMode==1) {
 				for (int r=4;r<=5;r++) {
 					int w=0,b=0;
-					if (a->parts[r].pos.x<8) {
+					if (obj->parts[r].pos.x<8) {
 						w = W+6;
-						b = a->parts[r].oldPos.y;
-					} else if (a->parts[r].pos.x>=W-8) {//CHECK
+						b = obj->parts[r].oldPos.y;
+					} else if (obj->parts[r].pos.x>=W-8) {//CHECK
 						w = 10;
-						b = a->parts[r].oldPos.y;
+						b = obj->parts[r].oldPos.y;
 					}
 					if (w+b!=0) {
-						a->type = Object_PLAYER;
+						obj->type = Object_PLAYER;
 						Dot* part = Dot_at[b][w];
 						if (part > Dot_BGFAN) {
 							if (part < Dot_0) {
-								a->parts[r].pos = a->parts[r].oldPos;
+								obj->parts[r].pos = obj->parts[r].oldPos;
 								continue;
 							} else if (ELEMENTS[part->type].state != State_LIQUID) {
-								a->parts[r].pos = a->parts[r].oldPos;
+								obj->parts[r].pos = obj->parts[r].oldPos;
 								continue;
 							}
 						}
-						Point e = Vec_sub2(a->parts[r].pos, a->parts[r].oldPos);
+						Point e = Vec_sub2(obj->parts[r].pos, obj->parts[r].oldPos);
 						Vec_fastNormalize(&e);
 						for (int d=0; d<=10;d++) {
-							a->parts[d].pos.x = w+e.x+Random_2(-0.1,0.1);
-							a->parts[d].pos.y = b+e.y+Random_2(-0.1,0.1);
-							a->parts[d].oldPos = (Point){w,b};
+							obj->parts[d].pos.x = w+e.x+Random_2(-0.1,0.1);
+							obj->parts[d].pos.y = b+e.y+Random_2(-0.1,0.1);
+							obj->parts[d].oldPos = (Point){w,b};
 						}
 						break;
 					}
@@ -462,100 +481,100 @@ void Object_update(void) {
 			break;
 		case Object_PLAYER_DYING:
 			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);copyPos(0, 0);
-			a->vel.y -= 1;
-			a->age = 0;
-			a->type = Object_PLAYER_DEAD;
+			obj->vel.y -= 1;
+			obj->age = 0;
+			obj->type = Object_PLAYER_DEAD;
 			break;
 		case Object_PLAYER_DEAD:
-			a->age++;
+			obj->age++;
 			for (int b=0;b<11;b++) {
-				moveNode(&a->parts[b], 0.1, 0.999);
-				a->parts[b].pos.c += a->vel.c;
+				moveNode(&obj->parts[b], 0.1, 0.999);
+				obj->parts[b].pos.c += obj->vel.c;
 			}
-			a->vel.c *= 0.5;
-			real e = (150-a->age)/150;
-			pullNodes(a, 1, 2, 4*e,0.5,0.5);
-			pullNodes(a, 3, 5, 4*e,0.5,0.5);
-			pullNodes(a, 4, 7, 4*e,0.5,0.5);
-			pullNodes(a, 6, 9, 5*e,0.5,0.5);
-			pullNodes(a, 8, 10, 5*e,0.5,0.5);
+			obj->vel.c *= 0.5;
+			real e = (150-obj->age)/150;
+			pullNodes(obj, 1, 2, 4*e,0.5,0.5);
+			pullNodes(obj, 3, 5, 4*e,0.5,0.5);
+			pullNodes(obj, 4, 7, 4*e,0.5,0.5);
+			pullNodes(obj, 6, 9, 5*e,0.5,0.5);
+			pullNodes(obj, 8, 10, 5*e,0.5,0.5);
 			for (int b=0;b<11;b++)
-				updateNode(&a->parts[b], 0.1, false, false);
-			if (a->age>150)
-				Object_remove(a--);
+				updateNode(&obj->parts[b], 0.1, false, false);
+			if (obj->age>150)
+				Object_remove(obj--);
 			break;
 		case Object_FIGHTER: case Object_FIGHTER_JUMPING:
-			a->age++;
-			if (a->type==Object_FIGHTER) {
-				moveNode(&a->parts[0],-0.2,0.995);
-				moveNode(&a->parts[1],-0.1,0.995);
-				moveNode(&a->parts[2],0,0.995);
-				moveNode(&a->parts[3],0,0.995);
-				moveNode(&a->parts[4],0.3,0.995);
-				moveNode(&a->parts[5],0.3,0.995);
+			obj->age++;
+			if (obj->type==Object_FIGHTER) {
+				moveNode(&obj->parts[0],-0.2,0.995);
+				moveNode(&obj->parts[1],-0.1,0.995);
+				moveNode(&obj->parts[2],0,0.995);
+				moveNode(&obj->parts[3],0,0.995);
+				moveNode(&obj->parts[4],0.3,0.995);
+				moveNode(&obj->parts[5],0.3,0.995);
 			} else {
-				moveNode(&a->parts[0],0.1,0.995);
-				moveNode(&a->parts[1],0.1,0.995);
-				moveNode(&a->parts[2],0.1,0.995);
-				moveNode(&a->parts[3],0.1,0.995);
-				moveNode(&a->parts[4],0.1,0.995);
-				moveNode(&a->parts[5],0.1,0.995);
+				moveNode(&obj->parts[0],0.1,0.995);
+				moveNode(&obj->parts[1],0.1,0.995);
+				moveNode(&obj->parts[2],0.1,0.995);
+				moveNode(&obj->parts[3],0.1,0.995);
+				moveNode(&obj->parts[4],0.1,0.995);
+				moveNode(&obj->parts[5],0.1,0.995);
 			}
-			checkDrag(a, 6);
-			a->parts[0].pos.c += a->vel.c;
-			a->vel.c *= 0.5;
-			if (a->type==Object_FIGHTER) {
+			checkDrag(obj, 6);
+			obj->parts[0].pos.c += obj->vel.c;
+			obj->vel.c *= 0.5;
+			if (obj->type==Object_FIGHTER) {
 				// check feets
-				fighterWalk(a);
-				fighterKick(a);
-			} else if (a->age>10 && (a->parts[4].touching||a->parts[5].touching) && Rnd_perchance(10)) {
-				a->type = Object_FIGHTER;
-				a->age = 0;
+				fighterWalk(obj);
+				fighterKick(obj);
+			} else if (obj->age>10 && (obj->parts[4].touching||obj->parts[5].touching) && Rnd_perchance(10)) {
+				obj->type = Object_FIGHTER;
+				obj->age = 0;
 			}
-			pullNodes(a, 0, 1, 4, 0.5,0.5);
-			pullNodes(a, 1, 2, 4, 0.5,0.5);
-			pullNodes(a, 1, 3, 4, 0.5,0.5);
-			pullNodes(a, 2, 4, 5, 0.5,0.5);
-			pullNodes(a, 3, 5, 5, 0.5,0.5);
-			pullNodes(a, 2, 3, 5, 0.1,0.1);
+			pullNodes(obj, 0, 1, 4, 0.5,0.5);
+			pullNodes(obj, 1, 2, 4, 0.5,0.5);
+			pullNodes(obj, 1, 3, 4, 0.5,0.5);
+			pullNodes(obj, 2, 4, 5, 0.5,0.5);
+			pullNodes(obj, 3, 5, 5, 0.5,0.5);
+			pullNodes(obj, 2, 3, 5, 0.1,0.1);
 			for (int i=0;i<6;i++)
-				updateNode(&a->parts[i], 0.1, (i<4), a->held>0);
-			int t = checkTouching(a,0,6);
+				updateNode(&obj->parts[i], 0.1, (i<4), obj->held>0);
+			int t = checkTouching(obj,0,6);
 			if (t==3 || t==-5)
-				a->type = Object_FIGHTER_DYING;
-			if (a->type==Object_FIGHTER && checkTouching(a,0,6))
-				a->age = 0;
-			else if (a->age>50)
-				a->type = Object_FIGHTER_JUMPING;
+				obj->type = Object_FIGHTER_DYING;
+			if (obj->type==Object_FIGHTER && checkTouching(obj,0,6))
+				obj->age = 0;
+			else if (obj->age>50)
+				obj->type = Object_FIGHTER_JUMPING;
 			if (Menu_edgeMode==1) {
 				for (int r=4;r<=5;r++) {
 					int w=0,b=0;
-					if (a->parts[r].pos.x<8) {
+					if (obj->parts[r].pos.x<8) {
 						w = W+6;
-						b = a->parts[r].oldPos.y;
-					} else if (a->parts[r].pos.x>=WIDTH-8) {
+						b = obj->parts[r].oldPos.y;
+					} else if (obj->parts[r].pos.x>=WIDTH-8) {
 						w = 10;
-						b = a->parts[r].oldPos.y;
+						b = obj->parts[r].oldPos.y;
 					}
 					if (w+b!=0) {
-						a->type = Object_FIGHTER;
-						a->age = 0;
+						obj->type = Object_FIGHTER;
+						obj->age = 0;
 						Dot* part = Dot_at[b][w];
 						if (part > Dot_BGFAN) {
 							if (part < Dot_0) {
-								a->parts[r].pos = a->parts[r].oldPos;
+								obj->parts[r].pos = obj->parts[r].oldPos;
 								continue;
 							} else if (ELEMENTS[part->type].state != State_LIQUID) {
-								a->parts[r].pos = a->parts[r].oldPos;
+								obj->parts[r].pos = obj->parts[r].oldPos;
 								continue;
 							}
 						}
-						Point e = Vec_sub2(a->parts[r].pos, a->parts[r].oldPos);
+						Point e = Vec_sub2(obj->parts[r].pos, obj->parts[r].oldPos);
 						Vec_fastNormalize(&e);
 						for (int d=0; d<=10;d++) {
-							a->parts[d].pos.x = w+e.x+Random_2(-0.1,0.1);
-							a->parts[d].pos.y = b+e.y+Random_2(-0.1,0.1);
-							a->parts[d].oldPos = (Point){w,b};
+							obj->parts[d].pos.x = w+e.x+Random_2(-0.1,0.1);
+							obj->parts[d].pos.y = b+e.y+Random_2(-0.1,0.1);
+							obj->parts[d].oldPos = (Point){w,b};
 						}
 						break;
 					}
@@ -564,61 +583,61 @@ void Object_update(void) {
 			break;
 		case Object_FIGHTER_DYING:
 			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);
-			a->vel.y -= 1;
-			a->age = 0;
-			a->type = Object_FIGHTER_DEAD;
+			obj->vel.y -= 1;
+			obj->age = 0;
+			obj->type = Object_FIGHTER_DEAD;
 			break;
 		case Object_FIGHTER_DEAD:
-			a->age++;
+			obj->age++;
 			for (int b=0; b<11; b++) {
-				moveNode(&a->parts[b], 0.1, 0.999);
-				a->parts[b].pos.c += a->vel.c;
+				moveNode(&obj->parts[b], 0.1, 0.999);
+				obj->parts[b].pos.c += obj->vel.c;
 			}
-			a->vel.c *= 0.5;
-			e = (150-a->age)/150;
-			pullNodes(a, 1, 2, 4*e,0.5,0.5);
-			pullNodes(a, 3, 5, 4*e,0.5,0.5);
-			pullNodes(a, 4, 7, 4*e,0.5,0.5);
-			pullNodes(a, 6, 9, 5*e,0.5,0.5);
-			pullNodes(a, 8, 10, 5*e,0.5,0.5);
+			obj->vel.c *= 0.5;
+			e = (150-obj->age)/150;
+			pullNodes(obj, 1, 2, 4*e,0.5,0.5);
+			pullNodes(obj, 3, 5, 4*e,0.5,0.5);
+			pullNodes(obj, 4, 7, 4*e,0.5,0.5);
+			pullNodes(obj, 6, 9, 5*e,0.5,0.5);
+			pullNodes(obj, 8, 10, 5*e,0.5,0.5);
 			for (int b=0;b<11;b++)
-				updateNode(&a->parts[b], 0.1, false, false);
-			if (a->age>150)
-				Object_remove(a--);
+				updateNode(&obj->parts[b], 0.1, false, false);
+			if (obj->age>150)
+				Object_remove(obj--);
 			break;
 		case Object_BOX:
-			a->age++;
+			obj->age++;
 			for (int b=0;b<4;b++)
-				moveNode(&a->parts[b],0.1,1);
-			checkDrag(a, 4);
+				moveNode(&obj->parts[b],0.1,1);
+			checkDrag(obj, 4);
 			// kick
 			for (int b=0;b<4;b++) {
 				Object_FOR (r) {
 					if (r->type==Object_FIGHTER||r->type==Object_FIGHTER_JUMPING||r->type==Object_PLAYER) {
 						for (int i=4;i<=5;i++) {
 							ObjectNode* part = &r->parts[i];
-							real g = abs(part->pos.x - a->parts[b].pos.x);
-							real q = abs(part->pos.y - a->parts[b].pos.y);
+							real g = abs(part->pos.x - obj->parts[b].pos.x);
+							real q = abs(part->pos.y - obj->parts[b].pos.y);
 							if (g<=3 && q<=3) {
-								a->parts[b].pos.x += 1*(part->pos.x - part->oldPos.x);
-								a->parts[b].pos.y += 2*(part->pos.y - part->oldPos.y);
+								obj->parts[b].pos.x += 1*(part->pos.x - part->oldPos.x);
+								obj->parts[b].pos.y += 2*(part->pos.y - part->oldPos.y);
 							}
 						}
 					}
 				}
 			}
-			real r = 4*(a->meta+1);
-			pullNodes(a,0,1,r,0.5,0.5);
-			pullNodes(a,1,2,r,0.5,0.5);
-			pullNodes(a,2,3,r,0.5,0.5);
-			pullNodes(a,3,0,r,0.5,0.5);
-			pullNodes(a,0,2,1.4142135*r,0.5,0.5);
-			pullNodes(a,1,3,1.4142135*r,0.5,0.5);
+			real r = 4*(obj->meta+1);
+			pullNodes(obj,0,1,r,0.5,0.5);
+			pullNodes(obj,1,2,r,0.5,0.5);
+			pullNodes(obj,2,3,r,0.5,0.5);
+			pullNodes(obj,3,0,r,0.5,0.5);
+			pullNodes(obj,0,2,1.4142135*r,0.5,0.5);
+			pullNodes(obj,1,3,1.4142135*r,0.5,0.5);
 			for (int b=0;b<4;b++)
-				updateNode(&a->parts[b],0.5,false,true);
-			t = checkTouching(a,0,6);
+				updateNode(&obj->parts[b],0.5,false,true);
+			t = checkTouching(obj,0,6);
 			if (t==3 || t==-5)
-				a->type = Object_BOX_DYING;
+				obj->type = Object_BOX_DYING;
 			break;
 		case Object_BOX_DYING:
 			copyPos(7, 0);
@@ -627,39 +646,39 @@ void Object_update(void) {
 			copyPos(4, 2);
 			copyPos(3, 2);
 			copyPos(2, 1);
-			a->held = 0;
-			a->age = 0;
-			a->type = checkTouching(a,0,4)==-5 ? Object_BOX_DEAD : Object_BOX_BURNING;
+			obj->held = 0;
+			obj->age = 0;
+			obj->type = checkTouching(obj,0,4)==-5 ? Object_BOX_DEAD : Object_BOX_BURNING;
 			break;
 		case Object_BOX_BURNING: case Object_BOX_DEAD:
-			a->age++;
-			checkDrag(a, 8);
+			obj->age++;
+			checkDrag(obj, 8);
 			for (int b=0;b<8;b++)
-				moveNode(&a->parts[b], 0.1, 0.999);
-			r=(real)(150-a->age)/150*(a->meta+1)*4;
-			pullNodes(a, 0, 1, r, 0.5, 0.5);
-			pullNodes(a, 2, 3, r, 0.5, 0.5);
-			pullNodes(a, 4, 5, r, 0.5, 0.5);
-			pullNodes(a, 6, 7, r, 0.5, 0.5);
+				moveNode(&obj->parts[b], 0.1, 0.999);
+			r=(real)(150-obj->age)/150*(obj->meta+1)*4;
+			pullNodes(obj, 0, 1, r, 0.5, 0.5);
+			pullNodes(obj, 2, 3, r, 0.5, 0.5);
+			pullNodes(obj, 4, 5, r, 0.5, 0.5);
+			pullNodes(obj, 6, 7, r, 0.5, 0.5);
 			// put fire on burning box
-			if (a->type==Object_BOX_BURNING && Dot_limit1000()) {
+			if (obj->type==Object_BOX_BURNING && Dot_limit1000()) {
 				for (int b=0;b<5;b+=2) {
 					Point e = {.c=
-						(a->parts[b+1].oldPos.c - a->parts[b].oldPos.c) * Random_(1) + a->parts[b].oldPos.c
+						(obj->parts[b+1].oldPos.c - obj->parts[b].oldPos.c) * Random_(1) + obj->parts[b].oldPos.c
 					};
 					if (*Dot_pos2(e)<=Dot_BGFAN)
 						Dot_create(e.x, e.y, Elem_FIRE);
 				}
 			}
 			for (int b=0;b<8;b++)
-				updateNode(&a->parts[b],0.1,false,false);
-			if (a->age>150)
-				Object_remove(a--);
+				updateNode(&obj->parts[b],0.1,false,false);
+			if (obj->age>150)
+				Object_remove(obj--);
 			break;
 		case Object_CREATE:
-			if (a->parts[0].createType==0) {
+			if (obj->parts[0].createType==0) {
 				// check for touching
-				Point pos = a->parts[0].pos;
+				Point pos = obj->parts[0].pos;
 				bool touching(Point pos2) {
 					return (pos.x+8>=pos2.x &&
 					        pos.x-4<=pos2.x &&
@@ -669,39 +688,39 @@ void Object_update(void) {
 				Object_FOR (r) {
 					if (touching(r->parts[0].pos)) {
 						if (r->type==Object_FIGHTER || r->type==Object_BOX) {
-							a->parts[0].createType = r->type;
-							a->meta = r->meta;
+							obj->parts[0].createType = r->type;
+							obj->meta = r->meta;
 						} else if (r->type==Object_PLAYER) {
 							Object_FOR (e) {
 								if (e->type==Object_CREATE && e->parts[0].createType==Object_PLAYER)
 									e->parts[0].createType = 0;
 							}
-							a->parts[0].createType = r->type;
-							a->meta = r->meta;
+							obj->parts[0].createType = r->type;
+							obj->meta = r->meta;
 						}
 					}
 				}
 				Ball_FOR (r) {
 					if (r->used && touching(r->pos)) {
-						a->parts[0].createType = Object_BALL;
-						a->meta = r->type;
+						obj->parts[0].createType = Object_BALL;
+						obj->meta = r->type;
 					}
 				}
 			} else {
 				// create is spawning objects:
-				axis x = a->parts[0].pos.x;
-				axis y = a->parts[0].pos.y;
-				int type = a->parts[0].createType;
+				axis x = obj->parts[0].pos.x;
+				axis y = obj->parts[0].pos.y;
+				int type = obj->parts[0].createType;
 				if (type==Object_PLAYER) {
 					if (Rnd_perchance(10))
-						Object_create(x,y,Elem_PLAYER,a->meta);
+						Object_create(x,y,Elem_PLAYER,obj->meta);
 				} else if (Rnd_perchance(1)) {
 					if (type==Object_FIGHTER)
 						Object_create(x,y,0,0);
 					else if (type==Object_BOX)
-						Object_create(x,y,Elem_BOX,a->meta);
+						Object_create(x,y,Elem_BOX,obj->meta);
 					else if (type==Object_BALL)
-						Ball_create(x+2,y+2,a->meta);
+						Ball_create(x+2,y+2,obj->meta);
 				}
 			}
 		}

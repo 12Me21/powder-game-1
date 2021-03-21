@@ -7,22 +7,18 @@ CFLAGS+= -fsingle-precision-constant
 #gch:= precompile.h
 
 ifdef win
- cc:= i686-w64-mingw32-gcc
+ CC:= i686-w64-mingw32-gcc
  LDFLAGS+= -mwindows
  junkdir:= windows
  libs:= winmm dwmapi
  srcs+= platform-windows
  output:= pg1.exe
- gch:= precompile.h.gch
 else
- cc:= gcc
+ CC:= gcc
  junkdir:= linux
  libs:= X11 m Xpm
  srcs+= platform-x11
- #srcs+= platform-gtk3
  output:= pg1
- #cflags2+= $(shell pkg-config --cflags gtk+-3.0)
- #LDFLAGS+= $(shell pkg-config --libs gtk+-3.0)
 endif
 
 ifdef opt

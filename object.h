@@ -29,19 +29,19 @@ typedef struct ObjectNode {
 typedef struct Object {
 	char type; // A[]
 	//char sub; 
-	int meta; // Ed[]
+	Elem meta; // Ed[]
 	//used for:
 	// box size
 	// player element
 	// (make this a union?)
 	
 	bool isPlayer2; // Xd[]
-	int held; // Qd[]
+	char held; // Qd[]
 	// when an entity is being DRAG'd, one of its parts is considered "held".
 	// if e.held is nonzero, e.parts[e.held-1] is being held
 	
 	Point vel; // Pe[]
-	int age; // Vd[]
+	short age; // Vd[]
 	ObjectNode parts[Object_PARTS];
 } Object;
 
@@ -53,5 +53,5 @@ extern Object* Object_next;
 
 #define Object_FOR(en) for (Object* en=entitys; en<Object_next; en++)
 
-void Object_create(real x, real y, int type, int meta2); // Gd()
+void Object_create(real x, real y, Elem type, int meta2); // Gd()
 void Object_remove(Object* entity); // oe()

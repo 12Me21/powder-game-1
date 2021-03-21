@@ -18,9 +18,9 @@ typedef uint32_t Color;
 
 #define Cxy(x,y) ((Point){(x),(y)}.xy)
 
-typedef int32_t axis;
-typedef int32_t Offset;
-typedef int8_t Elem;
+typedef int32_t axis; // could probably be 16bit but we want axis*width+axis to be 32bit so i make this 32bit just in case
+typedef int32_t Offset; 
+typedef int8_t Elem; // this has to be like, 0-100 ish, and a few negatives. -128 to 127 is a good range.
 
 //#define SWITCH(cond) switch(cond) {
 //#define CASE break; case
