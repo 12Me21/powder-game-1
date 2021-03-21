@@ -166,10 +166,10 @@ void Object_remove(Object* entity) {
 
 // update node position
 static void moveNode(ObjectNode* node, real gravity, real slowdown) {
-	Point movement = {.c= node->pos.c - node->oldPos.c};
+	Point movement = {.xy= node->pos.xy - node->oldPos.xy};
 	node->oldPos = node->pos;
 	movement.y += gravity;
-	node->pos.c += (movement.c * slowdown);
+	node->pos.xy += (movement.xy * slowdown);
 }
 
 // try to make the nodes be a certain distance apart
@@ -433,7 +433,7 @@ void Object_update(void) {
 						when(Elem_SUPERBALL):;
 							f->vel.y = 20;
 						when(Elem_STONE):;
-							f->vel.c *= 0.1;
+							f->vel.xy *= 0.1;
 						when(Elem_LASER):;
 							f->charge = player->facing ? 1 : 5;
 						}
@@ -489,9 +489,9 @@ void Object_update(void) {
 			obj->age++;
 			for (int b=0;b<11;b++) {
 				moveNode(&obj->parts[b], 0.1, 0.999);
-				obj->parts[b].pos.c += obj->vel.c;
+				obj->parts[b].pos.xy += obj->vel.xy;
 			}
-			obj->vel.c *= 0.5;
+			obj->vel.xy *= 0.5;
 			real e = (150-obj->age)/150;
 			pullNodes(obj, 1, 2, 4*e,0.5,0.5);
 			pullNodes(obj, 3, 5, 4*e,0.5,0.5);
@@ -521,8 +521,8 @@ void Object_update(void) {
 				moveNode(&obj->parts[5],0.1,0.995);
 			}
 			checkDrag(obj, 6);
-			obj->parts[0].pos.c += obj->vel.c;
-			obj->vel.c *= 0.5;
+			obj->parts[0].pos.xy += obj->vel.xy;
+			obj->vel.xy *= 0.5;
 			if (obj->type==Object_FIGHTER) {
 				// check feets
 				fighterWalk(obj);
@@ -591,9 +591,9 @@ void Object_update(void) {
 			obj->age++;
 			for (int b=0; b<11; b++) {
 				moveNode(&obj->parts[b], 0.1, 0.999);
-				obj->parts[b].pos.c += obj->vel.c;
+				obj->parts[b].pos.xy += obj->vel.xy;
 			}
-			obj->vel.c *= 0.5;
+			obj->vel.xy *= 0.5;
 			e = (150-obj->age)/150;
 			pullNodes(obj, 1, 2, 4*e,0.5,0.5);
 			pullNodes(obj, 3, 5, 4*e,0.5,0.5);
@@ -663,8 +663,8 @@ void Object_update(void) {
 			// put fire on burning box
 			if (obj->type==Object_BOX_BURNING && Dot_limit1000()) {
 				for (int b=0;b<5;b+=2) {
-					Point e = {.c=
-						(obj->parts[b+1].oldPos.c - obj->parts[b].oldPos.c) * Random_(1) + obj->parts[b].oldPos.c
+					Point e = {.xy=
+						(obj->parts[b+1].oldPos.xy - obj->parts[b].oldPos.xy) * Random_(1) + obj->parts[b].oldPos.xy
 					};
 					if (*Dot_pos2(e)<=Dot_BGFAN)
 						Dot_create(e.x, e.y, Elem_FIRE);

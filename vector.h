@@ -6,7 +6,7 @@ typedef union Point {
 	struct {
 		real x, y;
 	};
-	Complex c;
+	//Complex c;
 	Complex xy;
 	// the `xy` member is experimental
 	// this allows treating the struct as a single complex number which
