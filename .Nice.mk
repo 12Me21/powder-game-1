@@ -25,7 +25,8 @@ $(output): $(srcs:%=$(junkdir)/%.o)
 	@$(CC) $(LDFLAGS) $^ $(libs:%=-l%) -o $@
 
 # Compile
-$(junkdir)/%.o $(junkdir)/%.mk &: $(srcdir)/%.c
+$(junkdir)/%.o $(junkdir)/%.mk : $(srcdir)/%.c
+	@echo $(MAKE_VERSION)
 	@mkdir -p $(@D)
 	@$(call print,$(junkdir)/$*.o,$(junkdir)/,$^,$(srcdir)/)
 	@$(CC) $(CFLAGS) -MMD -MF$(junkdir)/$*.mk -MQ$(junkdir)/$*.mk -MQ$(<:%.c=$(junkdir)/%.o) -c $< -o $(junkdir)/$*.o

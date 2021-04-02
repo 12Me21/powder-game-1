@@ -4,6 +4,9 @@ srcs:= elements input main dot vector render/draw menu save render/bg object ren
 # causes number literals to be treated as float instead of double
 CFLAGS+= -fsingle-precision-constant
 
+#CFLAGS+= -mx32
+#LDFLAGS+= -mx32
+
 #gch:= precompile.h
 
 ifdef win
