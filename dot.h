@@ -12,6 +12,8 @@
 #define Dot_FOR(var) for (Dot* var=Dot_0; var<Dot_next; var++)
 //#define Dot_EACH(var) Dot* var=Dot_0; var<Dot_next; var++
 
+// size: 24 bytes
+// ppppPPPPvvvvVVVVccccth..
 typedef struct Dot {
 	Point pos;    // L[]
 	Point vel;    // E[]

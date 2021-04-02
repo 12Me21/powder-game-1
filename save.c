@@ -113,7 +113,7 @@ void loadSaveFile(FILE* stream) {
 
 void load1(void) {
 	int total=0;
-	Sim_reset(true);
+	Sim_reset(false);
 	for (int y=0; y<H; y++) {
 		for (int x=0; x<W; x++) {
 			int t = Save_data[y][x].type;

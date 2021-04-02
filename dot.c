@@ -49,16 +49,20 @@ bool Dot_limit1000(void) {
 
 // todo: make a create that takes a vector
 Dot* Dot_create(real x, real y, Elem element) {
-	if (Dot_next>=Dot_0+Dot_limit || x<7 || x>=W+8+1 || y<7 || y>=H+8+1)
+	if (Dot_next >= Dot_0+Dot_limit)
 		return NULL;
+	// must not be more than 1px outside visible area
+	if (x<7 || x>=WIDTH-7 || y<7 || y>=HEIGHT-7)
+		return NULL;
+	
 	*Dot_next = (Dot){
-		{x,y},
-		{0,0},
+		.pos={x,y},
+		.vel={0,0},
 		.type=element,
 		.charge=0,
 		.held=false,
 	};
-	*Dot_pos2(Dot_next->pos) = Dot_next;
+	Dot_toGrid(Dot_next);
 	return Dot_next++;
 }
 

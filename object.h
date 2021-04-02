@@ -16,6 +16,7 @@ enum ObjectType {
 
 // "Objects"
 
+// rename to "joint?"
 typedef struct ObjectNode {
 	Point pos; // N[]
 	Point oldPos; // Z[]

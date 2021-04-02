@@ -39,44 +39,44 @@ static const struct neighbor {
 	int offset;
 } neighbors[] = {
 	{(Point){-0.7 ,-0.7 },XYOFS(-1,-1),},
-   {(Point){ 0   ,-1   },XYOFS( 0,-1),},
-   {(Point){ 0.7 ,-0.7 },XYOFS( 1,-1),},
-   {(Point){-1   , 0   },XYOFS(-1, 0),}, // [][][]
-   {(Point){ 0   , 0   },XYOFS( 0, 0),}, // [][][]
-   {(Point){ 1   , 0   },XYOFS( 1, 0),}, // [][][]
-   {(Point){-0.7 , 0.7 },XYOFS(-1, 1),},
-   {(Point){ 0   , 1   },XYOFS( 0, 1),},
-   {(Point){ 0.7 , 0.7 },XYOFS( 1, 1),},
+	{(Point){ 0   ,-1   },XYOFS( 0,-1),},
+	{(Point){ 0.7 ,-0.7 },XYOFS( 1,-1),},
+	{(Point){-1   , 0   },XYOFS(-1, 0),}, // [][][]
+	{(Point){ 0   , 0   },XYOFS( 0, 0),}, // [][][]
+	{(Point){ 1   , 0   },XYOFS( 1, 0),}, // [][][]
+	{(Point){-0.7 , 0.7 },XYOFS(-1, 1),},
+	{(Point){ 0   , 1   },XYOFS( 0, 1),},
+	{(Point){ 0.7 , 0.7 },XYOFS( 1, 1),},
 
-   {(Point){-0.44,-0.89},XYOFS(-1,-2),}, //   [][][]
-   {(Point){ 0   ,-1   },XYOFS( 0,-2),}, // []      []
-   {(Point){ 0.44,-0.89},XYOFS( 1,-2),}, // []      []
-   {(Point){-0.44, 0.89},XYOFS(-1, 2),}, // []      []
-   {(Point){ 0   , 1   },XYOFS( 0, 2),}, //   [][][]
-   {(Point){ 0.44, 0.89},XYOFS( 1, 2),},
-   {(Point){-0.89,-0.44},XYOFS(-2,-1),},
-   {(Point){-1   , 0   },XYOFS(-2, 0),},
-   {(Point){-0.89, 0.44},XYOFS(-2, 1),},
-   {(Point){ 0.89,-0.44},XYOFS( 2,-1),},
-   {(Point){ 1   , 0   },XYOFS( 2, 0),},
-   {(Point){ 0.89, 0.44},XYOFS( 2, 1),},
+	{(Point){-0.44,-0.89},XYOFS(-1,-2),}, //   [][][]
+	{(Point){ 0   ,-1   },XYOFS( 0,-2),}, // []      []
+	{(Point){ 0.44,-0.89},XYOFS( 1,-2),}, // []      []
+	{(Point){-0.44, 0.89},XYOFS(-1, 2),}, // []      []
+	{(Point){ 0   , 1   },XYOFS( 0, 2),}, //   [][][]
+	{(Point){ 0.44, 0.89},XYOFS( 1, 2),},
+	{(Point){-0.89,-0.44},XYOFS(-2,-1),},
+	{(Point){-1   , 0   },XYOFS(-2, 0),},
+	{(Point){-0.89, 0.44},XYOFS(-2, 1),},
+	{(Point){ 0.89,-0.44},XYOFS( 2,-1),},
+	{(Point){ 1   , 0   },XYOFS( 2, 0),},
+	{(Point){ 0.89, 0.44},XYOFS( 2, 1),},
    
-   {(Point){-0.31,-0.94},XYOFS(-1,-3),}, //     [][][]  
-   {(Point){ 0   ,-1   },XYOFS( 0,-3),}, //   []      []
-   {(Point){ 0.31,-0.94},XYOFS( 1,-3),}, // []          []
-   {(Point){-0.31, 0.94},XYOFS(-1, 3),}, // []          []
-   {(Point){ 0   , 1   },XYOFS( 0, 3),}, // []          []
-   {(Point){ 0.31, 0.94},XYOFS( 1, 3),}, //   []      []
-   {(Point){-0.94,-0.31},XYOFS(-3,-1),}, //     [][][]  
-   {(Point){-1   , 0   },XYOFS(-3, 0),},
-   {(Point){-0.94, 0.31},XYOFS(-3, 1),},
-   {(Point){ 0.94,-0.31},XYOFS( 3,-1),},
-   {(Point){ 1   , 0   },XYOFS( 3, 0),},
-   {(Point){ 0.94, 0.31},XYOFS( 3, 1),},
-   {(Point){-0.7 ,-0.7 },XYOFS(-2,-2),},
-   {(Point){ 0.7 ,-0.7 },XYOFS( 2,-2),},
-   {(Point){-0.7 , 0.7 },XYOFS(-2, 2),},
-   {(Point){ 0.7 , 0.7 },XYOFS( 2, 2),},
+	{(Point){-0.31,-0.94},XYOFS(-1,-3),}, //     [][][]  
+	{(Point){ 0   ,-1   },XYOFS( 0,-3),}, //   []      []
+	{(Point){ 0.31,-0.94},XYOFS( 1,-3),}, // []          []
+	{(Point){-0.31, 0.94},XYOFS(-1, 3),}, // []          []
+	{(Point){ 0   , 1   },XYOFS( 0, 3),}, // []          []
+	{(Point){ 0.31, 0.94},XYOFS( 1, 3),}, //   []      []
+	{(Point){-0.94,-0.31},XYOFS(-3,-1),}, //     [][][]  
+	{(Point){-1   , 0   },XYOFS(-3, 0),},
+	{(Point){-0.94, 0.31},XYOFS(-3, 1),},
+	{(Point){ 0.94,-0.31},XYOFS( 3,-1),},
+	{(Point){ 1   , 0   },XYOFS( 3, 0),},
+	{(Point){ 0.94, 0.31},XYOFS( 3, 1),},
+	{(Point){-0.7 ,-0.7 },XYOFS(-2,-2),},
+	{(Point){ 0.7 ,-0.7 },XYOFS( 2,-2),},
+	{(Point){-0.7 , 0.7 },XYOFS(-2, 2),},
+	{(Point){ 0.7 , 0.7 },XYOFS( 2, 2),},
 };
 
 // mode:
@@ -143,11 +143,13 @@ static void checkDragging(Ball* i) {
 static void checkEntities(Ball* ball) {
 	Object_FOR (en) {
 		if (en->type==Object_FIGHTER||en->type==Object_FIGHTER+1||en->type==Object_PLAYER) {
+			// nodes 4 and 5 are the feet
 			for (int f=4; f<=5; f++) {
-				real dx = abs(en->parts[f].pos.x - ball->pos.x);
-				real dy = abs(en->parts[f].pos.y - ball->pos.y);
+				ObjectNode* node = &en->parts[f];
+				real dx = abs(node->pos.x - ball->pos.x);
+				real dy = abs(node->pos.y - ball->pos.y);
 				if (dx<=9 && dy<=9) {
-					ball->vel.xy += 0.1*(en->parts[f].pos.xy - en->parts[f].oldPos.xy);
+					ball->vel.xy += 0.1*(node->pos.xy - node->oldPos.xy);
 				}
 			}
 		}
@@ -158,21 +160,21 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	real nextx = i->pos.x+i->vel.x*n;
 	real nexty = i->pos.y+i->vel.y*n;
 	// way offscreen
-	if (nextx<4 || nextx>=WIDTH-4 || nexty<4 || nexty>=H+12) {
+	if (nextx<4 || nextx>=WIDTH-4 || nexty<4 || nexty>=HEIGHT-4) {
 		i->used = false;
 		return true;
 	}
 	// edge loop mode
 	if (Menu_edgeMode==1) {
 		if (nextx<8) {
-			if (Dot_pos(nextx+W,nexty)[0]<=Dot_BGFAN) {
+			if (*Dot_pos(nextx+W,nexty)<=Dot_BGFAN) {
 				i->pos.x += W;
 				i->vel.x *= 0.8;
 			} else
 				i->vel.x *= -0.8;
 			nextx = i->pos.x+i->vel.x*n;
 		} else if (nextx>=W+8) {
-			if (Dot_pos(nextx-W,nexty)[0]<=Dot_BGFAN) {
+			if (*Dot_pos(nextx-W,nexty)<=Dot_BGFAN) {
 				i->pos.x -= W;
 				i->vel.x *= 0.8;
 			} else
@@ -180,14 +182,14 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 			nextx = i->pos.x+i->vel.x*n;
 		}
 		if (nexty<8) {
-			if (Dot_pos(nextx,nexty+H)[0]<=Dot_BGFAN) {
+			if (*Dot_pos(nextx,nexty+H)<=Dot_BGFAN) {
 				i->pos.y += H;
 				i->vel.y *= 0.8;
 			} else
 				i->vel.y *= -0.8;
 			nexty = i->pos.y+i->vel.y*n;
 		} else if (nexty>=H+8) {
-			if (Dot_pos(nextx,nexty-H)[0]<=Dot_BGFAN) {
+			if (*Dot_pos(nextx,nexty-H)<=Dot_BGFAN) {
 				i->pos.y -= H;
 				i->vel.y *= 0.5; // this is not 0.8 like the others
 			} else
@@ -212,6 +214,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 		z.xy -= neighbors[d].breakVel.xy;
 		touches++;
 	}
+	//printf("touching: %f %f\n", z.x, z.y);
 	if (touches==0) {
 		i->pos.x = nextx;
 		i->pos.y = nexty;
@@ -234,7 +237,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	touches = 0;
 	for (int d=0;d<21;d++) {
 		Dot* near = pc[neighbors[d].offset];
-		if (near<Dot_BGFAN) continue;
+		if (near<=Dot_BGFAN) continue;
 		if (near>=Dot_0) {
 			int btype = i->type;
 			int ptype = near->type;
@@ -282,7 +285,7 @@ void Ball_update(void) {
 		i->vel.y += weight;
 
 		real adv = ELEMENTS[i->type].ballAdvection;
-		if (adv) {
+		if (adv!=0) {
 			Block* cell = Block_at(i->pos.x,i->pos.y);
 			i->vel.x += cell->vel.x*adv;
 			i->vel.y += cell->vel.y*adv;
@@ -303,7 +306,7 @@ void Ball_update(void) {
 				break;
 		}
 
-		if (i->pos.x<4 || i->pos.x>=WIDTH-4 || i->pos.y<4 || i->pos.y>=H+12) {
+		if (i->pos.x<4 || i->pos.x>=WIDTH-4 || i->pos.y<4 || i->pos.y>=HEIGHT-4) {
 			i->used = false;
 			break;
 		}
