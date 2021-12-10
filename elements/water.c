@@ -1,6 +1,10 @@
-break; case Elem_WATER:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Dot_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	int dir = atLeast(Random_int(8)-4, 0); //0 to 3
 	
@@ -17,19 +21,21 @@ break; case Elem_WATER:
 				p->type = Elem_ICE;
 		//put water into pump
 		} else if (Dot_checkPump(p, near, dir))
-			Dot_KILL();
+			return true;
 	}
-
-#elif defined UPDATE_BALL
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	if (touched==Elem_MAGMA || touched==Elem_THUNDER || touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_WATER, 0, Point(0), 0);
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	switch(part->type) {
 	case Elem_FIRE:;
 		Dot_remove(part);
 		return 1;
-		break;
 	case Elem_WOOD:;
 		part->type = Elem_SEED;
 		part->charge = 0;
@@ -43,7 +49,6 @@ break; case Elem_WATER:
 		break;
 	case Elem_MAGMA: case Elem_THUNDER: case Elem_LASER:;
 		return 1;
-		break;
 	case Elem_TORCH:;
 		Dot_remove(part);
 		break;
@@ -59,5 +64,24 @@ break; case Elem_WATER:
 		part->type = Elem_GUNPOWDER;
 		part->charge = 0;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_WATER] = (ElementDef){
+		.name = "WATER",
+		.color = 0x4040FF,
+		.state = State_LIQUID,
+		.playerValid = true,
+		.dissolveRate = 40,
+		.friction = 0.8,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.4,
+		.wheelWeight = 4,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,
+	};
 }

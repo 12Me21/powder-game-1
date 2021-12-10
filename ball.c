@@ -32,12 +32,7 @@ void Ball_create(int x, int y, Elem type) {
 
 #define XYOFS(x,y) x,y,Dot_ofs(x,y)
 
-static const struct neighbor {
-	Point breakVel;
-	int breakX;
-	int breakY;
-	int offset;
-} neighbors[] = {
+const BallNeighbor Ball_NEIGHBORS[] = {
 	{(Point){-0.7 ,-0.7 },XYOFS(-1,-1),},
 	{(Point){ 0   ,-1   },XYOFS( 0,-1),},
 	{(Point){ 0.7 ,-0.7 },XYOFS( 1,-1),},
@@ -87,15 +82,16 @@ static const struct neighbor {
 void Ball_break(Ball* ball, int mode, int createType, int charge, Point vel, real speed) {
 	Dot** pc = Dot_pos2(ball->pos);
 	for (int i=mode==2 ? 0 : 9; i<21; i++) {
-		Dot* near = pc[neighbors[i].offset];
+		BallNeighbor n = Ball_NEIGHBORS[i];
+		Dot* near = pc[n.offset];
 		if (near<=Dot_BGFAN) {
 			near = Dot_create(
-				(int)(ball->pos.x)+neighbors[i].breakX,
-				(int)(ball->pos.y)+neighbors[i].breakY,
+				(int)(ball->pos.x)+n.breakX,
+				(int)(ball->pos.y)+n.breakY,
 				createType
 			);
 			if (near) {
-				near->vel.xy += vel.xy + neighbors[i].breakVel.xy * speed;
+				near->vel.xy += vel.xy + n.breakVel.xy * speed;
 				near->charge = charge;
 			}
 		} else if (mode>=1 && near>=Dot_0) {
@@ -109,11 +105,12 @@ void Ball_break(Ball* ball, int mode, int createType, int charge, Point vel, rea
 bool Ball_react(Ball* ball, Dot* part, Elem* newType) {
 	//return 0;
 	Elem partType = part->type; //this is stored now, incase the particle is deleted!
-	switch (ball->type) {
-#define UPDATE_BALL_PART 1
-#include "elements/All.c"
-#undef UPDATE_BALL_PART
+	bool (*update)(Dot* p, Ball* ball, Elem* newType) = ball->type[ELEMENTS].update_ball_touching;
+	if (update) {
+		if (update(part, ball, newType))
+			return true;
 	}
+	
 	int pstate = ELEMENTS[partType].state;
 	int bstate = ELEMENTS[ball->type].state;
 	//if (ball->type==Elem_ACID)
@@ -202,7 +199,8 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	Dot** pc = Dot_pos(nextx,nexty);
 	int touches=0;
 	for (int d=0;d<37;d++) {
-		Dot* near = pc[neighbors[d].offset];
+		BallNeighbor n = Ball_NEIGHBORS[d];
+		Dot* near = pc[n.offset];
 		if (near<=Dot_BGFAN) continue;
 		if (near>=Dot_0) {
 			*touched = near->type;
@@ -211,7 +209,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 		} else {
 			*touched = near-Dot_0;
 		}
-		z.xy -= neighbors[d].breakVel.xy;
+		z.xy -= n.breakVel.xy;
 		touches++;
 	}
 	//printf("touching: %f %f\n", z.x, z.y);
@@ -236,7 +234,8 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	z = (Point){0,0};
 	touches = 0;
 	for (int d=0;d<21;d++) {
-		Dot* near = pc[neighbors[d].offset];
+		BallNeighbor n = Ball_NEIGHBORS[d];
+		Dot* near = pc[n.offset];
 		if (near<=Dot_BGFAN) continue;
 		if (near>=Dot_0) {
 			int btype = i->type;
@@ -254,7 +253,7 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 			if (ptype==Elem_THUNDER && btype==Elem_THUNDER)
 				continue;
 		}
-		z.xy -= neighbors[d].breakVel.xy;
+		z.xy -= n.breakVel.xy;
 		touches++;
 	}
 	if (touches) {
@@ -267,9 +266,11 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 static void undraw(Ball* i) {
 	// erase fake parts from grid
 	Dot** p = Dot_pos2(i->pos);
-	for (int d=0; d<21; d++)
-		if (p[neighbors[d].offset] == Dot_BALL)
-			p[neighbors[d].offset] = Dot_EMPTY;
+	for (int d=0; d<21; d++) {
+		BallNeighbor n = Ball_NEIGHBORS[d];
+		if (p[n.offset] == Dot_BALL)
+			p[n.offset] = Dot_EMPTY;
+	}
 }
 
 void Ball_update(void) {
@@ -311,12 +312,10 @@ void Ball_update(void) {
 			break;
 		}
 		
-		Ball* ball = i;
-		switch (i->type) {
-#define UPDATE_BALL 1
-#include "elements/All.c"
-#undef UPDATE_BALL
-		}
+		void (*update)(Ball* c, Elem touched, Elem* newType, Point vel) = i->type[ELEMENTS].update_ball;
+		if (update)
+			update(i, touched, &newType, vel);
+		
 		if (newType) {
 			i->type = newType;
 			i->charge = 0;
@@ -326,7 +325,7 @@ void Ball_update(void) {
 			// draw new fake parts to grid
 			Dot** pc = Dot_pos2(i->pos);
 			for (int d=0; d<21; d++) {
-				Dot** p = &pc[neighbors[d].offset];
+				Dot** p = &pc[Ball_NEIGHBORS[d].offset];
 				if (*p<=Dot_BGFAN)
 					*p = Dot_BALL;
 			}

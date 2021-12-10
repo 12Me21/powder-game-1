@@ -12,3 +12,7 @@ extern SavePixel Save_data[H][W];
 
 bool Save_onscreen(axis x, axis y);
 char* Save_string(SavePixel save[H][W]);
+
+typedef struct GameState {
+	
+} GameState;

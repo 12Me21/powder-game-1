@@ -1,8 +1,11 @@
-srcs:= elements input main dot vector render/draw menu save render/bg object render/dot render/menu render/object ball render/ball block wheel wheel-frames font bubble reset render/scale menu-input render/bubble render/wheel random
+elems = 0 1 9 powder water fire seed wood gunpowder fan ice snow steam superball clone fireworks oil c4 18 stone
+srcs := $(elems:%=elements/%.c)
+
+srcs += elements.c input.c main.c dot.c vector.c render/draw.c menu.c save.c render/bg.c object.c render/dot.c render/menu.c render/object.c ball.c render/ball.c block.c wheel.c wheel-frames.c font.c bubble.c reset.c render/scale.c menu-input.c render/bubble.c render/wheel.c random.c
 
 # this is VERY IMPORTANT!
 # causes number literals to be treated as float instead of double
-CFLAGS+= -fsingle-precision-constant
+ CFLAGS+= -fsingle-precision-constant
 
 #CFLAGS+= -mx32
 #LDFLAGS+= -mx32
@@ -14,21 +17,23 @@ ifdef win
  LDFLAGS+= -mwindows
  junkdir:= windows
  libs:= winmm dwmapi
- srcs+= platform-windows
+ srcs+= platform-windows.c
  output:= pg1.exe
 else
  CC:= gcc
  junkdir:= linux
  libs:= X11 m Xpm
- srcs+= platform-x11
+ srcs+= platform-x11.c
  output:= pg1
 endif
 
 ifdef opt
  junkdir:= $(junkdir)/optimized
  output:= fast-$(output)
- LDFLAGS+= -flto
- CFLAGS+= -O3 -flto
+LDFLAGS+= -flto
+CFLAGS+= -O3 -flto
+#-O3
+# -flto
 endif
 
 # enable/disable tons of warnings

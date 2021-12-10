@@ -1,6 +1,9 @@
-break; case Elem_C4:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+
+static bool dot(Dot* p, Block* c) {
 	Dot_toGrid(p);
 	// note: we do not set velocity to 0 here
 	
@@ -32,11 +35,13 @@ break; case Elem_C4:
 			}
 		}
 		Dot_doRadius((int)p->pos.x&0xFFF4, (int)p->pos.y&0xFFF4, 10, func); //fff4, really?
-		Dot_KILL();
+		return true;
 	}
-
-#elif defined UPDATE_BALL
-	if (touched<0) break;
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
+	if (touched<0) return;
 	if (ELEMENTS[touched].state==State_HOT) {
 		void func(axis x, axis y, axis sx, axis sy) {
 			Dot* near = Dot_pos(x, y)[0];
@@ -58,8 +63,22 @@ break; case Elem_C4:
 		ball->used = false;
 	} else if (touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_NITRO, 0, Point(0), 0);
-
-#elif defined UPDATE_BALL_PART
-	//none
-#endif
+}
+
+AUTORUN {
+	ELEMENTS[Elem_C4] = (ElementDef){
+		.name = "C4",
+		.color = 0xFFFFCC,
+		.state = State_SOLID,
+		.dissolveRate = 100,
+		.friction = 0.5,
+		.ze = 0.5, .Ae = 0.5,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.2,
+		.wheelWeight = 4,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+	};
 }

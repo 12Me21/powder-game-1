@@ -1,6 +1,11 @@
-break; case Elem_FIREWORKS:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+#include "../menu.h"
+
+static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
 	p->vel.xy += 0.1*airvel.xy;
 	airvel.y += Random_2(0.1,0.2);
@@ -41,7 +46,22 @@ break; case Elem_FIREWORKS:
 				}
 			}
 		}
-		Dot_KILL();
+		return true;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_FIREWORKS] = (ElementDef){
+		"F-WORKS", 0xFF9966, State_POWDER,
+		.playerValid = true,
+		.dissolveRate = 10,
+		.friction = 0.5,
+		.ze = 0.5, .Ae = 0.5,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.3,
+		.wheelWeight = 8,
+		
+		.update_dot = dot,
+	};
 }

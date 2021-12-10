@@ -79,7 +79,7 @@ void Dot_swap(Dot* part1, Dot* part2) {
 	Dot* temp3 = *Dot_pos2(part1->pos);
 	*Dot_pos2(part1->pos) = *Dot_pos2(part2->pos);
 	*Dot_pos2(part2->pos) = temp3;
-
+	
 	Point temp = part1->pos;
 	part1->pos = part2->pos;
 	part2->pos = temp;
@@ -100,7 +100,7 @@ void Dot_shuffle(void) {
 		Dot temp = *p;
 		*p = *c;
 		*c = temp;
-
+		
 		*Dot_pos2(p->pos) = p->type==Elem_FAN ? Dot_BGFAN : p;
 		*Dot_pos2(c->pos) = c->type==Elem_FAN ? Dot_BGFAN : c;
 	}
@@ -128,15 +128,12 @@ void Dot_update(void) {
 		Block* c = Block_at(p->pos.x, p->pos.y);
 		if (p->type != Elem_FAN)
 			*Dot_pos2(p->pos) = Dot_EMPTY;
-		switch (p->type) {
-			// todo: maybe put this in a real separately compiled file
-#define Dot_KILL(...) { Dot_remove(p--); goto Dot_continue; }
-#define UPDATE_PART 1
-#include "elements/All.c"
-#undef UPDATE_PART
-#undef Dot_KILL
+		
+		bool (*update)(Dot* p, Block* c) = p->type[ELEMENTS].update_dot;
+		if (update) {
+			if (update(p, c))
+				Dot_remove(p--);
 		}
-	Dot_continue:;
 	}
 	// check parts that go off screen
 	Dot_FOR (p) {

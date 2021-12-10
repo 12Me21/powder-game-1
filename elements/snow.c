@@ -1,6 +1,10 @@
-break; case Elem_SNOW: //❄
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+//❄
+static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.08);
 	airvel.xy += p->vel.xy;
@@ -18,5 +22,25 @@ break; case Elem_SNOW: //❄
 		else if (type!=Elem_WOOD && type!=Elem_WHEEL && type!=Elem_SNOW && type!=Elem_SNOW && type!=Elem_CLONE && type!=Elem_VINE && type!=Elem_CLOUD)
 			p->type = Elem_WATER;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_SNOW] = (ElementDef){
+		.name = "SNOW",
+		.color = 0xFFFFFF,
+		.state = State_POWDER,
+		.playerValid = true,
+		.temperature = -500,
+		.dissolveRate = 10,
+		.friction = 0.5,
+		.ze = 0.2, .Ae = 0.2,
+		// unused values, since snow balls don't exist:
+		.ballWeight = 0.02,
+		.ballAdvection = 0.5,
+		
+		.wheelWeight = 1,
+		
+		.update_dot = dot,
+	};
 }

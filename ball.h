@@ -20,6 +20,15 @@ typedef struct Ball {
 // Gc
 #define Ball_MAX 50
 
+typedef struct BallNeighbor {
+	Point breakVel;
+	int breakX;
+	int breakY;
+	int offset;
+} BallNeighbor;
+
+extern const BallNeighbor Ball_NEIGHBORS[37];
+
 extern Ball balls[Ball_MAX];
 extern Ball* const Ball_END;
 

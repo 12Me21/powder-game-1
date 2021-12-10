@@ -1,6 +1,10 @@
-break; case Elem_OIL:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Dot_liquidUpdate(p, c, 0.2, 0.1,0.2, 0.01, 0.01,0.05, 0.9);
 	// 0 0 0 0 0 1 2 3
 	int dir = atLeast(Random_int(8)-4, 0);
@@ -18,10 +22,10 @@ break; case Elem_OIL:
 		//oil is absorbed by FUSE
 		} else if (type==Elem_FUSE && !near->Cfuse.burning) {
 			near->Cfuse.type = Elem_OIL;
-			Dot_KILL();
+			return true;
 		//and PUMP
 		} else if (Dot_checkPump(p,near,dir))
-			Dot_KILL();
+			return true;
 	}
 	// burning
 	if (p->charge==1) {
@@ -31,31 +35,54 @@ break; case Elem_OIL:
 		if (near<=Dot_BGFAN)
 			Dot_create(x, y, Elem_FIRE);
 		if (Rnd_perchance(10))
-			Dot_KILL();
+			return true;
 	}
-
-#elif defined UPDATE_BALL
-	if (touched<0) break;
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
+	if (touched<0) return;
 	if (touched[ELEMENTS].state==State_HOT) {
 		for (int i=9;i<21;i++) {
-			Dot* near = Dot_pos2(ball->pos)[neighbors[i].offset];
+			BallNeighbor* n = &Ball_NEIGHBORS[i];
+			Dot* near = Dot_pos2(ball->pos)[n->offset];
 			if (near<=Dot_BGFAN && Rnd_perchance(50))
-				Dot_create((int)ball->pos.x+neighbors[i].breakX, (int)ball->pos.y+neighbors[i].breakY, Elem_FIRE);
+				Dot_create((int)ball->pos.x+n->breakX, (int)ball->pos.y+n->breakY, Elem_FIRE);
 		}
 		if (Rnd_perchance(1))
 			Ball_break(ball, 0, Elem_OIL, 0, Point(0), 0);
 	} else if (touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_OIL, 0, Point(0), 0);
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	switch (part->type) {
 	when(Elem_MAGMA): case Elem_THUNDER: case Elem_LASER:
-		return 1;
+		return true;
 	when(Elem_SOAPY):;
 		Dot_remove(part);
 	when(Elem_FUSE):;
 		if (!part->Cfuse.burning)
 			part->charge = Elem_OIL;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_OIL] = (ElementDef){
+		.name = "OIL",
+		.color = 0x803020,
+		.state = State_LIQUID,
+		.playerValid = true,
+		.dissolveRate = 30,
+		.friction = 0.8,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0,
+		.wheelWeight = 3,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,	
+	};
 }

@@ -42,19 +42,24 @@ AUTORUN {
 		axis x = 8+(pos/10)*56;
 		const ElementDef* d = &ELEMENTS[elem];
 		int spacing = 0;
-		int l = strlen(d->name);
-		if (l>=7)
-			spacing = -1;
-		if (l>=8)
-			spacing = -2;
-		Draw_spacedText(x,y,d->name,d->menuColor,0, spacing);
+		if (d->name) {
+			int l = strlen(d->name);
+			if (l>=7)
+				spacing = -1;
+			if (l>=8)
+				spacing = -2;
+			Draw_spacedText(x, y, d->name, d->menuColor, 0, spacing);
+		}
 	}
 	
 	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
 	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
-
-	for (int i=0; i<39; i++)
-		drawLabel(i, Menu_BUTTONS[i].element);
+	
+	for (int i=0; i<39; i++) {
+		Elem e = Menu_BUTTONS[i].element;
+		e[ELEMENTS].menuColor = e[ELEMENTS].color;
+		drawLabel(i, e);
+	}
 		
 	Draw_text(col5,row1,"WIND",0x8080FF,0);
 	Draw_text(col5,row2,"AIR",0x8080FF,0);

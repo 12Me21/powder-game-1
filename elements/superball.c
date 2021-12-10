@@ -1,6 +1,9 @@
-break; case Elem_SUPERBALL:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+
+static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
 	airvel.xy *= 0.05;
 	p->vel.xy += airvel.xy;
@@ -80,5 +83,22 @@ break; case Elem_SUPERBALL:
 		Dot_print(p);
 		Dot_remove(p--);
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_SUPERBALL] = (ElementDef){
+		"S-BALL", 0xFF40A0, State_POWDER,
+		
+		.playerValid = true,
+		.dissolveRate = 10,
+		.friction = 0.5,
+		.wheelWeight = 8,
+		
+		// unused
+		.ballWeight = 0.1,
+		.ballAdvection = 0.3,
+		
+		.update_dot = dot,
+	};
 }

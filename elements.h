@@ -2,15 +2,18 @@
 #include <stdbool.h>
 #include "common.h"
 #include "dot.h"
+#include "ball.h"
 
 enum State {State_NONE=0, State_POWDER, State_LIQUID, State_HOT, State_SOLID, State_GAS};
 
 typedef struct ElementDef {
-	char* name; //for debug
+	char* name;
 	Color color;       // Ib[]
+	enum State state;  // V[]
+
 	Color grayColor;   // Jb[]
 	Color menuColor;
-	enum State state;  // V[]
+	
 	bool playerValid;  // Qe[]  can be held by player
 	int temperature;   // xd[]  light generated in "TG" bg mode
 	int dissolveRate;  // Be[]  for ACID
@@ -21,6 +24,10 @@ typedef struct ElementDef {
 	real ballWeight;   // ef[]
 	real ballAdvection;// ff[]
 	int wheelWeight;   // q[] in yd.I()
+	
+	bool (*update_dot)(Dot* p, Block* c);
+	void (*update_ball)(Ball* c, Elem touched, Elem* newType, Point vel);
+	bool (*update_ball_touching)(Dot* part, Ball* ball, Elem* newType);
 } ElementDef;
 
 // some of these are pseudo-elements which are only used in savedata
@@ -44,4 +51,4 @@ enum Element {
 	Elem_MAX,
 };
 
-extern const ElementDef ELEMENTS[Elem_MAX];
+extern ElementDef ELEMENTS[Elem_MAX];

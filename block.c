@@ -28,6 +28,16 @@ void Block_update1(void) {
 	}
 }
 
+static void pcheck(Block* a, int b, int d, int x, int y, real m) {
+	Block* o = &Blocks[b+y][d+x];
+	if (o->block!=Block_BLOCK) {
+		real diff = (a->pres - o->pres);
+		a->vel2.x += diff*m*x;
+		a->vel2.y += diff*m*y;
+		a->pres2 -= diff*m;
+	}
+}
+
 void Block_update(void) {
 	Block_FOR (c) {
 		c->vel2 = c->vel;
@@ -99,23 +109,14 @@ void Block_update(void) {
 		for (int d=2; d<(WIDTH)/4-2; d++) {
 			Block* a = &Blocks[b][d];
 			if (a->block==Block_BLOCK) continue;
-			inline void pcheck(int x, int y, real m) {
-				Block* o = &Blocks[b+y][d+x];
-				if (o->block!=Block_BLOCK) {
-					real diff = (a->pres - o->pres);
-					a->vel2.x += diff*m*x;
-					a->vel2.y += diff*m*y;
-					a->pres2 -= diff*m;
-				}
-			}
-			pcheck(-1, 0,0.0625);
-			pcheck( 1, 0,0.0625);
-			pcheck( 0,-1,0.0625);
-			pcheck( 0, 1,0.0625);
-			pcheck(-1,-1,0.044194173);
-			pcheck( 1,-1,0.044194173);
-			pcheck(-1, 1,0.044194173);
-			pcheck( 1, 1,0.044194173);
+			pcheck(a,b,d,-1, 0,0.0625);
+			pcheck(a,b,d, 1, 0,0.0625);
+			pcheck(a,b,d, 0,-1,0.0625);
+			pcheck(a,b,d, 0, 1,0.0625);
+			pcheck(a,b,d,-1,-1,0.044194173);
+			pcheck(a,b,d, 1,-1,0.044194173);
+			pcheck(a,b,d,-1, 1,0.044194173);
+			pcheck(a,b,d, 1, 1,0.044194173);
 		}
 	}
 	Block_FOR (c) {

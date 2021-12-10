@@ -1,6 +1,10 @@
-break; case Elem_GUNPOWDER:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.2);
 	airvel.xy += p->vel.xy;
@@ -29,22 +33,25 @@ break; case Elem_GUNPOWDER:
 		Dot_doRadius((int)p->pos.x & 0xFFF4, (int)p->pos.y & 0xFFF4, 10, func);
 		p->type = Elem_FIRE;
 	}
-
-#elif defined UPDATE_BALL
-	if (touched<0) break;
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
+	if (touched<0) return;
 	// explode when touching a hot element AND charge is 0
 	if (ball->charge==0 && touched[ELEMENTS].state==State_HOT) {
 		for (int i=0;i<37;i++) {
-			Dot* near = Dot_pos2(ball->pos)[neighbors[i].offset];
+			BallNeighbor* n = &Ball_NEIGHBORS[i];
+			Dot* near = Dot_pos2(ball->pos)[n->offset];
 			if (near<=Dot_BGFAN) {
 				Dot* new = Dot_create(
-					(int)ball->pos.x+neighbors[i].breakX,
-					(int)ball->pos.y+neighbors[i].breakY,
+					(int)ball->pos.x+n->breakX,
+					(int)ball->pos.y+n->breakY,
 					Elem_FIRE
 				);
 				if (new>=Dot_0) {
 					real f = Random_(20);
-					new->vel.xy += ball->vel.xy*f+neighbors[i].breakVel.xy*f/2;
+					new->vel.xy += ball->vel.xy*f+n->breakVel.xy*f/2;
 					new->charge = 2;
 				}
 			}
@@ -53,8 +60,9 @@ break; case Elem_GUNPOWDER:
 	// destroyed by acid
 	} else if (touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_GUNPOWDER, 0, Point(0), 0);
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	// charge is increased by water types and decreased by some hot elements
 	switch (part->type) {
 	case Elem_WATER: case Elem_SOAPY: case Elem_SEAWATER:
@@ -64,5 +72,25 @@ break; case Elem_GUNPOWDER:
 		if (ball->charge>0)
 			ball->charge--;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_GUNPOWDER] = (ElementDef){
+		.name = "G-POWDER",
+		.color = 0xB08050,
+		.state = State_POWDER,
+		.playerValid = true,
+		.dissolveRate = 10,
+		.friction = 0.5,
+		.ze = 0.2, .Ae = 0.2,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.4,
+		.wheelWeight = 2,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,	
+	};
 }

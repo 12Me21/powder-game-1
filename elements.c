@@ -5,27 +5,13 @@
 #define GRAY(col) (BRIGHTNESS(col)<<16|BRIGHTNESS(col)<<8|BRIGHTNESS(col))
 #define COL(col) col,GRAY(col),col
 
-ElementDef const ELEMENTS[Elem_MAX] = {
-	{"Elem_0"},
-	{"Elem_1" ,COL(0x606060),0           ,0,0    ,0  ,0.5},
+extern ElementDef Def_POWDER;
+
+ElementDef ELEMENTS[Elem_MAX] = {
 	// (see element.h for more info)
 	// Name          color      state   player temp.acid fric ball
 	//                                                       light ? ? ball
-	{"POWDER"  ,COL(0xF2BD6B),State_POWDER,1,0    ,5  ,0.5,0,0.2,0.2,1,0.1  ,0.5,1 },
-	{"WATER"   ,COL(0x4040FF),State_LIQUID,1,0    ,40 ,0.8,0,0  ,0  ,1,0.1  ,0.4,4 },
-	{"FIRE"    ,COL(0xFF4040),State_HOT   ,1,5000 ,10 ,1  ,1,0  ,0  ,1,-0.03,0.5,-3},
-	{"SEED"    ,COL(0x90C040),State_POWDER,1,500  ,5  ,0.5,0,0.2,0.2,1,0.1  ,0.5,1 },
-	{"WOOD"    ,COL(0x805020),State_SOLID ,0,500  ,10 ,0.5,0,0.7,0.7,1,0.1  ,0.4,0 },
-	{"G-POWDER",COL(0xB08050),State_POWDER,1,0    ,10 ,0.5,0,0.2,0.2,1,0.1  ,0.4,2 },
-	{"FAN"     ,COL(0x8080FF),State_NONE  ,1,0    ,0  ,1  ,0,0  ,0  ,1,0.1  ,0.9,0 },
-	{"Elem_9"  ,COL(0xB0A090),0           ,0,0    ,0  ,0.5},
-	{"ICE"     ,COL(0xD0D0FF),State_SOLID ,0,-1000,40 ,1  ,0,0.8,1  ,1,0.1  ,0.3,4 },
-	{"SNOW"    ,COL(0xFFFFFF),State_POWDER,1,-500 ,10 ,0.5,0,0.2,0.2,0,0.02 ,0.5,1 },
-	{"STEAM"   ,COL(0xE0E0E0),State_NONE  ,1,0    ,30 ,1  ,0,0.2,0.2,1,0.05 ,0.5,1 },
-	{"S-BALL"  ,COL(0xFF40A0),State_POWDER,1,0    ,10 ,0.5,0,0  ,0  ,0,0.1  ,0.3,8 },
-	{"CLONE"   ,COL(0x907010),State_SOLID ,0,0    ,0  ,0.5,0,0.2,0.2,1,0.1  ,0.3,3 },
-	{"F-WORKS" ,COL(0xFF9966),State_POWDER,1,0    ,10 ,0.5,0,0.5,0.5,0,0.1  ,0.3,8 },
-	{"OIL"     ,COL(0x803020),State_LIQUID,1,0    ,30 ,0.8,0,0  ,0  ,1,0.1  ,0 ,3  },
+	[Elem_OIL] = {"OIL"     ,COL(0x803020),State_LIQUID,1,0    ,30 ,0.8,0,0  ,0  ,1,0.1  ,0 ,3  },
 	{"C4"      ,COL(0xFFFFCC),State_SOLID ,0,0    ,100,0.5,0,0.5,0.5,1,0.1  ,0.2,4 },
 	{"Elem_18" ,COL(0xFFE0AE)},
 	{"STONE"   ,COL(0x808080),State_POWDER,1,0    ,20 ,0.5,0,0.9,0.9,1,0.1  ,0.1,9 },

@@ -1,6 +1,10 @@
-break; case Elem_SEED:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	if (p->charge==0) {
 		Point airvel = c->vel;
 		airvel.y += Random_2(0.01, 0.09);
@@ -13,11 +17,11 @@ break; case Elem_SEED:
 	if (p->charge==0) {
 		Dot* below = Dot_pos3(p->pos, 0, 1);
 		if (below<Dot_0)
-			break;
+			return false;
 		if (below->type!=Elem_POWDER && below->type!=Elem_WOOD && below->type!=Elem_VINE)
-			break;
+			return false;
 		if (!Dot_limit1000())
-			break;
+			return false;
 	}
 	
 	p->charge=1;
@@ -31,19 +35,22 @@ break; case Elem_SEED:
 			Dot_create(x, y+1, Elem_WOOD);
 		}
 		if (Rnd_perchance(5))
-			Dot_KILL();
+			return true;
 	}
-
-#elif defined UPDATE_BALL
-	if (touched<0) break;
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
+	if (touched<0) return;
 	// destroyed by acid
 	if (touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_SEED, 0, Point(0.5*ball->vel.xy), 0.5);
 	// burned by hot elements (except spark)
 	else if (touched!=Elem_SPARK && touched[ELEMENTS].state==State_HOT)
 		Ball_break(ball, 0, Elem_FIRE, 0, Point(0.5*ball->vel.xy), 0.5);
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	switch (part->type) {
 	when(Elem_POWDER):;
 		if (ball->charge==1)
@@ -62,5 +69,26 @@ break; case Elem_SEED:
 		part->type = Elem_WOOD;
 		part->charge = 0;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_SEED] = (ElementDef){
+		.name = "SEED",
+		.color = 0x90C040,
+		.state = State_POWDER,
+		.playerValid = true,
+		.temperature = 500,
+		.dissolveRate = 5,
+		.friction = 0.5,
+		.ze = 0.2, .Ae = 0.2,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.5,
+		.wheelWeight = 1,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,
+	};
 }

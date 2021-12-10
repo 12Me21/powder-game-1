@@ -1,6 +1,10 @@
-break; case Elem_WOOD:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Point airvel = p->vel;
 	p->vel.xy *= 0.3;
 	Dot_blow(p, airvel);
@@ -46,8 +50,10 @@ break; case Elem_WOOD:
 		if (Random_(1000)<5)
 			p->type = Elem_POWDER;
 	}
-
-#elif defined UPDATE_BALL
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	if (touched==Elem_TORCH)
 		Ball_break(ball, 0, Elem_TORCH, 0, Point(0), 0);
 	else if (touched==Elem_ACID)
@@ -60,11 +66,31 @@ break; case Elem_WOOD:
 		else
 			Ball_break(ball, 0, Elem_FIRE, 1, Point(0), 0);
 	}
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	if (part->type==Elem_SEED)
 		part->charge = 1; // make seed grow
 	else if (part->type==Elem_OIL)
 		ball->charge = 1; // make ball burn longer
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_WOOD] = (ElementDef){
+		.name = "WOOD",
+		.color = 0x805020,
+		.state = State_SOLID,
+		.temperature = 500,
+		.dissolveRate = 10,
+		.friction = 0.5,
+		.ze = 0.7, .Ae = 0.7,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.4,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,	
+	};
 }

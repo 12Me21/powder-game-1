@@ -1,6 +1,10 @@
-break; case Elem_CLONE:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Dot_toGrid(p);
 	
 	// if not cloning
@@ -21,8 +25,10 @@ break; case Elem_CLONE:
 		if (*Dot_pos(x,y)<=Dot_BGFAN && Rnd_perchance(10))
 			Dot_create(x,y,p->charge);
 	}
-
-#elif defined UPDATE_BALL
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	if (ball->charge==0 && touched>0)
 		ball->charge = touched;
 	else if (ball->charge && Dot_limit1000()) {
@@ -33,9 +39,28 @@ break; case Elem_CLONE:
 		if (*Dot_pos(x,y)<=Dot_BGFAN)
 			Dot_create(x, y, ball->charge);
 	}
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	if (part->type==Elem_THUNDER || part->type==Elem_LASER)
-		return 1;
-#endif
+		return true;
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_CLONE] = (ElementDef){
+		"CLONE", 0x907010, State_SOLID,
+		
+		.friction = 0.5,
+		.ze = 0.2, .Ae = 0.2,
+		.wheelWeight = 3,
+
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.3,
+
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,	
+	};
 }

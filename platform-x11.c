@@ -147,7 +147,7 @@ Platform_Bitmap Platform_createBitmap(Color* data, int width, int height) {
 	return (Platform_Bitmap){
 		width,
 		height,
-		XCreateImage(D, visual, 24, ZPixmap, 0, (char*)data, width,height, 32, 0),
+		XCreateImage(D, visual, 24, ZPixmap, 0, (char*)data, width,height, 8, 0),
 	};
 }
 

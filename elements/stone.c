@@ -1,6 +1,11 @@
-break; case Elem_STONE:
-{
-#ifdef UPDATE_PART
+#include <math.h>
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	p->vel.xy += 0.05*c->vel.xy;
 	p->vel.y += Random_2(0.01,0.05);
 	p->vel.xy *= 0.95;
@@ -56,15 +61,18 @@ break; case Elem_STONE:
 		p->vel.y *= 0.5;
 	}
 	Dot_toGrid(p);
-
-#elif defined UPDATE_BALL
+	return false;
+}
+
+static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	real dist = Vec_dist(vel);
 	if (dist>7 && (touched==-1 || touched==Elem_METAL || touched==Elem_BOMB))
 		ball->type = Elem_POWDER;
 	else if (touched==Elem_ACID)
 		Ball_break(ball, 0, Elem_STONE, 0, Point(0), 0);
-
-#elif defined UPDATE_BALL_PART
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	switch (part->type) {
 	when(Elem_WATER):;
 		ball->charge = 0;
@@ -79,7 +87,27 @@ break; case Elem_STONE:
 				Dot_create(x, y, Elem_SPARK);
 		}
 	when(Elem_SPARK):;
-		return 1;
+		return true;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_STONE] = (ElementDef){
+		.name = "STONE",
+		.color = 0x808080,
+		.state = State_POWDER,
+		.playerValid = true,
+		.dissolveRate = 20,
+		.friction = 0.5,
+		.ze = 0.9, .Ae = 0.9,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.1,
+		.wheelWeight = 9,
+		
+		.update_dot = dot,
+		.update_ball = ball,
+		.update_ball_touching = ball_touching,	
+	};
 }
