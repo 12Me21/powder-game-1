@@ -51,8 +51,8 @@ void Block_update(void) {
 				if (magv!=0) {
 					real magvx = fabs(vel.x);
 					real magvy = fabs(vel.y);
-					real rx = magvx/(magvx+magvy)*magv*0.5;
-					real ry = magvy/(magvx+magvy)*magv*0.5;
+					real rx = magvx/(magvx+magvy)*magv*0.5f;
+					real ry = magvy/(magvx+magvy)*magv*0.5f;
 					Point sx,sy;
 					sx.xy = vel.xy * rx;
 					sy.xy = vel.xy * ry;

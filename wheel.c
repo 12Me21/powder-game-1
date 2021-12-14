@@ -28,13 +28,13 @@ void Wheel_update(void) {
 			for (axis x=0; x<32; x++) {
 				if (frame[y][x]=='.') {
 					Block* cell = Block_at(w->x+x-16, w->y+y-16);
-					real wind = cell->vel.x*(y-15.5) - cell->vel.y*(x-15.5);
-					w->vel += 0.0001*wind;
+					real wind = cell->vel.x*(y-15.5f) - cell->vel.y*(x-15.5f);
+					w->vel += 0.0001f*wind;
 				}
 				Dot* p = Dot_at[w->y+y-16][w->x+x-16];
 				if (p>=Dot_0 && frame[y][x]==' ' && y!=31 && frame[y+1][x]=='.') {
 					real weight = 0*(y-15.5)-1*(x-15.5);
-					w->vel += weight*ELEMENTS[p->type].wheelWeight*0.0001;
+					w->vel += weight*ELEMENTS[p->type].wheelWeight*0.0001f;
 				}
 			}
 		}
@@ -62,7 +62,7 @@ void Wheel_update(void) {
 					if (frame[y][x]==' ') {
 						Dot* p = Dot_at[w->y+y-16][w->x+x-16];
 						if (p>=Dot_0)
-							*next++ = (WheelDot){p, (y-15.5)*g*0.1, -(x-15.5)*g*0.1};
+							*next++ = (WheelDot){p, (y-15.5f)*g*0.1f, -(x-15.5f)*g*0.1f};
 					}
 				}
 			}

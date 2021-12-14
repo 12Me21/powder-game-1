@@ -7,6 +7,7 @@ typedef float real;
 typedef _Complex float Complex;
 #define fabs(x) fabsf(x)
 #define floor(x) floorf(x)
+#define ceil(x) ceilf(x)
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 

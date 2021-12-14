@@ -35,8 +35,8 @@ static void partLine(Point a, Point b, Elem type) {
 			step.x = b.x / fabs(b.y);
 		step.y = b.y>=0 ? 1 : -1;
 	}
-	a.x += 0.5;
-	a.y += 0.5;
+	a.x += 0.5f;
+	a.y += 0.5f;
 	for (int i=0; i<=steps; i++) {
 		if (!(a.x<8 || a.x>=WIDTH-8 || a.y<8 || a.y>=HEIGHT-8 || *Dot_pos2(a)>Dot_BGFAN))
 			Dot_create(a.x, a.y, type);
@@ -52,8 +52,8 @@ static void pull(Bubble* a, Bubble* b) {
 	if (distance!=0) {
 		Complex movement = offset.xy*(Bubble_SPACING-distance);
 		// move the nodes so they are 5px apart, splitting the movement between them
-		a->pos.xy -= movement*0.5;
-		b->pos.xy += movement*0.5;
+		a->pos.xy -= movement*0.5f;
+		b->pos.xy += movement*0.5f;
 	}
 }
 
@@ -69,7 +69,7 @@ void Bubble_update(void) {
 	Bubble_FOR (b) {
 		Block* cell = Block_at(b->pos.x, b->pos.y);
 		Point vel = cell->vel;
-		vel.xy *= 3.8/(Vec_fastDist(vel)+1);
+		vel.xy *= 3.8f/(Vec_fastDist(vel)+1);
 		b->pos.xy += vel.xy;
 	}
 	// check dragging bubbles
@@ -80,7 +80,7 @@ void Bubble_update(void) {
 					b->held = true;
 			}
 		} else if (Menu_dragging)
-			b->pos.xy += 0.9*(Menu_pen.xy - b->pos.xy);
+			b->pos.xy += 0.9f*(Menu_pen.xy - b->pos.xy);
 		else
 			b->held = false;
 	}
@@ -102,7 +102,7 @@ void Bubble_update(void) {
 			diff.xy = center.xy - d->pos.xy;
 			real dist = Vec_fastNormalize(&diff);
 			if (dist!=0)
-				d->pos.xy -= diff.xy*(targetRadius-dist)*0.1;
+				d->pos.xy -= diff.xy*(targetRadius-dist)*0.1f;
 		}
 		// pull bubble parts towards each other
 		for (Bubble* d=b; d<b+count-1; d++)

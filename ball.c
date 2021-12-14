@@ -128,10 +128,10 @@ static void checkDragging(Ball* i) {
 				i->held = true;
 		}
 	} else if (Menu_dragging) {
-		i->vel.xy += 0.05*(Menu_pen.xy - i->pos.xy);
-		i->vel.xy *= 0.9;
+		i->vel.xy += 0.05f*(Menu_pen.xy - i->pos.xy);
+		i->vel.xy *= 0.9f;
 	} else {
-		i->vel.xy *= 0.3;
+		i->vel.xy *= 0.3f;
 		i->held = false;
 	}
 
@@ -143,10 +143,13 @@ static void checkEntities(Ball* ball) {
 			// nodes 4 and 5 are the feet
 			for (int f=4; f<=5; f++) {
 				ObjectNode* node = &en->parts[f];
-				real dx = abs(node->pos.x - ball->pos.x);
-				real dy = abs(node->pos.y - ball->pos.y);
+				// I was using abs (integer absolute value) here before
+				// I assume I meant fabs/fabsf (float/double abs), but I'm not sure.
+				// perhaps this should be floor(fabs())? but then why are dx and dy reals?
+				real dx = fabs(node->pos.x - ball->pos.x);
+				real dy = fabs(node->pos.y - ball->pos.y);
 				if (dx<=9 && dy<=9) {
-					ball->vel.xy += 0.1*(node->pos.xy - node->oldPos.xy);
+					ball->vel.xy += 0.1f*(node->pos.xy - node->oldPos.xy);
 				}
 			}
 		}
@@ -219,10 +222,10 @@ bool movementStep(Ball* i, real n, Elem* touched, Elem* newType, real weight) {
 	} else {
 		Vec_normalize(&z);
 		i->vel.y -= weight;
-		real speed = 0.999*Vec_dist(i->vel);
+		real speed = 0.999f*Vec_dist(i->vel);
 		z.xy *= -(z.x*i->vel.x + z.y*i->vel.y);
 		i->vel.xy += z.xy;
-		i->vel.xy *= 0.999;
+		i->vel.xy *= 0.999f;
 		z.xy *= 0.1;
 		i->vel.xy += z.xy;
 		Vec_normalize(&i->vel);
@@ -290,8 +293,8 @@ void Ball_update(void) {
 			Block* cell = Block_at(i->pos.x,i->pos.y);
 			i->vel.x += cell->vel.x*adv;
 			i->vel.y += cell->vel.y*adv;
-			if (Vec_fastDist(cell->vel)>0.3)
-				i->vel.xy *= 0.9+(1-adv)/10;
+			if (Vec_fastDist(cell->vel)>0.3f)
+				i->vel.xy *= 0.9f+(1-adv)/10;
 		}
 
 		checkDragging(i);

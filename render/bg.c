@@ -77,7 +77,7 @@ void Bg_render(void) {
 				if (c->block==Block_EMPTY) {
 					Point e = c->vel;
 					real vel = Vec_fastNormalize(&e);
-					if (vel>=0.2) {
+					if (vel>=0.2f) {
 						vel = atMost(vel, 8);
 						int f = atMost(48*vel, 96);
 						Draw_line(

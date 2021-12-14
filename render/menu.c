@@ -34,24 +34,24 @@ enum RowY {
 
 static const axis rowLast = 143;
 
-AUTORUN {
-	void drawLabel(int pos, Elem elem) {
-		if (!elem)
-			return;
-		axis y = 3+(pos%10)*14;
-		axis x = 8+(pos/10)*56;
-		const ElementDef* d = &ELEMENTS[elem];
-		int spacing = 0;
-		if (d->name) {
-			int l = strlen(d->name);
-			if (l>=7)
-				spacing = -1;
-			if (l>=8)
-				spacing = -2;
-			Draw_spacedText(x, y, d->name, d->menuColor, 0, spacing);
-		}
+static void drawLabel(int pos, Elem elem) {
+	if (!elem)
+		return;
+	axis y = 3+(pos%10)*14;
+	axis x = 8+(pos/10)*56;
+	const ElementDef* d = &ELEMENTS[elem];
+	int spacing = 0;
+	if (d->name) {
+		int l = strlen(d->name);
+		if (l>=7)
+			spacing = -1;
+		if (l>=8)
+			spacing = -2;
+		Draw_spacedText(x, y, d->name, d->menuColor, 0, spacing);
 	}
-	
+}
+
+AUTORUN {
 	Draw_mrectangle(0,0,MENU_WIDTH,MENU_HEIGHT,0x404040);
 	Draw_spacedText(203,rowLast,"DAN-BALL.jp (C) 2007 ha55ii",-1,0,-1);
 	
@@ -162,6 +162,18 @@ static void drawCursor() {
 	//Draw_rectangle(Pen_x, Pen_y, 1, 1, 0xFF0000);
 }
 
+static void Draw_count(int i, int count, char name, Color color) {
+	axis x = i/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
+	axis y = i%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
+	char buffer[29];
+	buffer[0] = name;
+	buffer[1] = 0;
+	Draw_mrectangle(4+x+4, 11-8+y, Menu_BUTTONWIDTH, Menu_BUTTONHEIGHT, 0x404040);
+	Draw_text(4+4+x, 11-8+y, buffer,color, 0);
+	sprintf(buffer, "  %d", count);
+	Draw_spacedText(4+4+x, 11-8+y, buffer, color, 0, -1);
+}
+
 void Menu_render(void) {
 	if (!Menu_cursorInMenu /*&& !wa*/) {
 		drawCursor();
@@ -170,17 +182,6 @@ void Menu_render(void) {
 	memcpy(Menu_grp, normalMenuImage, sizeof(normalMenuImage));
 	if (Menu_numberMenu) {
 		int* counts = Dot_updateCounts();
-		void Draw_count(int i, int count, char name, Color color) {
-			axis x = i/Menu_BUTTONROWS*Menu_BUTTONWIDTH;
-			axis y = i%Menu_BUTTONROWS*Menu_BUTTONHEIGHT;
-			char buffer[29];
-			buffer[0] = name;
-			buffer[1] = 0;
-			Draw_mrectangle(4+x+4, 11-8+y, Menu_BUTTONWIDTH, Menu_BUTTONHEIGHT, 0x404040);
-			Draw_text(4+4+x,11-8+y,buffer,color, 0);
-			sprintf(buffer, "  %d", count);
-			Draw_spacedText(4+4+x,11-8+y,buffer,color,0,-1);
-		}
 		for (int i=0; i<39; i++) {
 			Elem elem = Menu_BUTTONS[i].element;
 			Draw_count(i, counts[elem], ELEMENTS[elem].name[0], ELEMENTS[elem].menuColor);
