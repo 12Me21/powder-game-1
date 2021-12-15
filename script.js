@@ -27,7 +27,13 @@ WebAssembly.instantiate(WASM_CODE, {
 	ex.__wasm_call_ctors()
 	ex.Sim_reset(false)
 	
-	ex.Dot_create(50, 50, 2)
+	for (var y=40; y<100; y++) {
+		for (var x=90; x<300; x++) {
+			ex.Dot_create(x, y, 2)
+		}
+	}
+	
+	ex.Dot_create(150, 102, 4)
 	
 	function update() {
 		ex.Platform_frame()

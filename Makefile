@@ -11,6 +11,7 @@ srcs += elements.c input.c main.c dot.c vector.c render/draw.c menu.c save.c ren
 CC:= clang
 CFLAGS+= --target=wasm32
 LDFLAGS+= --target=wasm32 -nostdlib -Wl,--no-entry,--export-all,-z,stack-size=5000000
+#CFLAGS+= -O3
 
 output:= pg1.wasm
 
