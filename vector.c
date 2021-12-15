@@ -33,9 +33,9 @@ static real fastDist(real x, real y) {
 	x = fabs(x);
 	y = fabs(y);
 	if (x>=y)
-		return 0.9604*x+0.3978*y;
+		return 0.9604f*x+0.3978f*y;
 	else
-		return 0.3978*x+0.9604*y;
+		return 0.3978f*x+0.9604f*y;
 }
 
 real Vec_fastDist(Point a) {

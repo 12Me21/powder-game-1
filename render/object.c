@@ -14,6 +14,10 @@ static void rectangle(Object* e, int a, int w, int h, Color c) {
 	Draw_rectangle(e->parts[a].pos.x, e->parts[a].pos.y, w, h, c);
 }
 
+static void create_line(int x, int y, int x1, int y1, int x2, int y2, Color col) {
+	Draw_line(x+x1,y+y1,x+x2,y+y2,col);
+}
+
 void Object_render(void) {
 	Color tan = 0xFFE0AE, white=0xFFFFFF;
 	if (Menu_bgMode==Bg_SILUET)
@@ -103,29 +107,26 @@ void Object_render(void) {
 				col = 0x000000;
 			int x = e->parts[0].pos.x;
 			int y = e->parts[0].pos.y;
-			void line(int x1,int y1,int x2,int y2) {
-				Draw_line(x+x1,y+y1,x+x2,y+y2,col);
-			}
 			switch(e->parts[0].createType) {
 			case Object_FIGHTER:
-				line(0,0, 0,3);
-				line(0,0, 3,0);
-				line(0,2, 2,2);
+				create_line(x,y, 0,0, 0,3, col);
+				create_line(x,y, 0,0, 3,0, col);
+				create_line(x,y, 0,2, 2,2, col);
 				break;
 			case Object_BOX:
 				Draw_box(x,y, 3,3, col);
 				break;
 			case Object_PLAYER:
-				line(0,0, 0,3);
-				line(0,0, 2,0);
-				line(0,2, 2,2);
-				line(3,0, 3,2);
+				create_line(x,y, 0,0, 0,3, col);
+				create_line(x,y, 0,0, 2,0, col);
+				create_line(x,y, 0,2, 2,2, col);
+				create_line(x,y, 3,0, 3,2, col);
 				break;
 			case Object_BALL:
-				line(1,0, 2,0);
-				line(0,1, 0,2);
-				line(3,1, 3,2);
-				line(1,3, 2,3);
+				create_line(x,y, 1,0, 2,0, col);
+				create_line(x,y, 0,1, 0,2, col);
+				create_line(x,y, 3,1, 3,2, col);
+				create_line(x,y, 1,3, 2,3, col);
 				break;
 			default:
 				Draw_rectangle(x,y, 3,3, col);

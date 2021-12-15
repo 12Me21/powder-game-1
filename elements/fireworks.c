@@ -7,9 +7,9 @@
 
 static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
-	p->vel.xy += 0.1*airvel.xy;
-	airvel.y += Random_2(0.1,0.2);
-	p->vel.xy *= 0.9;
+	p->vel.xy += 0.1f*airvel.xy;
+	airvel.y += Random_2(0.1f, 0.2f);
+	p->vel.xy *= 0.9f;
 	airvel.xy += p->vel.xy;
 	Dot_blow(p, airvel);
 	

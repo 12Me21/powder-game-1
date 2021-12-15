@@ -16,9 +16,9 @@ static bool dot(Dot* p, Block* c) {
 static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	if (touched>=0) {
 		if (touched[ELEMENTS].state==State_LIQUID)
-			Ball_break(ball, 0, Elem_POWDER, 0, Point(0.5*ball->vel.xy), 0.5);
+			Ball_break(ball, 0, Elem_POWDER, 0, Point(0.5f*ball->vel.xy), 0.5);
 		else if (touched[ELEMENTS].state==State_HOT)
-			Ball_break(ball, 0, Elem_FIRE, 0, Point(0.5*ball->vel.xy), 0.5);
+			Ball_break(ball, 0, Elem_FIRE, 0, Point(0.5f*ball->vel.xy), 0.5);
 	}
 }
 

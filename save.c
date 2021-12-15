@@ -143,7 +143,7 @@ void load1(void) {
 				Dot* a = Dot_create(sx, sy, t);
 				int charge = Save_data[y][x].charge;
 				if (t == Elem_FAN) {
-					a->vel = (Point){0.1*(real)cos(charge*PI/32), 0.1*-(real)sin(charge*PI/32)};
+					a->vel = (Point){0.1f*(real)cos(charge*PI/32), 0.1f*-(real)sin(charge*PI/32)};
 					Dot_at[sy][sx] = Dot_BGFAN;
 				} else if (t == Elem_FIREWORKS)
 					a->charge = charge;

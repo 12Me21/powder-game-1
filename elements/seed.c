@@ -44,10 +44,10 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	if (touched<0) return;
 	// destroyed by acid
 	if (touched==Elem_ACID)
-		Ball_break(ball, 0, Elem_SEED, 0, Point(0.5*ball->vel.xy), 0.5);
+		Ball_break(ball, 0, Elem_SEED, 0, Point(0.5f*ball->vel.xy), 0.5f);
 	// burned by hot elements (except spark)
 	else if (touched!=Elem_SPARK && touched[ELEMENTS].state==State_HOT)
-		Ball_break(ball, 0, Elem_FIRE, 0, Point(0.5*ball->vel.xy), 0.5);
+		Ball_break(ball, 0, Elem_FIRE, 0, Point(0.5f*ball->vel.xy), 0.5f);
 }
 
 static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {

@@ -1,7 +1,7 @@
 #include "common.h"
 #include "elements.h"
 
-#define BRIGHTNESS(color) (int)((real)(color>>16&0xFF)*0.2989+(real)(color>>8&0xFF)*0.5866+(real)(color&0xFF)*0.1145)
+#define BRIGHTNESS(color) (int)((real)(color>>16&0xFF)*0.2989f+(real)(color>>8&0xFF)*0.5866f+(real)(color&0xFF)*0.1145f)
 #define GRAY(col) (BRIGHTNESS(col)<<16|BRIGHTNESS(col)<<8|BRIGHTNESS(col))
 #define COL(col) col,GRAY(col),col
 

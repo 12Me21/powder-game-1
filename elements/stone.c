@@ -6,15 +6,15 @@
 #include "../random.h"
 
 static bool dot(Dot* p, Block* c) {
-	p->vel.xy += 0.05*c->vel.xy;
-	p->vel.y += Random_2(0.01,0.05);
-	p->vel.xy *= 0.95;
+	p->vel.xy += 0.05f*c->vel.xy;
+	p->vel.y += Random_2(0.01f, 0.05f);
+	p->vel.xy *= 0.95f;
 
 	Point airvel = p->vel;
 	real mag = Vec_fastDist(airvel);
 	if (mag>10 && Rnd_perchance(50))
 		p->type = Elem_POWDER;
-	airvel.xy *= 3.8/(mag+1);
+	airvel.xy *= 3.8f/(mag+1);
 	
 	Dot* near = *Dot_pos(p->pos.x+airvel.x, p->pos.y);
 	if (near <= Dot_BGFAN) {

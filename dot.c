@@ -86,7 +86,7 @@ void Dot_swap(Dot* part1, Dot* part2) {
 }
 
 void Dot_blow(Dot* part, Point airvel) {
-	airvel.xy *= 3.8/(Vec_fastDist(airvel)+1);
+	airvel.xy *= 3.8f/(Vec_fastDist(airvel)+1);
 	if (*Dot_pos(part->pos.x+airvel.x, part->pos.y)<=Dot_BGFAN)
 		part->pos.x += airvel.x;
 	if (*Dot_pos(part->pos.x, part->pos.y+airvel.y)<=Dot_BGFAN)
@@ -120,7 +120,7 @@ void Dot_update(void) {
 						p->held = true;
 				}
 			} else if (Menu_dragging) {
-				p->vel.xy += (Menu_pen.xy - p->pos.xy)*0.1;
+				p->vel.xy += (Menu_pen.xy - p->pos.xy)*0.1f;
 			} else {
 				p->held = false;
 			}

@@ -18,7 +18,7 @@ static bool dot(Dot* p, Block* c) {
 static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	// if touch anything, break into that type
 	if (touched>=0 && ELEMENTS[touched].state>0)
-		Ball_break(ball, 0, touched, 0, Point(0.5*ball->vel.xy), 0.5);
+		Ball_break(ball, 0, touched, 0, Point(0.5f*ball->vel.xy), 0.5f);
 }
 
 AUTORUN {

@@ -22,6 +22,12 @@ static void clampZoom(void) {
 	Menu_zoomY = clamp(Menu_zoomY, 0, H-ceil((real)H/(1<<Menu_zoomLevel)));
 }
 
+static void addPressure(axis x, axis y, real amount) {
+	Block* cell = &Blocks[Pen_y/4+y][Pen_x/4+x];
+	if (cell->block==Block_EMPTY)
+		Block_addPressure(cell, amount);
+}
+
 void Menu_update(void) {
 	static long last;
 	long ms = Platform_nanosec();
@@ -59,7 +65,7 @@ void Menu_update(void) {
 	Pen_dir.xy = Menu_penOld.xy - 5*Pen_dir.xy;
 	Point ee = Vec_sub2(Menu_pen, Pen_dir);
 	real dist = 5-Vec_fastNormalize(&ee);
-	Pen_dir.xy = (Menu_pen.xy + ee.xy*(dist*0.5)) - (Pen_dir.xy - ee.xy*(dist*0.5));
+	Pen_dir.xy = (Menu_pen.xy + ee.xy*(dist*0.5f)) - (Pen_dir.xy - ee.xy*(dist*0.5f));
 	Vec_fastNormalize(&Pen_dir);
 	
 	if (Menu_zoomLevel!=0 && mouse.middle.held) {
@@ -113,7 +119,7 @@ void Menu_update(void) {
 										if (e==Elem_FIREWORKS) {
 											charge = Menu_BUTTONS[Menu_leftSelection].firework ?: Menu_BUTTONS[Menu_rightSelection].firework ?: Elem_POWDER;
 										} else if (e==Elem_LASER) {
-											charge = 8*Vec_angle(Pen_dir)/TAU+0.5;
+											charge = 8*Vec_angle(Pen_dir)/TAU+0.5f;
 											if (charge>=8)
 												charge = 0;
 											charge = charge+1;
@@ -135,11 +141,11 @@ void Menu_update(void) {
 										Dot* e = Dot_create(f, g, pa);
 										if (e>=Dot_0) {
 											if (pa==Elem_FAN) {
-												e->vel.xy = Pen_dir.xy * 0.1;
+												e->vel.xy = Pen_dir.xy * 0.1f;
 											} else if (pa==Elem_FIREWORKS) {
 												e->charge = Menu_BUTTONS[otherSel].firework ?:  Elem_POWDER;
 											} else if (pa==Elem_LASER) {
-												int charge = 8*Vec_angle(Pen_dir)/TAU+0.5;
+												int charge = 8*Vec_angle(Pen_dir)/TAU+0.5f;
 												if (charge>=8)
 													charge = 0;
 												e->charge = charge+1;
@@ -164,11 +170,6 @@ void Menu_update(void) {
 					}
 				}
 			when(Menu_AIR):;
-				void addPressure(axis x, axis y, real amount) {
-					Block* cell = &Blocks[Pen_y/4+y][Pen_x/4+x];
-					if (cell->block==Block_EMPTY)
-						Block_addPressure(cell, amount);
-				}
 				if (old) {
 					int v=(Menu_penSize+1)*(Menu_penSize+1)*0.25;
 					v = i ? -v : v;
@@ -227,8 +228,8 @@ void Menu_update(void) {
 					for (int i=0; i<=steps; i++) {
 						int startX = (x>>8) - (int)Menu_penSize/2;
 						int startY = (y>>8) - (int)Menu_penSize/2;
-						int centerX = startX+(real)Menu_penSize/2+0.5;
-						int centerY = startY+(real)Menu_penSize/2+0.5;
+						int centerX = startX+(real)Menu_penSize/2+0.5f;
+						int centerY = startY+(real)Menu_penSize/2+0.5f;
 						for (axis y=startY; y<=startY+Menu_penSize; y++) {
 							for (axis x=startX; x<=startX+Menu_penSize; x++) {
 								if ((x-centerX)*(x-centerX)+(y-centerY)*(y-centerY)<=Menu_penSize*Menu_penSize/4) {

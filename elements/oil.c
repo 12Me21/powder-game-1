@@ -44,7 +44,7 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	if (touched<0) return;
 	if (touched[ELEMENTS].state==State_HOT) {
 		for (int i=9;i<21;i++) {
-			BallNeighbor* n = &Ball_NEIGHBORS[i];
+			const BallNeighbor* n = &Ball_NEIGHBORS[i];
 			Dot* near = Dot_pos2(ball->pos)[n->offset];
 			if (near<=Dot_BGFAN && Rnd_perchance(50))
 				Dot_create((int)ball->pos.x+n->breakX, (int)ball->pos.y+n->breakY, Elem_FIRE);

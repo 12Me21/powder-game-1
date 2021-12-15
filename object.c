@@ -120,7 +120,8 @@ void fighterKick(Object* a) {
 		if (r->type==Object_FIGHTER || r->type==Object_FIGHTER_JUMPING || r->type==Object_PLAYER) {
 			for (int i=4; i<=5; i++) {
 				ObjectNode* foot = &a->parts[i];
-				real dx = abs(foot->pos.x - r->parts[0].pos.x);
+				// another abs/fabs idk
+				real dx = fabs(foot->pos.x - r->parts[0].pos.x);
 				real dy = foot->pos.y - r->parts[0].pos.y;
 				if (dx<=2 && dy>=0 && dy<=6) {
 					r->vel.xy += Cxy(foot->pos.x-foot->oldPos.x, 2*(foot->pos.y-foot->oldPos.y));
@@ -151,8 +152,8 @@ void checkDrag(Object* e, int last) {
 	// being held
 	} else if (Menu_dragging) {
 		Point* p = &e->parts[e->held-1].pos;
-		p->x += 0.2*(Pen_x-p->x);
-		p->y += 0.2*(Pen_y-p->y);
+		p->x += 0.2f*(Pen_x-p->x);
+		p->y += 0.2f*(Pen_y-p->y);
 	// release
 	} else
 		e->held = 0;
@@ -204,10 +205,10 @@ static void updateNode(ObjectNode* node, real adv, bool noCollide, bool fancy) {
 	if (!fancy) {
 		real f = Vec_fastDist(vel)+1;
 		if (f>=8) {
-			vel.xy *= 3.8/f;
+			vel.xy *= 3.8f/f;
 			steps = 2;
 		} else if (f>=4) {
-			vel.xy *= 0.5;
+			vel.xy *= 0.5f;
 			steps = 2;
 		} else
 			steps = 1;
@@ -303,12 +304,20 @@ typedef struct Player {
 
 Player players[2];
 
+static void copyPos(Object* obj, int dest, int src) {
+	obj->parts[dest].pos = obj->parts[src].pos;
+	obj->parts[dest].oldPos = obj->parts[src].oldPos;
+}
+
+static bool point_touching(Point pos, Point pos2) {
+	return (pos.x+8>=pos2.x &&
+	        pos.x-4<=pos2.x &&
+	        pos.y+8>=pos2.y &&
+	        pos.y-4<=pos2.y);
+}
+
 void Object_update(void) {
 	Object_FOR (obj) {
-		void copyPos(int dest, int src) {
-			obj->parts[dest].pos = obj->parts[src].pos;
-			obj->parts[dest].oldPos = obj->parts[src].oldPos;
-		}
 		switch (obj->type) {
 		case Object_PLAYER:;
 			/// todo: held || gotPress perhaps?
@@ -481,7 +490,7 @@ void Object_update(void) {
 			}
 			break;
 		case Object_PLAYER_DYING:
-			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);copyPos(0, 0);
+			copyPos(obj, 10, 5);copyPos(obj, 9, 4);copyPos(obj, 8, 3);copyPos(obj, 7, 3);copyPos(obj, 6, 2);copyPos(obj, 5, 2);copyPos(obj, 4, 1);copyPos(obj, 3, 1);copyPos(obj, 2, 1);copyPos(obj, 1, 0);copyPos(obj, 0, 0);
 			obj->vel.y -= 1;
 			obj->age = 0;
 			obj->type = Object_PLAYER_DEAD;
@@ -583,7 +592,7 @@ void Object_update(void) {
 			}
 			break;
 		case Object_FIGHTER_DYING:
-			copyPos(10, 5);copyPos(9, 4);copyPos(8, 3);copyPos(7, 3);copyPos(6, 2);copyPos(5, 2);copyPos(4, 1);copyPos(3, 1);copyPos(2, 1);copyPos(1, 0);
+			copyPos(obj, 10, 5);copyPos(obj, 9, 4);copyPos(obj, 8, 3);copyPos(obj, 7, 3);copyPos(obj, 6, 2);copyPos(obj, 5, 2);copyPos(obj, 4, 1);copyPos(obj, 3, 1);copyPos(obj, 2, 1);copyPos(obj, 1, 0);
 			obj->vel.y -= 1;
 			obj->age = 0;
 			obj->type = Object_FIGHTER_DEAD;
@@ -617,8 +626,9 @@ void Object_update(void) {
 					if (r->type==Object_FIGHTER||r->type==Object_FIGHTER_JUMPING||r->type==Object_PLAYER) {
 						for (int i=4;i<=5;i++) {
 							ObjectNode* part = &r->parts[i];
-							real g = abs(part->pos.x - obj->parts[b].pos.x);
-							real q = abs(part->pos.y - obj->parts[b].pos.y);
+							// more abs/fabs ?
+							real g = fabs(part->pos.x - obj->parts[b].pos.x);
+							real q = fabs(part->pos.y - obj->parts[b].pos.y);
 							if (g<=3 && q<=3) {
 								obj->parts[b].pos.x += 1*(part->pos.x - part->oldPos.x);
 								obj->parts[b].pos.y += 2*(part->pos.y - part->oldPos.y);
@@ -632,21 +642,21 @@ void Object_update(void) {
 			pullNodes(obj,1,2,r,0.5,0.5);
 			pullNodes(obj,2,3,r,0.5,0.5);
 			pullNodes(obj,3,0,r,0.5,0.5);
-			pullNodes(obj,0,2,1.4142135*r,0.5,0.5);
-			pullNodes(obj,1,3,1.4142135*r,0.5,0.5);
+			pullNodes(obj,0,2,1.4142135f*r,0.5,0.5);
+			pullNodes(obj,1,3,1.4142135f*r,0.5,0.5);
 			for (int b=0;b<4;b++)
-				updateNode(&obj->parts[b],0.5,false,true);
+				updateNode(&obj->parts[b],0.5f,false,true);
 			t = checkTouching(obj,0,6);
 			if (t==3 || t==-5)
 				obj->type = Object_BOX_DYING;
 			break;
 		case Object_BOX_DYING:
-			copyPos(7, 0);
-			copyPos(6, 3);
-			copyPos(5, 3);
-			copyPos(4, 2);
-			copyPos(3, 2);
-			copyPos(2, 1);
+			copyPos(obj, 7, 0);
+			copyPos(obj, 6, 3);
+			copyPos(obj, 5, 3);
+			copyPos(obj, 4, 2);
+			copyPos(obj, 3, 2);
+			copyPos(obj, 2, 1);
 			obj->held = 0;
 			obj->age = 0;
 			obj->type = checkTouching(obj,0,4)==-5 ? Object_BOX_DEAD : Object_BOX_BURNING;
@@ -680,14 +690,8 @@ void Object_update(void) {
 			if (obj->parts[0].createType==0) {
 				// check for touching
 				Point pos = obj->parts[0].pos;
-				bool touching(Point pos2) {
-					return (pos.x+8>=pos2.x &&
-					        pos.x-4<=pos2.x &&
-					        pos.y+8>=pos2.y &&
-					        pos.y-4<=pos2.y);
-				}
 				Object_FOR (r) {
-					if (touching(r->parts[0].pos)) {
+					if (point_touching(pos, r->parts[0].pos)) {
 						if (r->type==Object_FIGHTER || r->type==Object_BOX) {
 							obj->parts[0].createType = r->type;
 							obj->meta = r->meta;
@@ -702,7 +706,7 @@ void Object_update(void) {
 					}
 				}
 				Ball_FOR (r) {
-					if (r->used && touching(r->pos)) {
+					if (r->used && point_touching(pos, r->pos)) {
 						obj->parts[0].createType = Object_BALL;
 						obj->meta = r->type;
 					}

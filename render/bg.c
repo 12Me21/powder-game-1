@@ -49,6 +49,19 @@ static inline void do_blend(typeof(f) func) {
 	}
 }
 
+static inline void shade_blend(int x,int y, int dx, int dy) {
+	Color d = grp[y][x];
+	Color a = grp[y+dy][x+dx];
+	int r = (RED(d)+RED(a))/2;
+	int g = (GREEN(d)+GREEN(a))/2;
+	int b = (BLUE(d)+BLUE(a))/2;
+	grp[y][x] = RGB(r,g,b);
+}
+
+static inline void tg_blend(int x,int y, int dx, int dy) {
+	Bg_pixels[y][x].light = Bg_pixels[y+dy][x+dx].light = (Bg_pixels[y][x].light+Bg_pixels[y+dy][x+dx].light)/2;
+}
+
 // render background (this is the first render function to run)
 void Bg_render(void) {
 	Offset i;
@@ -99,15 +112,7 @@ void Bg_render(void) {
 		}
 		break;
 	case Bg_SHADE:; {
-			inline void func(int x,int y, int dx, int dy) {
-				Color d = grp[y][x];
-				Color a = grp[y+dy][x+dx];
-				int r = (RED(d)+RED(a))/2;
-				int g = (GREEN(d)+GREEN(a))/2;
-				int b = (BLUE(d)+BLUE(a))/2;
-				grp[y][x] = RGB(r,g,b);
-			}
-			do_blend(func);
+			do_blend(shade_blend);
 			for_visiblePixels0rev2 (a) {
 				if (Dot_grid0[a] == Dot_BLOCK)
 					grp0[a] = 0x606060;
@@ -120,7 +125,7 @@ void Bg_render(void) {
 			real vx = fabs(e->vel.x);
 			real vy = fabs(e->vel.y);
 			if (vx!=0 || vy!=0) {
-				real q = 1.0/(vx+vy);
+				real q = 1.0f/(vx+vy);
 				int gg = vx*q*0xFFFF;
 				int qq = vy*q*0xFFFF;
 				axis sx = sign(e->vel.x);
@@ -216,7 +221,7 @@ void Bg_render(void) {
 			if (cell->block!=Block_EMPTY) continue;
 			
 			real vel = Vec_fastDist(cell->vel);
-			if (vel<0.2) continue;
+			if (vel<0.2f) continue;
 			vel = atMost(vel, 2);
 		
 			int r = between(cell->pres*48, 0, 96);
@@ -227,14 +232,19 @@ void Bg_render(void) {
 			int startX = x*4 + 5*cell->vel.x;
 			int startY = y*4 + 5*cell->vel.y;
 			
-			inline void line(axis dx, axis dy) {
-				Block* cell = &Blocks[y+dy][x+dx];
-				int w = (x+dx)*4 + 5*cell->vel.x;
-				int h = (y+dy)*4 + 5*cell->vel.y;
+			// draw the gridlines
+			{
+				Block* cell = &Blocks[y][x+1];
+				int w = (x+1)*4 + 5*cell->vel.x;
+				int h = (y)*4 + 5*cell->vel.y;
 				Draw_line(startX,startY,w,h,color);
 			}
-			line(1,0);
-			line(0,1);
+			{
+				Block* cell = &Blocks[y+1][x];
+				int w = (x)*4 + 5*cell->vel.x;
+				int h = (y+1)*4 + 5*cell->vel.y;
+				Draw_line(startX,startY,w,h,color);
+			}
 		}
 		break;
 	case Bg_GRAY:
@@ -291,10 +301,7 @@ void Bg_render(void) {
 			Bg_pixels[(int)p->pos.y][(int)p->pos.x].light = p->type[ELEMENTS].temperature;
 		}
 		{
-			inline void func(int x,int y, int dx, int dy) {
-				Bg_pixels[y][x].light = Bg_pixels[y+dy][x+dx].light = (Bg_pixels[y][x].light+Bg_pixels[y+dy][x+dx].light)/2;
-			}
-			do_blend(func);
+			do_blend(tg_blend);
 		}
 		for_visiblePixels0rev2 (i) {
 			int l = Bg_pixels0[i].light;
@@ -347,13 +354,14 @@ void Bg_render(void) {
 	}
 }
 
+static void dark_blend(axis x, axis y, axis dx, axis dy) {
+	Bg_pixels[y][x].light = (Bg_pixels[y][x].light+Bg_pixels[y+dy][x+dx].light)/2;
+}
+
 // this runs after everything is drawn
 void Bg_render2(void) {
 	if (Menu_bgMode!=Bg_DARK) return;
-	inline void func(axis x, axis y, axis dx, axis dy) {
-		Bg_pixels[y][x].light = (Bg_pixels[y][x].light+Bg_pixels[y+dy][x+dx].light)/2;
-	}
-	do_blend(func);
+	do_blend(dark_blend);
 	for_visiblePixels0rev2 (a) {
 		int l = Bg_pixels0[a].light;
 		if (l<=0)

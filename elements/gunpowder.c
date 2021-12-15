@@ -4,6 +4,23 @@
 #include "../ball.h"
 #include "../random.h"
 
+void func(axis x, axis y, axis sx, axis sy) {
+	Dot* near = Dot_at[y][x];
+	if (near>=Dot_0 && near->type != Elem_GUNPOWDER) {
+		near->vel.x += 10*(x-sx);
+		near->vel.y += 10*(y-sy);
+	}
+	if (!(y&3) && !(x&3)) {
+		Block* cell = Block_at(x,y);
+		if (cell->block!=Block_BLOCK) {
+			if (x!=sx)
+				cell->vel.x += 10.0/(x-sx);
+			if (y!=sy)
+				cell->vel.y += 10.0/(y-sy);
+		}
+	}
+}
+
 static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
 	airvel.y += Random_2(0.01, 0.2);
@@ -14,22 +31,6 @@ static bool dot(Dot* p, Block* c) {
 	Dot* near = Dot_rndNear(p->pos,5);
 	if (near>=Dot_0 && near->type[ELEMENTS].state==State_HOT) {
 		// explode
-		void func(axis x, axis y, axis sx, axis sy) {
-			Dot* near = Dot_at[y][x];
-			if (near>=Dot_0 && near->type != Elem_GUNPOWDER) {
-				near->vel.x += 10*(x-sx);
-				near->vel.y += 10*(y-sy);
-			}
-			if (!(y&3) && !(x&3)) {
-				Block* cell = Block_at(x,y);
-				if (cell->block!=Block_BLOCK) {
-					if (x!=sx)
-						cell->vel.x += 10.0/(x-sx);
-					if (y!=sy)
-						cell->vel.y += 10.0/(y-sy);
-				}
-			}
-		}
 		Dot_doRadius((int)p->pos.x & 0xFFF4, (int)p->pos.y & 0xFFF4, 10, func);
 		p->type = Elem_FIRE;
 	}
@@ -41,7 +42,7 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 	// explode when touching a hot element AND charge is 0
 	if (ball->charge==0 && touched[ELEMENTS].state==State_HOT) {
 		for (int i=0;i<37;i++) {
-			BallNeighbor* n = &Ball_NEIGHBORS[i];
+			const BallNeighbor* n = &Ball_NEIGHBORS[i];
 			Dot* near = Dot_pos2(ball->pos)[n->offset];
 			if (near<=Dot_BGFAN) {
 				Dot* new = Dot_create(

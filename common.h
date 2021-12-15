@@ -8,6 +8,9 @@ typedef _Complex float Complex;
 #define fabs(x) fabsf(x)
 #define floor(x) floorf(x)
 #define ceil(x) ceilf(x)
+#define acos(x) acosf(x)
+#define sin(x) sinf(x)
+#define cos(x) cosf(x)
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 
