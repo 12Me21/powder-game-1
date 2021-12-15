@@ -5,12 +5,13 @@
 
 typedef float real;
 typedef _Complex float Complex;
-#define fabs(x) fabsf(x)
-#define floor(x) floorf(x)
-#define ceil(x) ceilf(x)
-#define acos(x) acosf(x)
-#define sin(x) sinf(x)
-#define cos(x) cosf(x)
+#define fabs(x) __builtin_fabsf(x)
+#define floor(x) __builtin_floorf(x)
+#define ceil(x) __builtin_ceilf(x)
+#define acos(x) __builtin_acosf(x)
+#define sin(x) __builtin_sinf(x)
+#define cos(x) __builtin_cosf(x)
+#define sqrt(x) __builtin_sqrtf(x)
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 

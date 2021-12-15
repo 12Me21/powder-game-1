@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdlib.h>
 #include "common.h"
 #include "vector.h"
@@ -45,7 +44,7 @@ real Vec_fastDist(Point a) {
 // can't use cabs() here because of compatibility
 // I have tested, sqrtf() produces the same results as sqrt() here
 real Vec_dist(Point this) {
-	return sqrtf(this.x*this.x + this.y*this.y);
+	return __builtin_sqrtf(this.x*this.x + this.y*this.y);
 }
 
 real Vec_fastNormalize(Point* v) {

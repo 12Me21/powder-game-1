@@ -1,4 +1,4 @@
-#include <time.h>
+/*#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -178,3 +178,4 @@ void* Platform_selectFile(int mode) {
 	}
 	return NULL;
 }
+*/

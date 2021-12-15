@@ -1,6 +1,7 @@
 #pragma once
-#include "common.h"
 #include <complex.h>
+
+#include "common.h"
 
 typedef union Point {
 	struct {
@@ -36,5 +37,5 @@ extern Point Vec_unit[513]; // Ce[][] (roughly)
 
 real clamp(real value, real min, real max); // Lc()
 
-#define PI ((real)M_PI)
+#define PI (3.1415927f)
 #define TAU (PI*2)
