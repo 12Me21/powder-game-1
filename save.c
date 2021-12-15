@@ -1,9 +1,4 @@
-#define _GNU_SOURCE
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-
+#include <stddef.h>
 #include "platform.h"
 #include "sim.h"
 #include "menu.h"
@@ -20,11 +15,11 @@ static int number(char x) {
 
 SavePixel Save_data[H][W];
 
-static inline void* memdupa(void* source, size_t length) {
+/*static inline void* memdupa(void* source, size_t length) {
 	return memcpy(alloca(length), source, length);
-}
+	}*/
 
-void loadSaveFile(FILE* stream) {
+/*void loadSaveFile(FILE* stream) {
 	const char base64[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63,0,0,0,62,0,0,1,2,3,4,5,6,7,8,9,0,0,0,0,0,0,0,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,0,0,0,0,0,0,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,0,0,0,0,0};
 	int version = number(fgetc(stream));
 	
@@ -109,7 +104,7 @@ void loadSaveFile(FILE* stream) {
 				Save_data[0][d++].type = type;
 		}
 	}
-}
+	}*/
 
 void load1(void) {
 	int total=0;
@@ -153,13 +148,13 @@ void load1(void) {
 	Dot_shuffle();
 }
 
-void Save_Load_test(void* filename) {
+/*void Save_Load_test(void* filename) {
 	FILE* f = Platform_openRead(filename);
 	if (f) {
 		loadSaveFile(f);
 		load1();
 	}
-}
+	}*/
 
 bool Save_onscreen(axis x, axis y) {
 	return x>=8 && x<W+8 && y>=8 && y<H+8;
@@ -188,6 +183,8 @@ static int checksum(char* text) {
 		checksum += (int)*c*((i++ & 0xFF)+1);
 	return checksum;
 }
+
+static char save_buffer[100000];
 
 char* Save_string(SavePixel save[H][W]) {
 	char data[W*H];
@@ -221,7 +218,7 @@ char* Save_string(SavePixel save[H][W]) {
 	}
 	int dLen = d-data;
 	const char base64[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.*";
-	char* fd = malloc(2*dLen+4);
+	char* fd = save_buffer;//malloc(2*dLen+4);
 	char* f = fd;
 	// write header
 	*f++ = '1';

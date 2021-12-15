@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "common.h"
 #include "vector.h"
 

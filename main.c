@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "menu.h"
 #include "save.h"
 #include "platform.h"
@@ -9,23 +6,26 @@
 
 #define DEFCALL(name) void name(void); name()
 
-Platform_Bitmap simBitmap;
-Platform_Bitmap menuBitmap;
+//Platform_Bitmap simBitmap;
+//Platform_Bitmap menuBitmap;
+
+int main(int argc, char** argv) {
+}
 
 void Platform_main(int argc, void** argv) {
-	Platform_createWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Powder Game");
-	simBitmap = Platform_createBitmap(&grp[0][0], WIDTH, HEIGHT);
-	menuBitmap = Platform_createBitmap(&Menu_grp[0][0], MENU_WIDTH, MENU_HEIGHT);
-	srand(time(NULL));
-	if (argc>=2)
-		Save_Load_test(argv[1]);
-	else
-		Sim_reset(false);
+	//Platform_createWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Powder Game");
+	//simBitmap = Platform_createBitmap(&grp[0][0], WIDTH, HEIGHT);
+	//menuBitmap = Platform_createBitmap(&Menu_grp[0][0], MENU_WIDTH, MENU_HEIGHT);
+	//srand(time(NULL));
+	//if (argc>=2)
+	//	Save_Load_test(argv[1]);
+	//else
+	Sim_reset(false);
 }
 
 void Platform_redraw(void) {
-	Platform_drawBitmap(simBitmap, 0,0, 8,8, W,H);
-	Platform_drawBitmap(menuBitmap, 0,H, 0,0, MENU_WIDTH,MENU_HEIGHT);
+	//Platform_drawBitmap(simBitmap, 0,0, 8,8, W,H);
+	//Platform_drawBitmap(menuBitmap, 0,H, 0,0, MENU_WIDTH,MENU_HEIGHT);
 }
 
 void render(void) {

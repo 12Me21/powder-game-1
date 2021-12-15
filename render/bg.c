@@ -1,5 +1,3 @@
-#include <string.h>
-#include <math.h>
 #include "../common.h"
 #include "../menu.h"
 #include "draw.h"

@@ -1,7 +1,7 @@
 #pragma once
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <complex.h>
 
 typedef float real;
 typedef _Complex float Complex;
@@ -12,6 +12,14 @@ typedef _Complex float Complex;
 #define sin(x) __builtin_sinf(x)
 #define cos(x) __builtin_cosf(x)
 #define sqrt(x) __builtin_sqrtf(x)
+#define abs(x) __builtin_abs(x)
+#define memmove __builtin_memmove
+#define strlen __builtin_strlen
+#define memcpy __builtin_memcpy
+#define memset __builtin_memset
+#define memcmp __builtin_memcmp
+
+#define export(name) __attribute__((export_name(name)))
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 

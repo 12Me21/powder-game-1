@@ -1,4 +1,3 @@
-#include <math.h>
 #include "common.h"
 #include "dot.h"
 #include "block.h"

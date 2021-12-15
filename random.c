@@ -1,5 +1,3 @@
-#include <math.h>
-#include <stdlib.h>
 #include "common.h"
 #include "vector.h"
 
@@ -31,6 +29,10 @@ bool Rnd_perchance(int chance) {
 Point Rnd_point(real x1, real x2, real y1, real y2) {
 	real x = Random_2(x1,x2); //this is done separately to preserve the order
 	return (Point){x, Random_2(y1,y2)};
+}
+
+int rand(void) {
+	return 4;
 }
 
 void Random_update(void) {

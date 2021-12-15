@@ -1,7 +1,5 @@
+#include <stddef.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
 #include "common.h"
 #include "vector.h"
 #include "random.h"

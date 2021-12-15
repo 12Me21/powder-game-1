@@ -1,4 +1,4 @@
-.EXTRA_PREREQS+= Makefile .Nice.mk
+#.EXTRA_PREREQS+= Makefile .Nice.mk
 
 # location for intermediate files (.o and .mk)
 # (will be created automatically, as well as any subdirectories)
@@ -22,7 +22,7 @@ print = echo '$(call printlist,33,$1,$2)	[37mfrom: $(call printlist,32,$3,$4)[
 # Link
 $(output): $(srcs:%=$(junkdir)/%.o)
 	@$(call print,$@,,$^,$(junkdir)/)
-	@$(CC) $(LDFLAGS) $^ $(libs:%=-l%) -o $@
+	@$(CC) $(LDFLAGS) $^ builtins.a libc.a -o $@
 
 # Compile
 $(junkdir)/%.o $(junkdir)/%.mk : $(srcdir)/%

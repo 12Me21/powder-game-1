@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include "../common.h"
 #include "../menu.h"
 #include "../elements.h"
@@ -170,7 +167,7 @@ static void Draw_count(int i, int count, char name, Color color) {
 	buffer[1] = 0;
 	Draw_mrectangle(4+x+4, 11-8+y, Menu_BUTTONWIDTH, Menu_BUTTONHEIGHT, 0x404040);
 	Draw_text(4+4+x, 11-8+y, buffer,color, 0);
-	sprintf(buffer, "  %d", count);
+	//sprintf(buffer, "  %d", count); @@@
 	Draw_spacedText(4+4+x, 11-8+y, buffer, color, 0, -1);
 }
 
@@ -264,8 +261,8 @@ void Menu_render(void) {
 	if (Menu_fps<=999)
 		Draw_printf(0,rowLast,0x808080,0,0,"%3d",Menu_fps);
 	else {
-		int d = log10f(Menu_fps);
-		Draw_printf(0,rowLast,0x808080,0,0,"%de%d", (int)roundf(Menu_fps/powf(10,d)), d);
+		//int d = log10f(Menu_fps); @@@
+		//Draw_printf(0,rowLast,0x808080,0,0,"%de%d", (int)roundf(Menu_fps/powf(10,d)), d);
 	}
 	//if(sldebug==1){
 	//	k.drawtext(64,451,Sc+"sl",0xFFFFFF,0);

@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include "common.h"
 #include "vector.h"
 #include "random.h"
@@ -268,7 +265,7 @@ Dot* Dot_rndNear(Point pos, axis diam) {
 }
 
 void Dot_print(Dot* p) {
-	printf("%s\npos: %f,%f\nvel: %f,%f\ncharge: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->charge);
+	//printf("%s\npos: %f,%f\nvel: %f,%f\ncharge: %d\n", ELEMENTS[p->type].name, (double)p->pos.x, (double)p->pos.y, (double)p->vel.x, (double)p->vel.y, p->charge);
 }
 
 void Dot_toGrid(Dot* p) {

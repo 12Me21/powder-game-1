@@ -122,6 +122,7 @@ void Platform_createWindow(axis width, axis height, char* title) {
 	XFree(hints);
 }
 
+*/
 int main(int argc, char** argv) {
 	D = XOpenDisplay(NULL);
 	visual = DefaultVisual(D, 0);
@@ -138,7 +139,7 @@ int main(int argc, char** argv) {
 		Platform_redraw();
 	}
 }
-
+/*
 void Platform_drawBitmap(Platform_Bitmap bitmap, int dx, int dy, int srcx, int srcy, int w, int h) {
 	XPutImage(D, win, DefaultGC(D, 0), bitmap.data, srcx,srcy, dx,dy, w,h);
 }

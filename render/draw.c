@@ -1,7 +1,3 @@
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdarg.h>
 
 #include "../common.h"
@@ -141,7 +137,7 @@ void Draw_printf(int x, int y, Color color, Color bg, int spacing, char* format,
 	va_list argptr;
 	va_start(argptr, format);
 	static char buffer[100];
-	vsnprintf(buffer, sizeof(buffer), format, argptr);
+	//vsnprintf(buffer, sizeof(buffer), format, argptr); @@@
 	va_end(argptr);
 	Draw_spacedText(x,y,buffer,color,bg,spacing);
 }

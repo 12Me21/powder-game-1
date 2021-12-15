@@ -1,6 +1,3 @@
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "input.h"
 #include "menu.h"
 #include "reset.h"
@@ -118,22 +115,22 @@ void Menu_input(void) {
 		when(Menu_UPLOAD):;
 			if (Mouse_fallingDirection) {
 				Save_save1();
-				char* s = Save_string(Save_data);
-				void* name = Platform_selectFile(1);
+				//char* s = Save_string(Save_data);
+				/*void* name = Platform_selectFile(1);
 				FILE* f = Platform_openWrite(name);
 				if (f) {
 					fputs(s, f);
-				}
-				free(s);
+					}*/
+				//free(s);
 			}
 				//wa=1;
 		when(Menu_SAVE):;
 			if (mouse.right.gotPress || mouse.left.gotPress) {
 				Save_save1();
-				char* s = Save_string(Save_data);
+				/*char* s = Save_string(Save_data);
 				if (s) {
 					free(s);
-				}
+					}*/
 				//save1();
 				//makesavestring();
 				buttonflash=10;

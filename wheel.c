@@ -1,4 +1,3 @@
-#include <math.h>
 #include "menu.h"
 #include "vector.h"
 #include "random.h"

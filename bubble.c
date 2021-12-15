@@ -1,7 +1,3 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "menu.h"
 #include "vector.h"
 #include "random.h"

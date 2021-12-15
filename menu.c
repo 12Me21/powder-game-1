@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include "common.h"
 #include "input.h"
 #include "dot.h"
@@ -30,7 +27,7 @@ static void addPressure(axis x, axis y, real amount) {
 
 void Menu_update(void) {
 	static long last;
-	long ms = Platform_nanosec();
+	long ms = 9;//Platform_nanosec();
 	if (ms>last) {
 		real fps = (1000000000.0)/(ms-last);
 		fps *= 1<<Menu_gameSpeed;
