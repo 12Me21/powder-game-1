@@ -12,7 +12,7 @@ enum ObjectType {
 };
 
 // Dd
-#define Object_PARTS 28
+enum {Object_PARTS=28};
 
 // "Objects"
 
