@@ -20,14 +20,14 @@ void Dot_render(void) {
 		Color* dest = Draw_pxRef(i->pos.x, i->pos.y);
 		int red, green, blue;
 		if (Menu_bgMode == Bg_LIGHT) {
-			red = atMost(RED(color)/4+RED(*dest), 255);
-			green = atMost(GREEN(color)/4+GREEN(*dest), 255);
-			blue = atMost(BLUE(color)/4+BLUE(*dest), 255);
+			red = atMost(color.r/4+dest->r, 255);
+			green = atMost(color.g/4+dest->g, 255);
+			blue = atMost(color.b/4+dest->b, 255);
 			*dest = RGB(red,green,blue);
 		} else if (Menu_bgMode == Bg_SILUET) {
-			red = atLeast(RED(*dest)+RED(color)-(0xFF+10), 0);
-			green = atLeast(GREEN(*dest)+GREEN(color)-(0xFF+10), 0);
-			blue = atLeast(BLUE(*dest)+BLUE(color)-(0xFF+10), 0);
+			red = atLeast(dest->r+color.r-(0xFF+10), 0);
+			green = atLeast(dest->g+color.g-(0xFF+10), 0);
+			blue = atLeast(dest->b+color.b-(0xFF+10), 0);
 			*dest = RGB(red,green,blue);
 		} else
 			*dest = color;

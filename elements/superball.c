@@ -88,7 +88,7 @@ static bool dot(Dot* p, Block* c) {
 
 AUTORUN {
 	ELEMENTS[Elem_SUPERBALL] = (ElementDef){
-		"S-BALL", 0xFF40A0, State_POWDER,
+		"S-BALL", RGB(0xFF,0x40,0xA0), State_POWDER,
 		
 		.playerValid = true,
 		.dissolveRate = 10,

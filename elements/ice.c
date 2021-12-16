@@ -50,9 +50,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_ICE] = (ElementDef){
-		.name = "ICE",
-		.color = 0xD0D0FF,
-		.state = State_SOLID,
+		"ICE", RGB(0xD0,0xD0,0xFF), State_SOLID,
+		
 		.temperature = -1000,
 		.dissolveRate = 40,
 		.friction = 1,

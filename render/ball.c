@@ -11,7 +11,7 @@ void Ball_render(void) {
 		int type = ball->type;
 		Color color = ELEMENTS[type].color;
 		if (Menu_bgMode == Bg_SILUET)
-			color = 0;
+			color = RGB(0,0,0);
 		int x = ball->pos.x;
 		int y = ball->pos.y;
 		Draw_ball(x, y, color);

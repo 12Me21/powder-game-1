@@ -1,4 +1,4 @@
-#.EXTRA_PREREQS+= Makefile .Nice.mk
+.EXTRA_PREREQS+= Makefile .Nice.mk
 
 # location for intermediate files (.o and .mk)
 # (will be created automatically, as well as any subdirectories)

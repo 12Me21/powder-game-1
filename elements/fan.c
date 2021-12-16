@@ -24,9 +24,8 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 
 AUTORUN {
 	ELEMENTS[Elem_FAN] = (ElementDef){
-		.name = "FAN",
-		.color = 0x8080FF,
-		.state = State_NONE,
+		"FAN", RGB(0x80,0x80,0xFF), State_NONE,
+		
 		.playerValid = true,
 		.friction = 1,
 		.ballValid = true,

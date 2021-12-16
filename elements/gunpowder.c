@@ -78,9 +78,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_GUNPOWDER] = (ElementDef){
-		.name = "G-POWDER",
-		.color = 0xB08050,
-		.state = State_POWDER,
+		"G-POWDER", RGB(0xB0,0x80,0x50), State_POWDER,
+		
 		.playerValid = true,
 		.dissolveRate = 10,
 		.friction = 0.5,

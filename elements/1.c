@@ -6,7 +6,7 @@
 AUTORUN {
 	ELEMENTS[1] = (ElementDef){
 		.name = "Elem_1",
-		.color = 0x606060,
+		.color = RGB(0x60,0x60,0x60),
 		.friction = 0.5,
 	};
 }

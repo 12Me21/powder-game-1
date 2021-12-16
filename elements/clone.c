@@ -49,7 +49,7 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_CLONE] = (ElementDef){
-		"CLONE", 0x907010, State_SOLID,
+		"CLONE", RGB(0x90,0x70,0x10), State_SOLID,
 		
 		.friction = 0.5,
 		.ze = 0.2, .Ae = 0.2,

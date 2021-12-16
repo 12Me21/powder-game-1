@@ -6,7 +6,7 @@
 extern const char Wheel_frames[16][32][32];
 
 void Wheel_render(void) {
-	Color color = Menu_bgMode==Bg_SILUET ? 0 : 0xB0A090;
+	Color color = Menu_bgMode==Bg_SILUET ? RGB(0,0,0) : RGB(0xB0,0xA0, 0x90);
 	Wheel_FOR (w) {
 		const char (*frame)[32] = Wheel_frames[(int)w->angle];
 		for (axis y=0;y<32;y++) {

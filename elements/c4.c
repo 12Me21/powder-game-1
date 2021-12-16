@@ -69,9 +69,8 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 
 AUTORUN {
 	ELEMENTS[Elem_C4] = (ElementDef){
-		.name = "C4",
-		.color = 0xFFFFCC,
-		.state = State_SOLID,
+		"C4", RGB(0xFF,0xFF,0xCC), State_SOLID,
+		
 		.dissolveRate = 100,
 		.friction = 0.5,
 		.ze = 0.5, .Ae = 0.5,

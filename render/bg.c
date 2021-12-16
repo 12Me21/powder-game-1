@@ -6,6 +6,8 @@
 #include "../block.h"
 #include "bg.h"
 
+#define Block_COLOR RGB(96,96,96)
+
 BgPixel Bg_pixels[HEIGHT][WIDTH];
 BgPixel* const Bg_pixels0 = Bg_pixels[0];
 BgPixel* const Bg_pixels_end = &Bg_pixels[HEIGHT-1][WIDTH-1]+1;
@@ -16,9 +18,9 @@ void Bg_reset(void) {
 }
 
 static inline Color fadeRGB(Color c, int a) {
-	int r = RED(c)*a/256;
-	int g = GREEN(c)*a/256;
-	int b = BLUE(c)*a/256;
+	int r = c.r*a/256;
+	int g = c.g*a/256;
+	int b = c.b*a/256;
 	return RGB(r,g,b);
 }
 
@@ -50,9 +52,9 @@ static inline void do_blend(typeof(f) func) {
 static inline void shade_blend(int x,int y, int dx, int dy) {
 	Color d = grp[y][x];
 	Color a = grp[y+dy][x+dx];
-	int r = (RED(d)+RED(a))/2;
-	int g = (GREEN(d)+GREEN(a))/2;
-	int b = (BLUE(d)+BLUE(a))/2;
+	int r = (d.r+a.r)/2;
+	int g = (d.g+a.g)/2;
+	int b = (d.b+a.b)/2;
 	grp[y][x] = RGB(r,g,b);
 }
 
@@ -67,14 +69,14 @@ void Bg_render(void) {
 	case Bg_NONE:
 	default:;
 		for (Offset i=0;i<WIDTH*HEIGHT;i++)
-			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? 0x606060 : 0;
+			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? Block_COLOR : RGB(0,0,0);
 		break;
 	case Bg_AIR: case Bg_LINE:;
 		for_visibleBlocks (x,y) {
 			Block* block = &Blocks[y][x];
 			Color color;
 			if (block->block==Block_BLOCK) {
-				color = 0x606060;
+				color = Block_COLOR;
 			} else {
 				int g = between(block->pres*48, 0, 96);
 				int b = between(-block->pres*48, 0, 96);
@@ -104,7 +106,7 @@ void Bg_render(void) {
 	case Bg_BLUR:
 		for_visiblePixels0rev (i) {
 			if (Dot_grid0[i]==Dot_BLOCK)
-				grp0[i] = 0x606060;
+				grp0[i] = Block_COLOR;
 			else
 				grp0[i] = fadeRGB(grp0[i],230);
 		}
@@ -113,7 +115,7 @@ void Bg_render(void) {
 			do_blend(shade_blend);
 			for_visiblePixels0rev2 (a) {
 				if (Dot_grid0[a] == Dot_BLOCK)
-					grp0[a] = 0x606060;
+					grp0[a] = Block_COLOR;
 			}
 			break;
 		} case Bg_AURA:;
@@ -131,13 +133,13 @@ void Bg_render(void) {
 				Offset r = (y*4*WIDTH)+(x*4);
 				// iterate over 4x4 square
 				for (int a=0; a<16; a++) {
-					int w = RED(grp0[r]);
+					int w = grp0[r].r;
 					Bg_pixels0[r+sx].auraR += w*gg;
 					Bg_pixels0[r+sy*WIDTH].auraR += w*qq;
-					w = GREEN(grp0[r]);
+					w = grp0[r].g;
 					Bg_pixels0[r+sx].auraG += w*gg;
 					Bg_pixels0[r+sy*WIDTH].auraG += w*qq;
-					w = BLUE(grp0[r]);
+					w = grp0[r].b;
 					Bg_pixels0[r+sx].auraB += w*gg;
 					Bg_pixels0[r+sy*WIDTH].auraB += w*qq;
 					r += (Offset[]){1,1,1,WIDTH-3,1,1,1,WIDTH-3,1,1,1,WIDTH-3,1,1,1,WIDTH-3}[a];
@@ -150,7 +152,7 @@ void Bg_render(void) {
 		  }*/
 		for_visiblePixels(x,y) {
 			BgPixel* p = &Bg_pixels[y][x];
-			grp[y][x] = Dot_at[y][x]==Dot_BLOCK ? 0x606060 : RGB(
+			grp[y][x] = Dot_at[y][x]==Dot_BLOCK ? Block_COLOR : RGB(
 				atMost(p->auraR>>16, 255),
 				atMost(p->auraG>>16, 255),
 				atMost(p->auraB>>16, 255)
@@ -161,7 +163,7 @@ void Bg_render(void) {
 	case Bg_LIGHT:;
 		for_visiblePixels0rev (i) {
 			if (Dot_grid0[i]==Dot_BLOCK)
-				grp0[i] = 0x606060;
+				grp0[i] = Block_COLOR;
 			else
 				grp0[i] = fadeRGB(grp0[i],220);
 		}
@@ -170,11 +172,11 @@ void Bg_render(void) {
 		for (i=(H+8)*WIDTH; i>=WIDTH*7; i--) { // 7 is probably a typo in original
 			Dot* p = Dot_grid0[i];
 			if (p==Dot_BLOCK)
-				grp0[i] = 0x606060;
+				grp0[i] = Block_COLOR;
 			else if (p==Dot_BALL)
-				grp0[i] = 0;
+				grp0[i] = RGB(0,0,0);
 			else if (p==Dot_BGFAN)
-				grp0[i] = 0x8080FF;
+				grp0[i] = RGB(0x80,0x80,0xFF);
 			else if (p==Dot_EMPTY) {
 				grp0[i] = Dot_grid0[i+1]>=Dot_0 ?
 					ELEMENTS[Dot_grid0[i+1]->type].color :
@@ -192,27 +194,28 @@ void Bg_render(void) {
 					ELEMENTS[Dot_at[-1][i+1]->type].color :
 					Dot_at[-1][i-1]>=Dot_0 ?
 					ELEMENTS[Dot_at[-1][i-1]->type].color :
-					0x000000;
+					RGB(0,0,0);
 			} else if (p>=Dot_0) {
 				grp0[i] = ELEMENTS[p->type].color;
 			}
 		}
 		for_visiblePixels0rev (a) {
-			if (grp0[a] == 0) {
-				if (grp0[a+1] && grp0[a+1]!=0xEEEEEE)
-					grp0[a] = 0xEEEEEE;
-				else if (grp0[a-1] && grp0[a-1]!=0xEEEEEE)
-					grp0[a] = 0xEEEEEE;
-				if (grp[1][a] && grp[1][a]!=0xEEEEEE)
-					grp0[a] = 0xEEEEEE;
-				if (grp[-1][a] && grp[-1][a]!=0xEEEEEE)
-					grp0[a] = 0xEEEEEE;
+			if (grp0[a].c == RGB(0,0,0).c) {
+				// todo: check elseif chain here
+				if (grp0[a+1].c!=RGB(0,0,0).c && grp0[a+1].c!=RGB(0xEE,0xEE,0xEE).c)
+					grp0[a] = RGB(0xEE,0xEE,0xEE);
+				else if (grp0[a-1].c!=RGB(0,0,0).c && grp0[a-1].c!=RGB(0xEE,0xEE,0xEE).c)
+					grp0[a] = RGB(0xEE,0xEE,0xEE);
+				if (grp[1][a].c!=RGB(0,0,0).c && grp[1][a].c!=RGB(0xEE,0xEE,0xEE).c)
+					grp0[a] = RGB(0xEE,0xEE,0xEE);
+				if (grp[-1][a].c!=RGB(0,0,0).c && grp[-1][a].c!=RGB(0xEE,0xEE,0xEE).c)
+					grp0[a] = RGB(0xEE,0xEE,0xEE);
 			}
 		}
 		break;
 	case Bg_MESH:;
 		for_visiblePixels0rev2 (i) {
-			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? 0x606060 : 0;
+			grp0[i] = Dot_grid0[i]==Dot_BLOCK ? Block_COLOR : RGB(0,0,0);
 		}
 		for_visibleBlocks (x,y) {
 			Block* cell = &Blocks[y][x];
@@ -250,7 +253,7 @@ void Bg_render(void) {
 			Block* cell = &Blocks[y][x];
 			Color color;
 			if (cell->block==Block_BLOCK)
-				color = 0x606060;
+				color = Block_COLOR;
 			else {
 				int f = fabs(between(cell->pres*48, -24, 72));
 				color = RGB(f,f,f);
@@ -262,7 +265,7 @@ void Bg_render(void) {
 		for_visibleBlocks (x,y) {
 			Block* cell = &Blocks[y][x];
 			if (cell->block==Block_BLOCK)
-				Draw_rectangle(x*4,y*4,4,4,0x606060);
+				Draw_rectangle(x*4,y*4,4,4,Block_COLOR);
 			else {
 				int n = 256 - (int)atMost(fabs(12*cell->pres),32); //todo: should the conversion to int be before or after abs?
 				if (n!=256) {
@@ -291,7 +294,7 @@ void Bg_render(void) {
 				px->light = 8*px->light/9;
 		}
 		for_visiblePixels0rev2 (a) {
-			grp0[a] = Dot_grid0[a]==Dot_BLOCK ? 0x606060 : 0;
+			grp0[a] = Dot_grid0[a]==Dot_BLOCK ? Block_COLOR : RGB(0,0,0);
 		}
 		break;
 	case Bg_TG:;
@@ -335,17 +338,17 @@ void Bg_render(void) {
 		}
 		for_visiblePixels0rev2 (i) {
 			if (Dot_grid0[i]==Dot_BLOCK)
-				grp0[i] = 0x606060;;
+				grp0[i] = Block_COLOR;;
 		}
 		break;
 	case Bg_SILUET:
 		for_visiblePixels0rev (a) {
 			if (Dot_grid0[a]==Dot_BLOCK)
-				grp0[a] = 0;
+				grp0[a] = RGB(0,0,0);
 			else if (Dot_grid0[a]==Dot_EMPTY) {
-				int r = (255+RED(grp0[a])+1)/2;
-				int g = (255+GREEN(grp0[a])+1)/2;
-				int b = (255+BLUE(grp0[a])+1)/2;
+				int r = (255+grp0[a].r+1)/2;
+				int g = (255+grp0[a].g+1)/2;
+				int b = (255+grp0[a].b+1)/2;
 				grp0[a] = RGB(r,g,b);
 			}
 		}
@@ -363,7 +366,7 @@ void Bg_render2(void) {
 	for_visiblePixels0rev2 (a) {
 		int l = Bg_pixels0[a].light;
 		if (l<=0)
-			grp0[a] = 0;
+			grp0[a] = RGB(0,0,0);
 		else
 			grp0[a] = fadeRGB(grp0[a], atMost(l, 255));
 	}

@@ -4,7 +4,7 @@
 #include "../bubble.h"
 
 void Bubble_render(void) {
-	const Color* colors = Menu_bgMode==Bg_SILUET ? (const Color[]){0,0,0,0,0,0,0,0} : (const Color[]){0xFFE0E0,0xFFF0E0,0xFFFFE0,0xE0FFE0,0xE0FFFF,0xE0F0FF,0xE0E0FF,0xFFE0FF};
+	const Color* colors = Menu_bgMode==Bg_SILUET ? (const Color[]){RGB(0,0,0),RGB(0,0,0),RGB(0,0,0),RGB(0,0,0),RGB(0,0,0),RGB(0,0,0),RGB(0,0,0),RGB(0,0,0)} : (const Color[]){RGB(0xFF,0xE0,0xE0),RGB(0xFF,0xF0,0xE0),RGB(0xFF,0xFF,0xE0),RGB(0xE0,0xFF,0xE0),RGB(0xE0,0xFF,0xFF),RGB(0xE0,0xF0,0xFF),RGB(0xE0,0xE0,0xFF),RGB(0xFF,0xE0,0xFF)};
 	int ci = 0;
 	Bubble* first = &Bubble_bubbles[0];
 	Bubble_FOR (b) {

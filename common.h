@@ -23,11 +23,17 @@ typedef _Complex float Complex;
 
 #define LEN(a) (sizeof(a)/sizeof((a)[0]))
 
-typedef uint32_t Color;
-#define RED(x) (int)((x)>>16&0xFF)
+typedef union Color {
+	struct {	uint8_t r,g,b,a; };
+	uint32_t c;
+} Color;
+
+#define RGB(r,g,b) (Color){r,g,b,255}
+
+/*#define RED(x) (int)((x)>>16&0xFF)
 #define GREEN(x) (int)((x)>>8&0xFF)
 #define BLUE(x) (int)((x)&0xFF)
-#define RGB(r,g,b) ((r)<<16|(g)<<8|(b))
+#define RGB(r,g,b) ((r)<<16|(g)<<8|(b))*/
 
 typedef int32_t axis; // could probably be 16bit but we want axis*width+axis to be 32bit so i make this 32bit just in case
 typedef int32_t Offset; 

@@ -18,9 +18,9 @@ static void create_line(int x, int y, int x1, int y1, int x2, int y2, Color col)
 }
 
 void Object_render(void) {
-	Color tan = 0xFFE0AE, white=0xFFFFFF;
+	Color tan = RGB(0xFF,0xE0,0xAE), white = RGB(0xFF,0xFF,0xFF);
 	if (Menu_bgMode==Bg_SILUET)
-		white=tan=0;
+		white=tan=RGB(0,0,0);
 	Object_FOR (e) {
 		switch (e->type) {
 		when(Object_FIGHTER):
@@ -87,9 +87,11 @@ void Object_render(void) {
 				q=-1;
 				n=1;
 			}
-			Color headcolor = ELEMENTS[e->meta].color ?: tan;
+			Color headcolor = ELEMENTS[e->meta].color;
+			if (headcolor.c==0)
+				headcolor= tan;
 			if (Menu_bgMode==Bg_SILUET)
-				headcolor = 0x000000;
+				headcolor = RGB(0,0,0);
 			Draw_head(e->parts[0].pos.x, e->parts[0].pos.y, f, q, g, n, e->isPlayer2, headcolor);
 			// add light to region around player
 			if (Menu_bgMode==Bg_DARK) {
@@ -101,9 +103,9 @@ void Object_render(void) {
 			}
 			break;
 		case Object_CREATE:;
-			Color col = 0x907010;
+			Color col = RGB(0x90,0x70,0x10);
 			if (Menu_bgMode==Bg_SILUET)
-				col = 0x000000;
+				col = RGB(0,0,0);
 			int x = e->parts[0].pos.x;
 			int y = e->parts[0].pos.y;
 			switch(e->parts[0].createType) {

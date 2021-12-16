@@ -78,9 +78,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_WOOD] = (ElementDef){
-		.name = "WOOD",
-		.color = 0x805020,
-		.state = State_SOLID,
+		"WOOD", RGB(0x80,0x50,0x20), State_SOLID,
+		
 		.temperature = 500,
 		.dissolveRate = 10,
 		.friction = 0.5,

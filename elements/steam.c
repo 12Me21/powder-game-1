@@ -23,9 +23,8 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 
 AUTORUN {
 	ELEMENTS[Elem_STEAM] = (ElementDef){
-		.name = "STEAM",
-		.color = 0xE0E0E0,
-		.state = State_NONE,
+		"STEAM", RGB(224,224,224), State_NONE,
+		
 		.playerValid = true,
 		.dissolveRate = 30,
 		.friction = 1,

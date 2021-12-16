@@ -25,7 +25,7 @@ static void ball(Ball* ball, Elem touched, Elem* newType, Point vel) {
 AUTORUN {
 	ELEMENTS[Elem_POWDER] = (ElementDef){
 		.name = "POWDER",
-		.color = 0xF2BD6B,
+		.color = RGB(0xF2,0xBD,0x6B),
 		.state = State_POWDER,
 		.playerValid = true,
 		.dissolveRate = 5,

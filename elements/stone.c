@@ -93,9 +93,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_STONE] = (ElementDef){
-		.name = "STONE",
-		.color = 0x808080,
-		.state = State_POWDER,
+		"STONE", RGB(0x80,0x80,0x80), State_POWDER,
+		
 		.playerValid = true,
 		.dissolveRate = 20,
 		.friction = 0.5,

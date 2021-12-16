@@ -69,9 +69,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_WATER] = (ElementDef){
-		.name = "WATER",
-		.color = 0x4040FF,
-		.state = State_LIQUID,
+		"WATER", RGB(0x40,0x40,0xFF), State_LIQUID,
+		
 		.playerValid = true,
 		.dissolveRate = 40,
 		.friction = 0.8,

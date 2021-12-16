@@ -11,7 +11,8 @@ srcs += elements.c input.c main.c dot.c vector.c render/draw.c menu.c save.c ren
 CC:= clang
 CFLAGS+= --target=wasm32
 LDFLAGS+= --target=wasm32 -nostdlib -Wl,--no-entry,--export-all,-z,stack-size=5000000
-#CFLAGS+= -O3
+#LDFLAGS+= -flto
+CFLAGS+= -Ofast
 
 output:= pg1.wasm
 
@@ -24,6 +25,7 @@ endif
 
 # enable/disable tons of warnings
 CFLAGS+= -Wextra -Wall -Wno-unused-parameter -Werror=implicit-function-declaration -g -ftabstop=3 -Wno-missing-field-initializers -Wno-char-subscripts -Wno-parentheses -Werror=incompatible-pointer-types -Wdouble-promotion -Wno-missing-braces -Wint-conversion -Wno-sign-compare
+CFLAGS += -Werror=constant-conversion
 CFLAGS += -Werror=double-promotion
 
 include .Nice.mk

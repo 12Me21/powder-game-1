@@ -17,54 +17,54 @@ Color composite(Color base, Color new, int alpha) {
 	int red=0, green=0, blue=0, c;
 	switch (blendmode) {
 	case 1:
-		c = base>>16 & 0xFF;
-		red = (((new>>16 & 0xFF)-c)*alpha>>8)+c;
-		c = base>>8 & 0xFF;
-		green = (((new>>8&0xFF)-c)*alpha>>8)+c;
-		c = base & 0xFF;
-		blue = (((new&0xFF)-c)*alpha>>8)+c;
+		c = base.r;
+		red = ((new.r-c)*alpha>>8)+c;
+		c = base.g;
+		green = ((new.g-c)*alpha>>8)+c;
+		c = base.b;
+		blue = ((new.b-c)*alpha>>8)+c;
 		break;
 	case 2:
-		red = ((new>>16&0xFF)*alpha>>8)+(base>>16&0xFF);
+		red = (new.r*alpha>>8)+base.r;
 		if (red>0xFF) red = 0xFF;
-		green = ((new>>8&0xFF)*alpha>>8)+(base>>8&0xFF);
+		green = (new.g*alpha>>8)+base.g;
 		if (green>0xFF) green = 0xFF;
-		blue = ((new&0xFF)*alpha>>8)+(base&0xFF);
+		blue = (new.b*alpha>>8)+base.b;
 		if (blue>0xFF) blue=0xFF;
 		break;
 	case 3:
-		red = (base>>16&0xFF)-((new>>16&0xFF)*alpha>>8);
-		if(red<0) red=0;
-		green=(base>>8&0xFF)-((new>>8&0xFF)*alpha>>8);
-		if(green<0) green=0;
-		blue=(base&0xFF)-((new&0xFF)*alpha>>8);
-		if(blue<0) blue=0;
+		red = base.r-(new.r*alpha>>8);
+		if (red<0) red=0;
+		green=base.g-(new.g*alpha>>8);
+		if (green<0) green=0;
+		blue=base.b-(new.b*alpha>>8);
+		if (blue<0) blue=0;
 		break;
 	case 4:
-		red=(new>>16&0xFF)*(base>>16&0xFF)>>8;
-		green=(new>>8&0xFF)*(base>>8&0xFF)>>8;
-		blue=(new&0xFF)*(base&0xFF)>>8;
+		red=new.r*base.r>>8;
+		green=new.g*base.g>>8;
+		blue=new.b*base.b>>8;
 		break;
 	case 5:
-		c=base>>16&0xFF;
-		red=c+((new>>16&0xFF)*c*alpha>>16);
-		if(red>0xFF)red=0xFF;
-		c=base>>8&0xFF;
-		green=c+((new>>8&0xFF)*c*alpha>>16);
-		if(green>0xFF) green=0xFF;
-		c=base&0xFF;
-		blue=c+((new&0xFF)*c*alpha>>16);
-		if(blue>0xFF) blue=0xFF;
+		c=base.r;
+		red=c+(new.r*c*alpha>>16);
+		if (red>0xFF) red=0xFF;
+		c=base.g;
+		green=c+(new.g*c*alpha>>16);
+		if (green>0xFF) green=0xFF;
+		c=base.b;
+		blue=c+(new.b*c*alpha>>16);
+		if (blue>0xFF) blue=0xFF;
 		break;
 	case 6:
-		c=base>>16&0xFF;
+		c=base.r;
 		red=c+(alpha-(2*c*alpha>>8));
-		c=base>>8&0xFF;
+		c=base.g;
 		green=c+(alpha-(2*c*alpha>>8));
-		c=base&0xFF;
+		c=base.b;
 		blue=c+(alpha-(2*c*alpha>>8));
 	}
-	return red<<16|green<<8|blue;
+	return RGB(red,green,blue);
 }
 
 void Draw_line(int x1, int y1, int x2, int y2, Color color) {
@@ -155,10 +155,10 @@ void Draw_spacedText(int x, int y, char* text, Color color, Color bg, int spacin
 				for (ix=0; ix<8; ix++) {
 					char n = Draw_FONT[character][iy][ix];
 					// draw text pixel
-					if (n=='.' && color!=(Color)-1)
+					if (n=='.' && color.c!=0)
 						Menu_grp[y+iy][x+ix] = color;
 					// draw outline pixel
-					if (n=='#' && bg!=(Color)-1)
+					if (n=='#' && bg.c!=0)
 						if (spacing<=-2 && ix<=-spacing-1 && last && Draw_FONT[last][iy][8+spacing+ix] == '.') {
 							// (don't draw)
 						} else
@@ -180,7 +180,7 @@ void Draw_text(int x, int y, char* text, Color color, Color bg) {
 void Draw_centeredText(int x, int y, char* text, Color color){
 	x -= strlen(text)*8>>1;
 	y -= 12>>1;
-	Draw_text(x, y, text, color, 0);
+	Draw_text(x, y, text, color, RGB(0,0,0));
 }
 
 void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Color color) {
@@ -198,8 +198,8 @@ void Draw_head(int bx, int by, int x1, int y1, int x2, int y2, bool player2, Col
 				      (player2&&i==x2&&j==y2)
 				      )) {
 					Color* dest = &grp[y][x];
-					if (*dest==color)
-						*dest = 0;
+					if (dest->c==color.c)
+						*dest = RGB(0,0,0);
 					else
 						*dest = color;
 				}

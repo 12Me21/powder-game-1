@@ -6,6 +6,6 @@
 AUTORUN {
 	ELEMENTS[18] = (ElementDef){
 		.name = "Elem_18",
-		.color = 0xFFE0AE,
+		.color = RGB(0xFF,0xE0,0xAE),
 	};
 }

@@ -74,9 +74,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_SEED] = (ElementDef){
-		.name = "SEED",
-		.color = 0x90C040,
-		.state = State_POWDER,
+		"SEED", RGB(0x90,0xC0,0x40), State_POWDER,
+		
 		.playerValid = true,
 		.temperature = 500,
 		.dissolveRate = 5,

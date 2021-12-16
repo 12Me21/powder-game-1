@@ -27,9 +27,8 @@ static bool dot(Dot* p, Block* c) {
 
 AUTORUN {
 	ELEMENTS[Elem_SNOW] = (ElementDef){
-		.name = "SNOW",
-		.color = 0xFFFFFF,
-		.state = State_POWDER,
+		"SNOW", RGB(255,255,255), State_POWDER,
+		
 		.playerValid = true,
 		.temperature = -500,
 		.dissolveRate = 10,

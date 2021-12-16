@@ -53,7 +53,8 @@ static bool dot(Dot* p, Block* c) {
 
 AUTORUN {
 	ELEMENTS[Elem_FIREWORKS] = (ElementDef){
-		"F-WORKS", 0xFF9966, State_POWDER,
+		"F-WORKS", RGB(0xFF,0x99,0x66), State_POWDER,
+		
 		.playerValid = true,
 		.dissolveRate = 10,
 		.friction = 0.5,

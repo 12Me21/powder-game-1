@@ -11,7 +11,7 @@ ElementDef ELEMENTS[Elem_MAX] = {
 	// (see element.h for more info)
 	// Name          color      state   player temp.acid fric ball
 	//                                                       light ? ? ball
-	[Elem_OIL] = {"OIL"     ,COL(0x803020),State_LIQUID,1,0    ,30 ,0.8,0,0  ,0  ,1,0.1  ,0 ,3  },
+	/*[Elem_OIL] = {"OIL"     ,COL(0x803020),State_LIQUID,1,0    ,30 ,0.8,0,0  ,0  ,1,0.1  ,0 ,3  },
 	{"C4"      ,COL(0xFFFFCC),State_SOLID ,0,0    ,100,0.5,0,0.5,0.5,1,0.1  ,0.2,4 },
 	{"Elem_18" ,COL(0xFFE0AE)},
 	{"STONE"   ,COL(0x808080),State_POWDER,1,0    ,20 ,0.5,0,0.9,0.9,1,0.1  ,0.1,9 },
@@ -41,5 +41,5 @@ ElementDef ELEMENTS[Elem_MAX] = {
 	{"FUSE"    ,COL(0x443322),State_SOLID ,0,0    ,50 ,0.5,0,0.5,0.5,1,0.1  ,0.2,4 },
 	{"CLOUD"   ,COL(0xCCCCCC),State_GAS   ,1,0    ,5  ,1  ,0,0  ,0  ,1,-0.02,0.5,-2},
 	{"PUMP"    ,COL(0x003333),State_SOLID ,0,0    ,0  ,0.5,0,0.9,0.9,1,0.1  ,0  ,9 },
-	{"CONCRETE",COL(0x808060),State_SOLID,1,0    ,20 ,0.5,0,0.9,0.9,1,0.1  ,0.1,9 },
+	{"CONCRETE",COL(0x808060),State_SOLID,1,0    ,20 ,0.5,0,0.9,0.9,1,0.1  ,0.1,9 },*/
 };

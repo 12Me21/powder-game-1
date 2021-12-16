@@ -29,7 +29,9 @@ WebAssembly.instantiate(WASM_CODE, {
 	
 	for (var y=40; y<100; y++) {
 		for (var x=90; x<300; x++) {
-			ex.Dot_create(x, y, 2)
+			let f = ex.Dot_create(x, y, 15)
+			let q = new Int32Array(ex.memory.buffer, f, 5)
+			q[4] = 20
 		}
 	}
 	
@@ -37,11 +39,12 @@ WebAssembly.instantiate(WASM_CODE, {
 	
 	function update() {
 		ex.Platform_frame()
-		for (var i=0; i<w*h; i++) {
+		/*for (var i=0; i<w*h; i++) {
 			data[i*4+3] = 255;
 		}
 		for (var i=0; i<data2.length; i+=4)
-			data2[i+3] = 255;
+		data2[i+3] = 255;*/
+		
 		c2d.putImageData(image, -8, -8)
 		c2d.putImageData(image2, 0, 300)
 		window.requestAnimationFrame(update)

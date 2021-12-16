@@ -65,9 +65,8 @@ static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 
 AUTORUN {
 	ELEMENTS[Elem_FIRE] = (ElementDef){
-		.name = "FIRE",
-		.color = 0xFF4040,
-		.state = State_HOT,
+		"FIRE", RGB(0xFF,0x40,0x40), State_HOT,
+		
 		.playerValid = true,
 		.temperature = 5000,
 		.dissolveRate = 10,
