@@ -1,6 +1,10 @@
-break; case Elem_MAGMA:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Dot_liquidUpdate(p, c, 0.1, 0,0.1, 0.01, 0.01,0.1, 0.9);
 
 	Dot* near = Dot_rndNear5(p->pos);
@@ -12,7 +16,7 @@ break; case Elem_MAGMA:
 			//magma+water/soapy = stone+steam
 		case Elem_WATER: case Elem_SOAPY:
 			if (Rnd_perchance(50))
-				Dot_KILL();
+				return true;
 			p->type = Elem_STONE;
 			near->type = Elem_STEAM;
 			break;
@@ -25,7 +29,7 @@ break; case Elem_MAGMA:
 			//magma+saltwater=stone+salt (no steam, note)
 		case Elem_SEAWATER:
 			if (Rnd_perchance(50))
-				Dot_KILL();
+				return true;
 			p->type = Elem_STONE;
 			near->type = Elem_SALT;
 			break;
@@ -44,10 +48,12 @@ break; case Elem_MAGMA:
 	near = Dot_dirNear(p->pos, dir);
 	//enter pump
 	if (near>=Dot_0 && Dot_checkPump(p, near, dir))
-		Dot_KILL();
-#elif defined UPDATE_BALL
-	//nothing
-#elif defined UPDATE_BALL_PART
+		return true;
+	
+	return false;
+}
+
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	switch (part->type) {
 	when(Elem_WATER):;
 		if (++ball->charge>=20)
@@ -78,5 +84,24 @@ break; case Elem_MAGMA:
 			part->charge += 100;
 		}
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_MAGMA] = (ElementDef){
+		"MAGMA", RGB(0xFF,0x66,0x33), State_HOT,
+		.playerValid = true,
+		.temperature = 10000,
+		.dissolveRate = 50,
+		.friction = 0.5,
+		.ballLight = true,
+		.ze = 0.2, .Ae = 0.2,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0,
+		.wheelWeight = 9,
+		
+		.update_dot = dot,
+		.update_ball_touching = ball_touching,
+	};
 }
