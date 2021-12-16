@@ -1,6 +1,10 @@
-break; case Elem_VIRUS:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Point airvel = c->vel;
 	airvel.y += Random_2(0, 0.1);
 	airvel.xy += p->vel.xy;
@@ -29,11 +33,10 @@ break; case Elem_VIRUS:
 			p->vel = (Point){0,0};
 		}
 	}
+	return false;
+}
 
-#elif defined UPDATE_BALL
-	// nothing
-
-#elif defined UPDATE_BALL_PART
+static bool ball_touching(Dot* part, Ball* ball, Elem* newType) {
 	if (part->type>0) {
 		if (ball->charge==0)
 			ball->charge = part->type;
@@ -42,5 +45,22 @@ break; case Elem_VIRUS:
 			part->charge = 0;
 		}
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_VIRUS] = (ElementDef){
+		"VIRUS", RGB(0x80,0x00,0x80), State_POWDER,
+		
+		.playerValid = true,
+		.dissolveRate = 10,
+		.friction = 0.5,
+		.ballValid = true,
+		.ballWeight = 0.1,
+		.ballAdvection = 0.5,
+		.wheelWeight = 1,
+		
+		.update_dot = dot,
+		.update_ball_touching = ball_touching,
+	};
 }

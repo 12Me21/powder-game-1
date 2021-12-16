@@ -1,6 +1,10 @@
-break; case Elem_ANT:
-{
-#ifdef UPDATE_PART
+#include "../common.h"
+#include "../dot.h"
+#include "../elements.h"
+#include "../ball.h"
+#include "../random.h"
+
+static bool dot(Dot* p, Block* c) {
 	Dot** at = Dot_pos2(p->pos);
 	Dot* below = Dot_pos3(p->pos,0,1);
 	// charge=0: ant hasn't picked up an element yet
@@ -28,7 +32,7 @@ break; case Elem_ANT:
 	Dot_blow(p, airvel);
 	
 	if (p->charge==0 || !Dot_limit1000())
-		break;
+		return false;
 	const Offset DIRS[4] = {WIDTH,-1,-WIDTH,1};
 	Offset k = DIRS[p->Cant.dir-1 & 3]; // rotating this so it lines up with pump/thunder dir table
 	Dot* near = Dot_pos2(p->pos)[k];
@@ -49,9 +53,26 @@ break; case Elem_ANT:
 				p->Cant.dir--;
 			near->type = Elem_ANT;
 			near->charge = p->charge;
-			Dot_KILL();
+			return true;
 		}
 		p->Cant.dir++;
 	}
-#endif
+	return false;
+}
+
+AUTORUN {
+	ELEMENTS[Elem_WATER] = (ElementDef){
+		"ANT", RGB(0xC0,0x80,0xC0), State_POWDER,
+		.playerValid = true,
+		.temperature = 1500,
+		.dissolveRate = 5,
+		.friction = 0.5,
+		.ze = 0.3, .Ae = 0.3,
+		// unused since ant ball doesn't exist
+		.ballWeight = 0.1,
+		.ballAdvection = 0.5,
+		.wheelWeight = 1,
+		
+		.update_dot = dot,
+	};
 }
