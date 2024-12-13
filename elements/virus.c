@@ -15,7 +15,7 @@ break; case Elem_VIRUS:
 		int x = Random_int(3)-1;
 		int y = Random_int(3)-1;
 		Dot* near = Dot_pos3(p->pos, x, y);
-		if (x&&y && near>=Dot_0 && !(near->type==Elem_VIRUS && near->charge!=0)) {
+		if ((x||y) && near>=Dot_0 && !(near->type==Elem_VIRUS && near->charge!=0)) {
 			near->type = Elem_VIRUS;
 			near->charge = 0;
 			near->Cvirus.type = p->Cvirus.type;
